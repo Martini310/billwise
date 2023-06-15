@@ -22,6 +22,18 @@ class InvoiceCreate(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class InvoiceDetails(APIView):
+    def get(self, request, pk):
+        try:
+            supplier = Invoice.objects.get(pk=pk)
+            serializer = InvoiceSerializer(supplier)
+            return Response(serializer.data)
+        except:
+            return Response({
+                'error':  'Invoice does not exist'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
 class MediaList(APIView):
     def get(self, request):
         media = Media.objects.all()
@@ -52,10 +64,10 @@ class SupplierList(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class Supplier(APIView):
+class SupplierDetails(APIView):
     def get_supplier_by_pk(self, pk):
         try:
-            supplier = Supplier.objects.get(pk=pk)
+            return Supplier.objects.get(pk=pk)
         except:
             return Response({
                 'error':  'Supplier does not exist'
@@ -73,6 +85,7 @@ class Supplier(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AccountCreate(APIView):
     def post(self, request):

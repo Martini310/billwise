@@ -7,11 +7,17 @@ from django.contrib.auth.models import User
 class Media(models.Model):
     name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.name}"
+
 
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
-    media = models.ManyToManyField(to=Media)
+    media = models.ForeignKey(to=Media, on_delete=models.CASCADE)
     url = models.URLField()
+
+    def __str__(self):
+        return f"{self.name}, {self.media}, adres: {self.url}"
 
 
 class Account(models.Model):
