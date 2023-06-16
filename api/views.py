@@ -49,6 +49,29 @@ class MediaList(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class MediaDetails(APIView):
+    def get_media_by_pk(self, pk):
+        try:
+            return Media.objects.get(pk=pk)
+        except:
+            return Response({
+                'error':  'Media does not exist'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, pk):
+        media = self.get_media_by_pk(pk)
+        serializer = MediaSerializer(media)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        media = self.get_media_by_pk(pk)
+        serializer = MediaSerializer(media, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class SupplierList(APIView):
     def get(self, request):
         supplier = Supplier.objects.all()
