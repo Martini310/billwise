@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import InvoiceList, InvoiceCreate, InvoiceDetails, MediaList, MediaDetails, AccountCreate, SupplierList, SupplierDetails
+from .views import InvoiceList, InvoiceCreate, InvoiceDetails, MediaList, MediaDetails, AccountCreate, SupplierList, \
+    SupplierDetails, RegisterAPI
 
 urlpatterns = [
+    path('register/', RegisterAPI.as_view(), name='register'),
     path('invoices/', InvoiceList.as_view()),
     path('invoices/<int:pk>', InvoiceDetails.as_view()),
     path('invoices/add/', InvoiceCreate.as_view()),
