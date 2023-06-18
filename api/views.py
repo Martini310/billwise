@@ -5,6 +5,9 @@ from base.models import Invoice, Media, Supplier, Account
 from .serializers import InvoiceSerializer, MediaSerializer, SupplierSerializer, AccountSerializer, \
     UserSerializer, RegisterSerializer
 from knox.models import AuthToken
+from django.contrib.auth import login
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from knox.views import LoginView as KnoxLoginView
 
 
 # Register API
@@ -19,6 +22,17 @@ class RegisterAPI(generics.GenericAPIView):
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": AuthToken.objects.create(user)[1]
         })
+
+
+class LoginAPI(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return super(LoginAPI, self).post(request, format=None)
 
 
 class InvoiceList(APIView):
