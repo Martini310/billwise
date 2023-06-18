@@ -40,3 +40,6 @@ class Invoice(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     is_paid = models.BooleanField()
     consumption_point = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return f"Faktura nr {self.number} za {self.supplier} dla {self.user.username}"
