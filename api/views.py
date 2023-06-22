@@ -8,7 +8,7 @@ from knox.models import AuthToken
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
-from base.services import get_pgnig
+from base.services import get_pgnig, get_enea
 
 
 # Register API
@@ -40,8 +40,11 @@ class InvoiceList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # invoices = Invoice.objects.all()
-        get_pgnig()
+        # get_pgnig()
+        enea_sup = Supplier.objects.get(name='Enea')
+        enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
+        get_enea(self.request.user.pk, enea_account.login, enea_account.password)
+
         invoices = Invoice.objects.filter(user=self.request.user)
         serializer = InvoiceSerializer(invoices, many=True)
         return Response(serializer.data)
