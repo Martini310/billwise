@@ -1,4 +1,3 @@
-import json
 from bs4 import BeautifulSoup
 from .models import Invoice, Supplier, User
 import requests
@@ -16,20 +15,9 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # PGNIG_LOGIN = os.getenv('PGNIG_LOGIN')
 # PGNIG_PASSWORD = os.getenv('PGNIG_PASSWORD')
 
-# import socket
-# from urllib3.connection import HTTPConnection
-#
-# HTTPConnection.default_socket_options = (
-#         HTTPConnection.default_socket_options + [
-#     (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-#     (socket.SOL_TCP, socket.TCP_KEEPIDLE, 45),
-#     (socket.SOL_TCP, socket.TCP_KEEPINTVL, 10),
-#     (socket.SOL_TCP, socket.TCP_KEEPCNT, 6)
-# ]
-# )
-
 
 def get_pgnig(pk, login=None, password=None):
+    # Log in into PGNiG ebok
     token_post = requests.post(url="https://ebok.pgnig.pl/auth/login",
                                data={'identificator': login,
                                      'accessPin': password,
@@ -49,10 +37,11 @@ def get_pgnig(pk, login=None, password=None):
                                verify=False
                                )
 
+    # Get the token to authorize requests
     response_json = token_post.json()
     token = response_json.get('Token')
 
-    print(token)
+    # GET all invoices on account (actually amount declared in 'pageSize' value
     get_invoices = requests.get(url='https://ebok.pgnig.pl/crm/get-invoices-v2',
                                 params={'pageNumber': 1,
                                         'api-version': 3.0,
@@ -62,22 +51,21 @@ def get_pgnig(pk, login=None, password=None):
                                 verify=False
                                 )
 
+    # Dict with all information about invoices.
     invoices_json = get_invoices.json()
-    print(invoices_json)
-    last_invoice = invoices_json['InvoicesList'][0]
-    print(last_invoice)
-    print(type(invoices_json))
+    # List of all invoices as dicts.
     faktury = invoices_json['InvoicesList']
 
+    # Get supplier and user pk
     sup = Supplier.objects.get(pk=2)
     us = User.objects.get(pk=pk)
 
     Invoice.objects.bulk_create([Invoice(number=invoice.get('Number'),
-                                         date=invoice.get('Date')[:10],
+                                         date=datetime.fromisoformat(invoice.get('Date')[:-1]),
                                          amount=invoice.get('GrossAmount'),
-                                         pay_deadline=invoice.get('PayingDeadlineDate')[:10],
-                                         start_date=invoice.get('StartDate')[:10],
-                                         end_date=invoice.get('EndDate')[:10],
+                                         pay_deadline=datetime.fromisoformat(invoice.get('PayingDeadlineDate')[:-1]),
+                                         start_date=datetime.fromisoformat(invoice.get('StartDate')[:-1]),
+                                         end_date=datetime.fromisoformat(invoice.get('EndDate')[:-1]),
                                          amount_to_pay=invoice.get('AmountToPay'),
                                          wear=invoice.get('WearKWH'),
                                          supplier=sup,
@@ -85,7 +73,7 @@ def get_pgnig(pk, login=None, password=None):
                                          is_paid=invoice.get('IsPaid'),
                                          consumption_point='test')
                                  for invoice in faktury if
-                                 not Invoice.objects.filter(number=invoice.get('Number')).exists()])
+                                 not Invoice.objects.filter(user=us, number=invoice.get('Number')).exists()])
 
 
 def get_enea(pk, login=None, password=None):

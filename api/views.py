@@ -40,10 +40,10 @@ class InvoiceList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # get_pgnig()
         enea_sup = Supplier.objects.get(name='Enea')
         enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
         get_enea(self.request.user.pk, enea_account.login, enea_account.password)
+        get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
 
         invoices = Invoice.objects.filter(user=self.request.user)
         serializer = InvoiceSerializer(invoices, many=True)
