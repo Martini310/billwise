@@ -63,13 +63,22 @@ class InvoiceCreate(APIView):
 class InvoiceDetails(APIView):
     def get(self, request, pk):
         try:
-            supplier = Invoice.objects.get(pk=pk)
-            serializer = InvoiceSerializer(supplier)
+            invoice = Invoice.objects.get(pk=pk)
+            serializer = InvoiceSerializer(invoice)
             return Response(serializer.data)
         except:
             return Response({
                 'error':  'Invoice does not exist'
             }, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+        try:
+            invoice = Invoice.objects.get(pk=pk)
+            invoice.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ValueError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class MediaList(APIView):
