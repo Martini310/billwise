@@ -11,7 +11,7 @@ from knox.views import LoginView as KnoxLoginView
 from base.services import get_pgnig, get_enea
 
 
-# Register new user.
+# Register API
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
@@ -36,22 +36,20 @@ class LoginAPI(KnoxLoginView):
         return super(LoginAPI, self).post(request, format=None)
 
 
-# List of all user's invoices
 class InvoiceList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        enea_sup = Supplier.objects.get(name='Enea')
-        enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
-        get_enea(self.request.user.pk, enea_account.login, enea_account.password)
-        get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
+        # enea_sup = Supplier.objects.get(name='Enea')
+        # enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
+        # get_enea(self.request.user.pk, enea_account.login, enea_account.password)
+        # get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
 
         invoices = Invoice.objects.filter(user=self.request.user)
         serializer = InvoiceSerializer(invoices, many=True)
         return Response(serializer.data)
 
 
-# Create new invoice instance
 class InvoiceCreate(APIView):
     def post(self, request):
         serializer = InvoiceSerializer(data=request.data)
@@ -63,15 +61,36 @@ class InvoiceCreate(APIView):
 
 
 class InvoiceDetails(APIView):
-    def get(self, request, pk):
+    def get_invoice_by_pk(self, pk, user):
         try:
             invoice = Invoice.objects.get(pk=pk)
+            print(1)
+            if invoice.user == user:
+                print(2)
+                return invoice
+        except:
+            return ValueError()
+
+    def get(self, request, pk):
+        try:
+            invoice = self.get_invoice_by_pk(pk=pk, user=self.request.user)
+            print(3)
+            print(invoice)
             serializer = InvoiceSerializer(invoice)
             return Response(serializer.data)
-        except:
+        except Exception as E:
             return Response({
-                'error':  'Invoice does not exist'
+                'error':  f'Invoice does not exist {E}'
             }, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk):
+        invoice = Invoice.objects.get(pk=pk)
+        serializer = InvoiceSerializer(invoice, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         try:
@@ -82,7 +101,6 @@ class InvoiceDetails(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# All Media (gas, energy, water etc)
 class MediaList(APIView):
     def get(self, request):
         media = Media.objects.all()
