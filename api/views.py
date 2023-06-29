@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from base.models import Invoice, Media, Supplier, Account
@@ -9,6 +10,7 @@ from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
 from base.services import get_pgnig, get_enea
+from api.permissions import IsOwner
 
 
 # Register API
@@ -37,7 +39,7 @@ class LoginAPI(KnoxLoginView):
 
 
 class InvoiceList(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get(self, request):
         # enea_sup = Supplier.objects.get(name='Enea')
@@ -61,26 +63,32 @@ class InvoiceCreate(APIView):
 
 
 class InvoiceDetails(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
     def get_invoice_by_pk(self, pk, user):
         try:
             invoice = Invoice.objects.get(pk=pk)
-            print(1)
             if invoice.user == user:
-                print(2)
                 return invoice
-        except:
-            return ValueError()
+            return Response({
+                'error': f'Brak dostępu!'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except AttributeError as E:
+            return f"No data {E}"
 
     def get(self, request, pk):
         try:
             invoice = self.get_invoice_by_pk(pk=pk, user=self.request.user)
             print(3)
             print(invoice)
+            if isinstance(invoice, Response):
+                return invoice
+
             serializer = InvoiceSerializer(invoice)
             return Response(serializer.data)
         except Exception as E:
             return Response({
-                'error':  f'Invoice does not exist {E}'
+                'error': f'Invoice does not exist {E}'
             }, status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request, pk):
@@ -101,19 +109,23 @@ class InvoiceDetails(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class MediaList(APIView):
-    def get(self, request):
-        media = Media.objects.all()
-        serializer = MediaSerializer(media, many=True)
-        return Response(serializer.data)
+# class MediaList(APIView):
+#     def get(self, request):
+#         media = Media.objects.all()
+#         serializer = MediaSerializer(media, many=True)
+#         return Response(serializer.data)
+#
+#     def post(self, request):
+#         serializer = MediaSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
-        serializer = MediaSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class MediaList(ListCreateAPIView):
+    queryset = Media.objects.all()
+    serializer_class = MediaSerializer
 
 
 class MediaDetails(APIView):
@@ -122,7 +134,7 @@ class MediaDetails(APIView):
             return Media.objects.get(pk=pk)
         except:
             return Response({
-                'error':  'Media does not exist'
+                'error': 'Media does not exist'
             }, status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, pk):
@@ -139,19 +151,22 @@ class MediaDetails(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SupplierList(APIView):
-    def get(self, request):
-        supplier = Supplier.objects.all()
-        serializer = SupplierSerializer(supplier, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = SupplierSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class SupplierList(ListCreateAPIView):
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+    
+    # def get(self, request):
+    #     supplier = Supplier.objects.all()
+    #     serializer = SupplierSerializer(supplier, many=True)
+    #     return Response(serializer.data)
+    #
+    # def post(self, request):
+    #     serializer = SupplierSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     else:
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SupplierDetails(APIView):
@@ -160,7 +175,7 @@ class SupplierDetails(APIView):
             return Supplier.objects.get(pk=pk)
         except:
             return Response({
-                'error':  'Supplier does not exist'
+                'error': 'Supplier does not exist'
             }, status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, pk):
