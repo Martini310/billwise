@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from base.models import Invoice, Media, Supplier, Account
+from base.models import Invoice, Category, Supplier, Account
 from django.contrib.auth.models import User
 
 
@@ -24,14 +24,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    # supplier = serializers.PrimaryKeyRelatedField(many=True, queryset=Supplier.objects.all())
+
     class Meta:
         model = Invoice
         fields = "__all__"
 
 
-class MediaSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Media
+        model = Category
         fields = "__all__"
 
 

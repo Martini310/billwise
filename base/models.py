@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
-class Media(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -13,7 +13,7 @@ class Media(models.Model):
 
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
-    media = models.ForeignKey(to=Media, on_delete=models.CASCADE)
+    media = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     url = models.URLField()
 
     def __str__(self):

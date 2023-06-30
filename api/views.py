@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
-from base.models import Invoice, Media, Supplier, Account
-from .serializers import InvoiceSerializer, MediaSerializer, SupplierSerializer, AccountSerializer, \
+from base.models import Invoice, Category, Supplier, Account
+from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializer, AccountSerializer, \
     UserSerializer, RegisterSerializer
 from knox.models import AuthToken
 from django.contrib.auth import login
@@ -109,42 +109,42 @@ class InvoiceDetails(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# class MediaList(APIView):
+# class CategoryList(APIView):
 #     def get(self, request):
-#         media = Media.objects.all()
-#         serializer = MediaSerializer(media, many=True)
+#         media = Category.objects.all()
+#         serializer = CategorySerializer(media, many=True)
 #         return Response(serializer.data)
 #
 #     def post(self, request):
-#         serializer = MediaSerializer(data=request.data)
+#         serializer = CategorySerializer(data=request.data)
 #         if serializer.is_valid():
 #             serializer.save()
 #             return Response(serializer.data)
 #         else:
 #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class MediaList(ListCreateAPIView):
-    queryset = Media.objects.all()
-    serializer_class = MediaSerializer
+class CategoryList(ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
-class MediaDetails(APIView):
+class CategoryDetails(APIView):
     def get_media_by_pk(self, pk):
         try:
-            return Media.objects.get(pk=pk)
+            return Category.objects.get(pk=pk)
         except:
             return Response({
-                'error': 'Media does not exist'
+                'error': 'Category does not exist'
             }, status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, pk):
         media = self.get_media_by_pk(pk)
-        serializer = MediaSerializer(media)
+        serializer = CategorySerializer(media)
         return Response(serializer.data)
 
     def put(self, request, pk):
         media = self.get_media_by_pk(pk)
-        serializer = MediaSerializer(media, data=request.data)
+        serializer = CategorySerializer(media, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
