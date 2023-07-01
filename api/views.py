@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from base.models import Invoice, Category, Supplier, Account
@@ -52,14 +52,18 @@ class InvoiceList(APIView):
         return Response(serializer.data)
 
 
-class InvoiceCreate(APIView):
-    def post(self, request):
-        serializer = InvoiceSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class InvoiceCreate(APIView):
+#     def post(self, request):
+#         serializer = InvoiceSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InvoiceCreate(CreateAPIView):
+    serializer_class = InvoiceSerializer
 
 
 class InvoiceDetails(APIView):
