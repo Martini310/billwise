@@ -196,11 +196,15 @@ class SupplierDetails(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AccountCreate(APIView):
-    def post(self, request):
-        serializer = AccountSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class AccountCreate(APIView):
+#     def post(self, request):
+#         serializer = AccountSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AccountCreate(CreateAPIView):
+    serializer_class = AccountSerializer
