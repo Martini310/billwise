@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { tasks as tasksData } from "../data/tasks";
 
 export function TasksList() {
     const [tasks, setTasks] = useState(tasksData);
+
+    const titleRef = useRef(null);
+    const descriptionRef = useRef(null);
+    const completeRef = useRef(null);
 
     const handleDeleteTask = (index) => {
       const newTasks = [...tasks];
@@ -10,37 +14,47 @@ export function TasksList() {
       setTasks(newTasks);
     };
 
-    const handleCompleteTask = index => {
+    const handleToggleStateTask = index => {
         const newTasks = [ ...tasks];
-        newTasks[index].completed = true;
+        newTasks[index].completed = !newTasks[index].completed;
         setTasks(newTasks);
-    }
+    };
 
     const handleAddTask = () => {
         const newTasks = [ ...tasks];
         newTasks.push(
             {
-            title: 'Cook dinner',
-            deskription: 'spaghetti',
-            completed: false,
+            title: titleRef.current.value,
+            description: descriptionRef.current.value,
+            completed: completeRef.current.checked,
             },
         )
-        setTasks(newTasks)
-    }
+        setTasks(newTasks);
+    };
     return (
         <div>
-          <ul>
-            {tasks.map((task, index) => {
-              return (
-                <>
-                  <li key={index} style={{textDecoration: task.completed ? 'line-through' : 'none'}}>{task.title}</li>
-                  <button onClick={() => handleDeleteTask(index)}>X</button>
-                  <button onClick={() => handleCompleteTask(index)}>Y</button>
-                </>
-              );
-            })}
-          </ul>
+          Title:<input type="text" id="title" ref={titleRef} /><br />
+          Description:<input type="text" id="description" ref={descriptionRef} /><br />
+          Complete:<input type="checkbox" id="complete" ref={completeRef} />
           <button onClick={handleAddTask}>Add Task</button>
+
+          { tasks.length == 0 ? (
+            <div>Tasks list is empty!</div>
+          ) : (
+            <ul>
+              {tasks.map(({ title, completed }, index) => {
+                return (
+                  <>
+                    <li key={index} style={{textDecoration: completed ? 'line-through' : 'none'}}>
+                      {title}
+                      <button onClick={() => handleDeleteTask(index)}>Delete</button>
+                      <button onClick={() => handleToggleStateTask(index)}>{completed ? 'Undo' : 'Complete'}</button>
+                    </li>
+                  </>
+                );
+              })}
+            </ul>
+          )}
         </div>
       )
 }
