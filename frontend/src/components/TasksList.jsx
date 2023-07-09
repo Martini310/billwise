@@ -38,7 +38,7 @@ export function TasksList() {
           Complete:<input type="checkbox" id="complete" ref={completeRef} />
           <button onClick={handleAddTask}>Add Task</button>
 
-          { tasks.length == 0 ? (
+          { tasks.length === 0 ? (
             <div>Tasks list is empty!</div>
           ) : (
             <ul>
