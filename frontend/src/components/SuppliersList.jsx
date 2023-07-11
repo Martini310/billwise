@@ -8,38 +8,50 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import InboxIcon from '@mui/icons-material/Inbox';
 import DraftsIcon from '@mui/icons-material/Drafts';
+import { useState, useEffect } from 'react';
+
 
 export default function BasicList() {
+    const [suppliers, setSupplier] = useState([])
+
+    const fetchSupplierData = () => {
+    fetch("http://127.0.0.1:8000/api/suppliers/")
+        .then(response => {
+        return response.json()
+        })
+        .then(data => {
+        setSupplier(data)
+        })
+    }
+
+    useEffect(() => {
+    fetchSupplierData()
+    }, [])
   return (
     <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-      <nav aria-label="main mailbox folders">
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Inbox" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <DraftsIcon />
-              </ListItemIcon>
-              <ListItemText primary="Drafts" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </nav>
+
+        return (
+        <div>
+            {suppliers.length > 0 && (
+            <ul>
+                {suppliers.map(supplier => (
+                <li key={supplier.id}>{supplier.name}</li>
+                ))}
+            </ul>
+            )}
+        </div>
+        );
       <Divider />
       <nav aria-label="secondary mailbox folders">
+        
         <List>
           <ListItem disablePadding>
             <ListItemButton>
               <ListItemText primary="Trash" />
             </ListItemButton>
           </ListItem>
+
+
           <ListItem disablePadding>
             <ListItemButton component="a" href="#simple-list">
               <ListItemText primary="Spam" />

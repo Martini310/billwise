@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import { useState, useEffect } from 'react';
 import { TasksList } from './components/TasksList'
+import { withListLoading } from './components/InvoicesLoading';
+import { InvoicesList } from './components/InvoicesList';
 
 export function App() {
 
@@ -30,23 +32,6 @@ export function HookUseState() {
   )
 }
 
-export class ConnectionExample extends React.Component {
-  componentDidMount() {
-    const apiUrl = 'http://127.0.0.1:8000/api/suppliers/';
-
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((data) => console.log(data));
-  }
-  render() {
-    return (
-      <div>
-        Example connection
-      </div>
-    )
-  }
-}
-
 export const Api = () => {
   const [suppliers, setSupplier] = useState([])
 
@@ -73,6 +58,37 @@ export const Api = () => {
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+
+
+
+export function InvoicesTable() {
+  const ListLoading = withListLoading(InvoicesList);
+  const [appState, setAppState] = useState({
+    loading: false,
+    invoices: null,
+  });
+
+  useEffect(() => {
+    setAppState({ loading: true });
+    const apiUrl = `http://127.0.0.1:8000/api/invoices/`;
+    fetch(apiUrl)
+      .then((res) => res.json())
+      .then((invoices) => {
+        setAppState({ loading: false, invoices: invoices });
+      });
+  }, [setAppState]);
+  return (
+    <div className='App'>
+      <div className='container'>
+        <h1>My invoices</h1>
+      </div>
+      <div className='repo-container'>
+        <ListLoading isLoading={appState.loading} invoices={appState.invoices} />
+      </div>
     </div>
   );
 }

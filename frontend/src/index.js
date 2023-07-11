@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import { ConnectionExample, App, Api} from './App';
-import BasicList from './components/SuppliersList';
+import { App, HookUseState, Api } from './App';
+import { Header } from './components/Header';
+import { InvoicesTable } from './App';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <Header />
     <App />
-    <ConnectionExample />
+    <HookUseState />
     <Api />
-    <BasicList />
+    <InvoicesTable />
   </React.StrictMode>
 );

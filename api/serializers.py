@@ -24,7 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    # supplier = serializers.PrimaryKeyRelatedField(many=True, queryset=Supplier.objects.all())
+    supplier = serializers.StringRelatedField()
 
     class Meta:
         model = Invoice

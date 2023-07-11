@@ -17,8 +17,8 @@ class Supplier(models.Model):
     url = models.URLField()
 
     def __str__(self):
-        return f"{self.name}, {self.media}, adres: {self.url}"
-
+        return f"{self.name} - {self.media}"
+    
 
 class Account(models.Model):
     supplier = models.ForeignKey(to=Supplier, on_delete=models.CASCADE)

@@ -39,7 +39,7 @@ class LoginAPI(KnoxLoginView):
 
 
 class InvoiceList(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    # permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get(self, request):
         # enea_sup = Supplier.objects.get(name='Enea')
@@ -47,7 +47,8 @@ class InvoiceList(APIView):
         # get_enea(self.request.user.pk, enea_account.login, enea_account.password)
         # get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
 
-        invoices = Invoice.objects.filter(user=self.request.user)
+        # invoices = Invoice.objects.filter(user=self.request.user)
+        invoices = Invoice.objects.all()
         serializer = InvoiceSerializer(invoices, many=True)
         return Response(serializer.data)
 
