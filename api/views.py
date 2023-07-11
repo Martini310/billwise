@@ -68,7 +68,7 @@ class InvoiceCreate(CreateAPIView):
 
 
 class InvoiceDetails(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    # permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_invoice_by_pk(self, pk, user):
         try:
