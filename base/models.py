@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 # Create your models here.
 
@@ -24,7 +25,7 @@ class Account(models.Model):
     supplier = models.ForeignKey(to=Supplier, on_delete=models.CASCADE)
     login = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 
 class Invoice(models.Model):
@@ -37,9 +38,9 @@ class Invoice(models.Model):
     amount_to_pay = models.FloatField(null=True, blank=True)
     wear = models.FloatField(null=True, blank=True)
     supplier = models.ForeignKey(to=Supplier, on_delete=models.CASCADE)
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     is_paid = models.BooleanField()
     consumption_point = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        return f"Faktura nr {self.number} za {self.supplier} dla {self.user.username}"
+        return f"Faktura nr {self.number} za {self.supplier} dla {self.user.user_name}"
