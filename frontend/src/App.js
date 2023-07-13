@@ -2,8 +2,8 @@ import React from 'react';
 import './App.css';
 import { useState, useEffect } from 'react';
 import { TasksList } from './components/TasksList'
-import { withListLoading } from './components/InvoicesLoading';
-import { InvoicesList } from './components/InvoicesList';
+import { withListLoading } from './components/invoicesLoading';
+import { InvoicesList } from './components/invoicesList';
 import { axiosInstance } from './axios';
 
 export function App() {

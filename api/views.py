@@ -5,6 +5,7 @@ from rest_framework import status, generics, permissions
 from base.models import Invoice, Category, Supplier, Account
 from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializer, AccountSerializer, \
     UserSerializer, RegisterSerializer
+from users.models import NewUser
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from base.services import get_pgnig, get_enea
@@ -16,8 +17,17 @@ from django.shortcuts import get_object_or_404
 class InvoiceList(ModelViewSet):
     # permission_classes = [permissions.IsAuthenticated]
     serializer_class = InvoiceSerializer
-    queryset = invoices = Invoice.objects.all()
+    # queryset = invoices = Invoice.objects.all()
+    
+    # get certain Invoice by provide its number in url
+    # /api/invoices/FV123aa
+    # Does not work with '/'
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('pk')
+        return get_object_or_404(Invoice, number=item)
 
+    def get_queryset(self):
+        return Invoice.objects.filter(user=self.request.user)
 
 # class InvoiceList(ViewSet):
 #     # permission_classes = [permissions.IsAuthenticated]
