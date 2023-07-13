@@ -9,82 +9,98 @@ from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from base.services import get_pgnig, get_enea
 from api.permissions import IsOwner
+from rest_framework.viewsets import ViewSet, ModelViewSet
+from django.shortcuts import get_object_or_404
 
 
-class InvoiceList(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        # enea_sup = Supplier.objects.get(name='Enea')
-        # enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
-        # get_enea(self.request.user.pk, enea_account.login, enea_account.password)
-        # get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
-
-        # invoices = Invoice.objects.filter(user=self.request.user)
-        invoices = Invoice.objects.all()
-        serializer = InvoiceSerializer(invoices, many=True)
-        return Response(serializer.data)
+class InvoiceList(ModelViewSet):
+    # permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InvoiceSerializer
+    queryset = invoices = Invoice.objects.all()
 
 
-# class InvoiceCreate(APIView):
-#     def post(self, request):
-#         serializer = InvoiceSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class InvoiceList(ViewSet):
+#     # permission_classes = [permissions.IsAuthenticated]
+#     queryset = invoices = Invoice.objects.all()
+
+#     def list(self, request):
+#         serializer = InvoiceSerializer(self.queryset, many=True)
+#         return Response(serializer.data)
+    
+#     def retrieve(self, request, pk=None):
+#         invoice = get_object_or_404(self.queryset, pk=pk)
+#         serializer = InvoiceSerializer(invoice)
+#         return Response(serializer.data)
+    
+#     def destroy(self, request, pk=None):
+#         invoice = get_object_or_404(self.queryset, pk=pk)
+#         invoice.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# class InvoiceList(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get(self, request):
+#         # enea_sup = Supplier.objects.get(name='Enea')
+#         # enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
+#         # get_enea(self.request.user.pk, enea_account.login, enea_account.password)
+#         # get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
+
+#         # invoices = Invoice.objects.filter(user=self.request.user)
+#         invoices = Invoice.objects.all()
+#         serializer = InvoiceSerializer(invoices, many=True)
+#         return Response(serializer.data)
 
 
 class InvoiceCreate(CreateAPIView):
     serializer_class = InvoiceSerializer
 
 
-class InvoiceDetails(APIView):
-    # permission_classes = [permissions.IsAuthenticated, IsOwner]
+# class InvoiceDetails(APIView):
+#     # permission_classes = [permissions.IsAuthenticated, IsOwner]
 
-    def get_invoice_by_pk(self, pk, user):
-        try:
-            invoice = Invoice.objects.get(pk=pk)
-            if invoice.user == user:
-                return invoice
-            return Response({
-                'error': f'Brak dostępu!'
-            }, status=status.HTTP_404_NOT_FOUND)
-        except AttributeError as E:
-            return f"No data {E}"
+#     def get_invoice_by_pk(self, pk, user):
+#         try:
+#             invoice = Invoice.objects.get(pk=pk)
+#             if invoice.user == user:
+#                 return invoice
+#             return Response({
+#                 'error': f'Brak dostępu!'
+#             }, status=status.HTTP_404_NOT_FOUND)
+#         except AttributeError as E:
+#             return f"No data {E}"
 
-    def get(self, request, pk):
-        try:
-            invoice = self.get_invoice_by_pk(pk=pk, user=self.request.user)
-            print(3)
-            print(invoice)
-            if isinstance(invoice, Response):
-                return invoice
+#     def get(self, request, pk):
+#         try:
+#             invoice = self.get_invoice_by_pk(pk=pk, user=self.request.user)
+#             print(3)
+#             print(invoice)
+#             if isinstance(invoice, Response):
+#                 return invoice
 
-            serializer = InvoiceSerializer(invoice)
-            return Response(serializer.data)
-        except Exception as E:
-            return Response({
-                'error': f'Invoice does not exist {E}'
-            }, status=status.HTTP_404_NOT_FOUND)
+#             serializer = InvoiceSerializer(invoice)
+#             return Response(serializer.data)
+#         except Exception as E:
+#             return Response({
+#                 'error': f'Invoice does not exist {E}'
+#             }, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, pk):
-        invoice = Invoice.objects.get(pk=pk)
-        serializer = InvoiceSerializer(invoice, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def put(self, request, pk):
+#         invoice = Invoice.objects.get(pk=pk)
+#         serializer = InvoiceSerializer(invoice, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        try:
-            invoice = Invoice.objects.get(pk=pk)
-            invoice.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except ValueError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+#     def delete(self, request, pk):
+#         try:
+#             invoice = Invoice.objects.get(pk=pk)
+#             invoice.delete()
+#             return Response(status=status.HTTP_204_NO_CONTENT)
+#         except ValueError:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # class CategoryList(APIView):
