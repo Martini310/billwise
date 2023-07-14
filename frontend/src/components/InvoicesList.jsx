@@ -136,7 +136,7 @@ export const InvoicesList = (props) => {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((invoice) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={invoice.id} onClick={() => { navigate('api/invoices/' + invoice.id); }}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={invoice.id} onClick={() => { navigate('invoices/' + invoice.id); }}>
                     {columns.map((column) => {
                       const value = invoice[column.id];
                       return (
