@@ -12,6 +12,7 @@ from base.services import get_pgnig, get_enea
 from api.permissions import IsOwner
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import AnonymousUser
 
 
 class InvoiceList(ModelViewSet):
@@ -24,10 +25,13 @@ class InvoiceList(ModelViewSet):
     # Does not work with '/'
     def get_object(self, queryset=None, **kwargs):
         item = self.kwargs.get('pk')
-        return get_object_or_404(Invoice, number=item)
+        return get_object_or_404(Invoice, pk=item)
 
     def get_queryset(self):
+        if isinstance(self.request.user, AnonymousUser):
+            return []
         return Invoice.objects.filter(user=self.request.user)
+
 
 # class InvoiceList(ViewSet):
 #     # permission_classes = [permissions.IsAuthenticated]
