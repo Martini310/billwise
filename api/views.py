@@ -33,6 +33,22 @@ class InvoiceList(ModelViewSet):
         return Invoice.objects.filter(user=self.request.user)
 
 
+class AccountCreate(ModelViewSet):
+    serializer_class = AccountSerializer
+    queryset = Account.objects.all()
+
+
+class SupplierList(ModelViewSet):
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+
+
+class CategoryList(ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+#### OLD VIEWS ####
+
 # class InvoiceList(ViewSet):
 #     # permission_classes = [permissions.IsAuthenticated]
 #     queryset = invoices = Invoice.objects.all()
@@ -131,9 +147,9 @@ class InvoiceCreate(CreateAPIView):
 #         else:
 #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CategoryList(ListCreateAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+# class CategoryList(ListCreateAPIView):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
 
 
 class CategoryDetails(APIView):
@@ -159,9 +175,9 @@ class CategoryDetails(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SupplierList(ListCreateAPIView):
-    queryset = Supplier.objects.all()
-    serializer_class = SupplierSerializer
+# class SupplierList(ListCreateAPIView):
+#     queryset = Supplier.objects.all()
+#     serializer_class = SupplierSerializer
     
     # def get(self, request):
     #     supplier = Supplier.objects.all()
@@ -210,5 +226,7 @@ class SupplierDetails(APIView):
 #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AccountCreate(CreateAPIView):
-    serializer_class = AccountSerializer
+# class AccountCreate(CreateAPIView):
+#     serializer_class = AccountSerializer
+
+

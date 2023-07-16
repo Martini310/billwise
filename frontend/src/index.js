@@ -10,6 +10,7 @@ import Register from './components/register';
 import Login from './components/login';
 import Logout from './components/logout';
 import { InvoiceDetails } from './components/invoiceDetails';
+import { AddAccount } from './components/addAccount';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -19,7 +20,7 @@ root.render(
       <Header />
       <Routes>
         {/* <Route exact path="/" element={ <App/> } /> */}
-        <Route exact path="/" element={ <InvoicesTable/> } />
+        <Route ecact path="/" element={ [<AddAccount/>, <InvoicesTable/>] } />
         <Route exact path="/register" element={ <Register/> } />
         <Route exact path="/login" element={ <Login/> } />
         <Route exact path="/logout" element={ <Logout/> } />
@@ -29,8 +30,3 @@ root.render(
     </React.StrictMode>
   </Router>
 );
-
-/* <App />
-<HookUseState />
-<Api />
-<InvoicesTable /> */
