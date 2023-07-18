@@ -3,8 +3,7 @@ from rest_framework.generics import ListCreateAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from base.models import Invoice, Category, Supplier, Account
-from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializer, AccountSerializer, \
-    UserSerializer, RegisterSerializer
+from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializer, AccountSerializer, RegisterSerializer
 from users.models import NewUser
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -13,6 +12,7 @@ from api.permissions import IsOwner
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import AnonymousUser
+from users.serializers import CustomUserSerializer
 
 
 class InvoiceList(ModelViewSet):
@@ -47,6 +47,14 @@ class CategoryList(ModelViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
+
+class CurrentUser(ViewSet):
+    queryset = NewUser.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        user = self.request.user
+        return Response({'id': user.id})
 #### OLD VIEWS ####
 
 # class InvoiceList(ViewSet):
