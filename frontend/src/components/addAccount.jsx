@@ -41,20 +41,25 @@ export function AddAccount() {
   };
 
 	useEffect(() => {
-		axiosInstance.get(suppliers_link).then((res) => {
-      const data = res.data;
-			setSuppliers( data );
+		axiosInstance.get(suppliers_link,  
+      { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
+      .then((res) => {
+        const data = res.data;
+			  setSuppliers( data );
 		});
 	}, [suppliers_link]);
 
   useEffect(() => {
-    axiosInstance.get(currentUserLink).then((res) => {
-      const data = res.data;
-			setUser( data );
-      console.log(data);
-      setPost({...post, 'user': data.id});
+    axiosInstance.get(currentUserLink, 
+      { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
+      .then((res) => {
+        const data = res.data;
+        setUser( data );
+        console.log(data);
+        setPost({...post, 'user': data.id});
 		});
-	}, [currentUserLink, post]);
+    // eslint-disable-next-line
+	}, []);
 
 
   return (

@@ -20,11 +20,12 @@ root.render(
       <Header />
       <Routes>
         {/* <Route exact path="/" element={ <App/> } /> */}
-        <Route ecact path="/" element={ [<AddAccount/>, <InvoicesTable/>] } />
+        <Route ecact path="/" element={ <InvoicesTable/> } />
         <Route exact path="/register" element={ <Register/> } />
         <Route exact path="/login" element={ <Login/> } />
         <Route exact path="/logout" element={ <Logout/> } />
         <Route exact path="/invoices/:pk" element={ <InvoiceDetails/> } />
+        <Route exact path="/add-account" element={ <AddAccount/> } />
       </Routes>
       <Footer />
     </React.StrictMode>
