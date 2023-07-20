@@ -11,6 +11,7 @@ import Login from './components/login';
 import Logout from './components/logout';
 import { InvoiceDetails } from './components/invoiceDetails';
 import { AddAccount } from './components/addAccount';
+import NewInvoice from './components/newInvoice';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -26,6 +27,7 @@ root.render(
         <Route exact path="/logout" element={ <Logout/> } />
         <Route exact path="/invoices/:pk" element={ <InvoiceDetails/> } />
         <Route exact path="/add-account" element={ <AddAccount/> } />
+        <Route exact path="/add-invoice" element={ <NewInvoice/> } />
       </Routes>
       <Footer />
     </React.StrictMode>

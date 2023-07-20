@@ -5,6 +5,8 @@ import { TasksList } from './components/TasksList'
 import { withListLoading } from './components/invoicesLoading';
 import { InvoicesList } from './components/invoicesList';
 import { axiosInstance } from './axios';
+import AddButton from './components/button';
+
 
 export function App() {
 
@@ -81,12 +83,15 @@ export function InvoicesTable() {
 			const allInvoices = res.data;
 			setAppState({ loading: false, invoices: allInvoices });
 		});
-	}, [setAppState]);
+	}, [setAppState, apiUrl]);
 
   return (
     <div className='App'>
       <div className='container'>
         <h1>My invoices</h1>
+      </div>
+      <div>
+        <AddButton />
       </div>
       <div className='repo-container'>
         <ListLoading isLoading={appState.loading} invoices={appState.invoices} />
