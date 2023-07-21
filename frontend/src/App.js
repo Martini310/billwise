@@ -8,6 +8,43 @@ import { axiosInstance } from './axios';
 import AddButton from './components/button';
 
 
+export function InvoicesTable() {
+  const ListLoading = withListLoading(InvoicesList);
+  const [appState, setAppState] = useState({
+    loading: true,
+    invoices: null,
+  });
+  // setAppState({ loading: true });
+  const apiUrl = `http://127.0.0.1:8000/api/invoices/`;
+
+  useEffect(() => {
+    console.log(localStorage.getItem('access_token'))
+    axiosInstance.get(apiUrl, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }}).then((res) => {
+			const allInvoices = res.data;
+			setAppState({ loading: false, invoices: allInvoices });
+		});
+	}, [setAppState, apiUrl]);
+
+  return (
+    <div className='App'>
+      <div className='container'>
+        <h1>My invoices</h1>
+      </div>
+      <div>
+        <AddButton link='/add-account'/>
+        <AddButton link='/add-invoice'/>
+      </div>
+      <div className='repo-container'>
+        <ListLoading isLoading={appState.loading} invoices={appState.invoices} />
+      </div>
+    </div>
+  );
+}
+
+
+
+//////////////////////////////////////////////////////
+
 export function App() {
 
   return (
@@ -61,41 +98,6 @@ export const Api = () => {
           ))}
         </ul>
       )}
-    </div>
-  );
-}
-
-
-
-
-export function InvoicesTable() {
-  const ListLoading = withListLoading(InvoicesList);
-  const [appState, setAppState] = useState({
-    loading: true,
-    invoices: null,
-  });
-  // setAppState({ loading: true });
-  const apiUrl = `http://127.0.0.1:8000/api/invoices/`;
-
-  useEffect(() => {
-    console.log(localStorage.getItem('access_token'))
-    axiosInstance.get(apiUrl, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }}).then((res) => {
-			const allInvoices = res.data;
-			setAppState({ loading: false, invoices: allInvoices });
-		});
-	}, [setAppState, apiUrl]);
-
-  return (
-    <div className='App'>
-      <div className='container'>
-        <h1>My invoices</h1>
-      </div>
-      <div>
-        <AddButton />
-      </div>
-      <div className='repo-container'>
-        <ListLoading isLoading={appState.loading} invoices={appState.invoices} />
-      </div>
     </div>
   );
 }

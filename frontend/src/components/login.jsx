@@ -13,6 +13,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { baseURL } from '../axios';
 
 const useStyles = makeStyles((theme) => ({
 	paper: {
@@ -53,7 +54,6 @@ export default function SignIn() {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		console.log(formData);
-
 		axiosInstance
 			.post(`token/`, {
 				email: formData.email,
@@ -67,7 +67,17 @@ export default function SignIn() {
 				navigate('/');
 				console.log(res);
 				console.log(res.data);
+
+				const currentUserLink = baseURL + 'current-user/';
+				axiosInstance
+					.get(currentUserLink, 
+						{ 'headers': { 'Authorization': 'JWT ' + res.data.access }})
+					.then((resp) => {
+						const data = resp.data;
+						localStorage.setItem('userID', data.id)
+				});
 			});
+		
 	};
 
 	const classes = useStyles();
