@@ -3,17 +3,20 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import BasicDatePicker from './datePicker';
 import { FormControl } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/joy/Button';
 import dayjs from 'dayjs';
 import { axiosInstance } from '../axios';
 import { baseURL } from '../axios';
 import { useNavigate } from 'react-router-dom';
+import MenuItem from '@mui/material/MenuItem';
+
 
 
 export default function NewInvoice() {
-    
+    const suppliers_link = baseURL + 'suppliers/';
     const user = localStorage.getItem('userID')
+    const [suppliers, setSuppliers] = useState( [] );
     const [post, setPost] = useState({
         number: '',
         amount: '',
@@ -26,8 +29,22 @@ export default function NewInvoice() {
         to_pay: '',
         user: user,
         is_paid: false,
-        supplier: 1
+        supplier: '',
     });
+
+	useEffect(() => {
+		axiosInstance.get(suppliers_link,  
+      { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
+      .then((res) => {
+        const data = res.data;
+			  setSuppliers( data );
+		});
+	}, [suppliers_link]);
+
+    const handleSelect = (event) => {
+        console.log(event.target)
+        setPost({...post, 'supplier': event.target.value});
+      };
 
     const handleInput = (event) => {
         setPost({...post, [event.target.name]: event.target.value});
@@ -41,12 +58,13 @@ export default function NewInvoice() {
     const navigate = useNavigate();
     const handleSubmit = (event) => {
         event.preventDefault();
+        console.log(suppliers[1]);
         console.log(post);
         const post_link = baseURL + 'invoices/';
         axiosInstance.post(post_link, post)
             .then((res) => {
                 console.log(res);
-                // navigate('/');
+                navigate('/');
             })
             .catch((err) => console.log(err));
       };
@@ -73,6 +91,21 @@ export default function NewInvoice() {
             <TextField name="point" label="Punkt poboru" variant="standard"  onChange={handleInput}/>
             <TextField name="wear" label="Zużycie" variant="standard" type="number" onChange={handleInput} InputLabelProps={{ shrink: true, }}/>
             <Button type="submit">Dodaj</Button>
+            <TextField
+                id="outlined-select-currency"
+                select
+                label="Dostawca"
+                name='supplier'
+                defaultValue=''
+                helperText="Wybierz dostawcę"
+                onChange={handleSelect}
+                >
+                {suppliers.map((option) => (
+                    <MenuItem key={option.id} value={option.id}>
+                    {option.name}
+                    </MenuItem>
+                ))}
+            </TextField>
         </FormControl>
 
     </Box>

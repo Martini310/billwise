@@ -26,7 +26,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    supplier = serializers.StringRelatedField()
+    # supplier = serializers.StringRelatedField()
 
     class Meta:
         model = Invoice
