@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from .models import Invoice, Supplier, User
+from users.models import NewUser
 import requests
 import urllib3
 from datetime import datetime
@@ -57,8 +58,8 @@ def get_pgnig(pk, login=None, password=None):
     faktury = invoices_json['InvoicesList']
 
     # Get supplier and user pk
-    sup = Supplier.objects.get(pk=2)
-    us = User.objects.get(pk=pk)
+    sup = Supplier.objects.get(pk=1)
+    us = NewUser.objects.get(pk=pk)
 
     Invoice.objects.bulk_create([Invoice(number=invoice.get('Number'),
                                          date=datetime.fromisoformat(invoice.get('Date')[:-1]),

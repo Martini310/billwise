@@ -73,7 +73,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
+import { axiosInstance } from '../axios';
+import { baseURL } from '../axios';
 
 const columns = [
   { id: 'supplier', label: 'Wystawca', minWidth: 170 },
@@ -100,10 +103,24 @@ const columns = [
 
 export const InvoicesList = (props) => {
   const { invoices } = props;
+  const suppliers_link = baseURL + 'suppliers/';
+  const [suppliers, setSuppliers] = React.useState( [] );
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const navigate = useNavigate();
-  if (!invoices || invoices.length === 0) return <p>No invoices, sorry</p>;
+
+  React.useEffect(() => {
+    if (!invoices || invoices.length === 0) return <p>No invoices, sorry</p>;
+
+    axiosInstance.get(suppliers_link,  
+      { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
+      .then((res) => {
+        const data = res.data;
+        setSuppliers( data );
+    });
+  }, [suppliers_link, invoices]);
+
+  let names = suppliers.map(supplier => supplier.name)
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -113,6 +130,7 @@ export const InvoicesList = (props) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -141,7 +159,11 @@ export const InvoicesList = (props) => {
                       const value = invoice[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                        {value}
+                          {column.id === 'supplier' ? (
+                            <Typography>{names[value - 1]}</Typography>
+                              ) : (column.id === 'is_paid') ? (
+                                value ? 'Zapłacone' : 'Niezapłacone'
+                              ) : value}
                         </TableCell>
                       );
                     })}

@@ -18,7 +18,7 @@ class Supplier(models.Model):
     url = models.URLField()
 
     def __str__(self):
-        return f"{self.name} - {self.media}"
+        return f"{self.name}"
     
 
 class Account(models.Model):

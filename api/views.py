@@ -30,6 +30,10 @@ class InvoiceList(ModelViewSet):
     def get_queryset(self):
         if isinstance(self.request.user, AnonymousUser):
             return []
+        
+        enea_sup = Supplier.objects.get(name='Enea')
+        enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
+        get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
         return Invoice.objects.filter(user=self.request.user)
 
 
