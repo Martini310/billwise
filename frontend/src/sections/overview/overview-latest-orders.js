@@ -13,7 +13,8 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SeverityPill } from 'src/components/severity-pill';
@@ -62,10 +63,10 @@ export const OverviewLatestOrders = (props) => {
                     key={order.id}
                   >
                     <TableCell>
-                      {order.supplier}
+                      {/* {order.supplier} */}aa
                     </TableCell>
                     <TableCell>
-                      {order.category.name}
+                      {/* {order.supplier} */}bb
                     </TableCell>
                     <TableCell>
                       {order.date}
@@ -75,7 +76,7 @@ export const OverviewLatestOrders = (props) => {
                     </TableCell>
                     <TableCell>
                       <SeverityPill color={statusMap[order.is_paid]}>
-                        {order.is_paid === "true"?"Zapłacone":"Niezapłacone"}
+                        {order.is_paid ? "Zapłacone" : "Niezapłacone"}
                       </SeverityPill>
                     </TableCell>
                   </TableRow>

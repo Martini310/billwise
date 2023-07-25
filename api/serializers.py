@@ -25,14 +25,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class InvoiceSerializer(serializers.ModelSerializer):
-    # supplier = serializers.StringRelatedField()
-
-    class Meta:
-        model = Invoice
-        fields = "__all__"
-
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -40,9 +32,19 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class SupplierSerializer(serializers.ModelSerializer):
+    media = CategorySerializer(many=False)
+
     class Meta:
         model = Supplier
         fields = '__all__'
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    # supplier = serializers.StringRelatedField()
+    supplier = SupplierSerializer(many=False)
+
+    class Meta:
+        model = Invoice
+        fields = "__all__"
 
 
 class AccountSerializer(serializers.ModelSerializer):
