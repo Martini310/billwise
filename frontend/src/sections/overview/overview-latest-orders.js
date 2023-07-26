@@ -63,10 +63,10 @@ export const OverviewLatestOrders = (props) => {
                     key={order.id}
                   >
                     <TableCell>
-                      {/* {order.supplier} */}aa
+                      {order.supplier['name']}
                     </TableCell>
                     <TableCell>
-                      {/* {order.supplier} */}bb
+                      {order.supplier['media']['name']}
                     </TableCell>
                     <TableCell>
                       {order.date}
