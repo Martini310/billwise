@@ -24,7 +24,7 @@ const useChartOptions = () => {
         show: false
       }
     },
-    colors: [theme.palette.primary.main, alpha(theme.palette.primary.main, 0.25)],
+    colors: [alpha(theme.palette.primary.main, 0.25), theme.palette.primary.main],
     dataLabels: {
       enabled: false
     },
@@ -72,18 +72,18 @@ const useChartOptions = () => {
         show: true
       },
       categories: [
-        'Jan',
-        'Feb',
+        'Sty',
+        'Lut',
         'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
+        'Kwi',
+        'Maj',
+        'Cze',
+        'Lip',
+        'Sie',
+        'Wrz',
+        'Paź',
+        'Lis',
+        'Gru'
       ],
       labels: {
         offsetY: 5,
@@ -94,7 +94,7 @@ const useChartOptions = () => {
     },
     yaxis: {
       labels: {
-        formatter: (value) => (value > 0 ? `${value}K` : `${value}`),
+        formatter: (value) => (value > 0 ? `${value}zł` : `${value}`),
         offsetX: -10,
         style: {
           colors: theme.palette.text.secondary
@@ -124,7 +124,7 @@ export const OverviewSales = (props) => {
             Sync
           </Button>
         )}
-        title="Sales"
+        title="Podsumowanie"
       />
       <CardContent>
         <Chart

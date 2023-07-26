@@ -29,6 +29,30 @@ const Page = () => {
         setInvoices(allInvoices);
     });
   }, [setInvoices, apiUrl]);
+
+  const lastYear = {};
+  const thisYear = {};
+
+  invoices.forEach((invoice) => {
+    if (invoice.date.startsWith("2023")) {
+      const month = invoice.date.slice(5, 7);
+      thisYear[month] = (thisYear[month] || 0) + invoice.amount;
+    } else {
+      const month = invoice.date.slice(5, 7);
+      lastYear[month] = (lastYear[month] || 0) + invoice.amount;
+    }
+  });
+
+  const sortedThisYear = Object.keys(thisYear)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .map((key) => thisYear[key]);
+
+  const sortedLastYear = Object.keys(lastYear)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .map((key) => lastYear[key]);
+
+  console.log(sortedThisYear, sortedLastYear);
+
   return (
   <>
     <Head>
@@ -99,12 +123,12 @@ const Page = () => {
             <OverviewSales
               chartSeries={[
                 {
-                  name: 'This year',
-                  data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20]
+                  name: 'Last year',
+                  data: sortedLastYear
                 },
                 {
-                  name: 'Last year',
-                  data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13]
+                  name: 'This year',
+                  data: sortedThisYear
                 }
               ]}
               sx={{ height: '100%' }}
