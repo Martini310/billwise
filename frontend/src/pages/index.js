@@ -19,16 +19,28 @@ const now = new Date();
 const Page = () => {
 
   const [invoices, setInvoices] = useState([])
-  const apiUrl = `http://127.0.0.1:8000/api/invoices/`;
+  const [categories, setCategories] = useState([])
+  const apiUrl = `http://127.0.0.1:8000/api/`;
   
   useEffect(() => {
     // console.log(localStorage.getItem('access_token'))
-    axiosInstance.get(apiUrl)
+    axiosInstance.get(apiUrl + 'invoices/')
       .then((res) => {
         const allInvoices = res.data;
         setInvoices(allInvoices);
     });
   }, [setInvoices, apiUrl]);
+
+  useEffect(() => {
+    axiosInstance.get(apiUrl + 'category/')
+      .then((res) => {
+        const categories = res.data;
+        let categoryNames = [];
+        categories.forEach((category) => 
+          categoryNames.push(category.name))
+        setCategories(categoryNames);
+    });
+  }, [setCategories, apiUrl]);
 
   const lastYear = {};
   const thisYear = {};
@@ -51,7 +63,24 @@ const Page = () => {
     .sort((a, b) => parseInt(a) - parseInt(b))
     .map((key) => lastYear[key]);
 
-  console.log(sortedThisYear, sortedLastYear);
+  const categoryTotalAmount = {};
+  let totalAmount = 0;
+
+  categories.forEach(category => {
+    categoryTotalAmount[category] = 0;
+  });
+
+  invoices.forEach((invoice) => {
+    categoryTotalAmount[invoice.supplier.media.name] += invoice.amount;
+    totalAmount += invoice.amount;
+  })
+
+  const categoryPercentageValues = {};
+  categories.forEach((category) => {
+    const categoryAmount = categoryTotalAmount[category];
+    const percentage = (categoryAmount / totalAmount) * 100;
+    categoryPercentageValues[category] = parseFloat(percentage.toFixed(2)); // Round the percentage to 2 decimal places
+  });
 
   return (
   <>
@@ -140,8 +169,9 @@ const Page = () => {
             lg={4}
           >
             <OverviewTraffic
-              chartSeries={[63, 15, 22]}
-              labels={['Desktop', 'Tablet', 'Phone']}
+              chartSeries={Object.values(categoryPercentageValues)}
+              labels={Object.keys(categoryPercentageValues)}
+              // labels={categories}
               sx={{ height: '100%' }}
             />
           </Grid>

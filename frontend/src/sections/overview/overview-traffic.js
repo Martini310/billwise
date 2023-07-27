@@ -2,6 +2,11 @@ import PropTypes from 'prop-types';
 import ComputerDesktopIcon from '@heroicons/react/24/solid/ComputerDesktopIcon';
 import DeviceTabletIcon from '@heroicons/react/24/solid/DeviceTabletIcon';
 import PhoneIcon from '@heroicons/react/24/solid/PhoneIcon';
+import BoltIcon from '@heroicons/react/24/solid/BoltIcon';
+import FireIcon from '@heroicons/react/24/solid/FireIcon';
+import CloudIcon from '@heroicons/react/24/solid/CloudIcon';
+
+
 import {
   Box,
   Card,
@@ -63,6 +68,21 @@ const useChartOptions = (labels) => {
 };
 
 const iconMap = {
+  Gaz: (
+    <SvgIcon>
+      <FireIcon />
+    </SvgIcon>
+  ),
+  Woda: (
+    <SvgIcon>
+      <CloudIcon />
+    </SvgIcon>
+  ),
+  Prąd: (
+    <SvgIcon>
+      <BoltIcon />
+    </SvgIcon>
+  ),
   Desktop: (
     <SvgIcon>
       <ComputerDesktopIcon />
@@ -77,7 +97,7 @@ const iconMap = {
     <SvgIcon>
       <PhoneIcon />
     </SvgIcon>
-  )
+  ),
 };
 
 export const OverviewTraffic = (props) => {
@@ -86,7 +106,7 @@ export const OverviewTraffic = (props) => {
 
   return (
     <Card sx={sx}>
-      <CardHeader title="Traffic Source" />
+      <CardHeader title="Udział wg kategorii" />
       <CardContent>
         <Chart
           height={300}
