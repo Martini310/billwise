@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import ListBulletIcon from '@heroicons/react/24/solid/ListBulletIcon';
+import ClipboardDocumentCheckIcon from '@heroicons/react/24/solid/ClipboardDocumentCheckIcon';
 import {
   Avatar,
   Box,
@@ -29,7 +30,7 @@ export const OverviewTasksProgress = (props) => {
               gutterBottom
               variant="overline"
             >
-              Task Progress
+              Opłacone faktury
             </Typography>
             <Typography variant="h4">
               {value}%
@@ -37,13 +38,13 @@ export const OverviewTasksProgress = (props) => {
           </Stack>
           <Avatar
             sx={{
-              backgroundColor: 'warning.main',
+              backgroundColor: 'success.main',
               height: 56,
               width: 56
             }}
           >
             <SvgIcon>
-              <ListBulletIcon />
+              <ClipboardDocumentCheckIcon />
             </SvgIcon>
           </Avatar>
         </Stack>

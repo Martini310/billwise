@@ -11,7 +11,7 @@ import { OverviewTotalProfit } from 'src/sections/overview/overview-total-profit
 import { OverviewTraffic } from 'src/sections/overview/overview-traffic';
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
-// import axios from 'axios';
+
 
 const now = new Date();
 
@@ -70,9 +70,14 @@ const Page = () => {
     categoryTotalAmount[category] = 0;
   });
 
+  let paidInvoices = 0;
+
   invoices.forEach((invoice) => {
     categoryTotalAmount[invoice.supplier.media.name] += invoice.amount;
     totalAmount += invoice.amount;
+    if (invoice.is_paid) {
+      paidInvoices += 1
+    }
   })
 
   const categoryPercentageValues = {};
@@ -81,6 +86,9 @@ const Page = () => {
     const percentage = (categoryAmount / totalAmount) * 100;
     categoryPercentageValues[category] = parseFloat(percentage.toFixed(2)); // Round the percentage to 2 decimal places
   });
+
+
+  
 
   return (
   <>
@@ -132,7 +140,7 @@ const Page = () => {
           >
             <OverviewTasksProgress
               sx={{ height: '100%' }}
-              value={75.5}
+              value={parseFloat(paidInvoices / invoices.length * 100)}
             />
           </Grid>
           <Grid

@@ -18,6 +18,8 @@ import {
 } from '@mui/material';
 import { Scrollbar } from 'src/components/scrollbar';
 import { SeverityPill } from 'src/components/severity-pill';
+import TablePagination from '@mui/material/TablePagination';
+import { useState } from 'react';
 
 const statusMap = {
   false: 'warning',
@@ -27,6 +29,18 @@ const statusMap = {
 
 export const OverviewLatestOrders = (props) => {
   const { orders = [], sx } = props;
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   return (
     <Card sx={sx}>
@@ -38,6 +52,9 @@ export const OverviewLatestOrders = (props) => {
               <TableRow>
                 <TableCell>
                   Wystawca
+                </TableCell>
+                <TableCell>
+                  Nr faktury
                 </TableCell>
                 <TableCell>
                   Kategoria
@@ -54,7 +71,9 @@ export const OverviewLatestOrders = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders.map((order) => {
+              {orders
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((order) => {
                 // const createdAt = format(order.date, 'dd/MM/yyyy');
 
                 return (
@@ -64,6 +83,9 @@ export const OverviewLatestOrders = (props) => {
                   >
                     <TableCell>
                       {order.supplier['name']}
+                    </TableCell>
+                    <TableCell>
+                      {order.number}
                     </TableCell>
                     <TableCell>
                       {order.supplier['media']['name']}
@@ -84,6 +106,15 @@ export const OverviewLatestOrders = (props) => {
               })}
             </TableBody>
           </Table>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100]}
+            component="div"
+            count={orders.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Box>
       </Scrollbar>
       <Divider />
