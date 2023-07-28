@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import ArrowDownIcon from '@heroicons/react/24/solid/ArrowDownIcon';
 import ArrowUpIcon from '@heroicons/react/24/solid/ArrowUpIcon';
-import UsersIcon from '@heroicons/react/24/solid/UsersIcon';
+import CreditCardIcon from '@heroicons/react/24/solid/CreditCardIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
 
 export const OverviewTotalCustomers = (props) => {
@@ -21,7 +21,7 @@ export const OverviewTotalCustomers = (props) => {
               color="text.secondary"
               variant="overline"
             >
-              Total Customers
+              płatności w tym miesiącu
             </Typography>
             <Typography variant="h4">
               {value}
@@ -29,13 +29,13 @@ export const OverviewTotalCustomers = (props) => {
           </Stack>
           <Avatar
             sx={{
-              backgroundColor: 'success.main',
+              backgroundColor: 'warning.main',
               height: 56,
               width: 56
             }}
           >
             <SvgIcon>
-              <UsersIcon />
+              <CreditCardIcon />
             </SvgIcon>
           </Avatar>
         </Stack>
@@ -52,13 +52,13 @@ export const OverviewTotalCustomers = (props) => {
               spacing={0.5}
             >
               <SvgIcon
-                color={positive ? 'success' : 'error'}
+                color={positive ? 'error' : 'success'}
                 fontSize="small"
               >
                 {positive ? <ArrowUpIcon /> : <ArrowDownIcon />}
               </SvgIcon>
               <Typography
-                color={positive ? 'success.main' : 'error.main'}
+                color={positive ? 'error.main' : 'success.main'}
                 variant="body2"
               >
                 {difference}%
@@ -68,7 +68,7 @@ export const OverviewTotalCustomers = (props) => {
               color="text.secondary"
               variant="caption"
             >
-              Since last month
+              od poprz. miesiąca
             </Typography>
           </Stack>
         )}

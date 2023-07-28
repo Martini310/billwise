@@ -46,6 +46,7 @@ const Page = () => {
   const thisYear = {};
   const date = new Date();
   const year = date.getFullYear();
+  const month = date.getMonth();
 
   invoices.forEach((invoice) => {
     const month = invoice.date.slice(5, 7);
@@ -57,6 +58,7 @@ const Page = () => {
     }
   });
 
+  
   const sortedThisYear = Object.keys(thisYear)
     .sort((a, b) => parseInt(a) - parseInt(b))
     .map((key) => thisYear[key]);
@@ -81,16 +83,31 @@ const Page = () => {
       paidInvoices += 1
     }
   })
-
+  
   const categoryPercentageValues = {};
   categories.forEach((category) => {
     const categoryAmount = categoryTotalAmount[category];
     const percentage = (categoryAmount / totalAmount) * 100;
     categoryPercentageValues[category] = parseFloat(percentage.toFixed(2)); // Round the percentage to 2 decimal places
   });
-
-
   
+
+  function formatDateToString(month) {
+ 
+    let MM = ((month + 1) < 10 ? '0' : '')
+        + (month + 1);
+ 
+    return MM;
+  };
+
+  const prevMonth = (month) => {
+    if (month === 1) {
+      return "12"
+    }
+    return formatDateToString(month - 2)
+  }
+
+  const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100
 
   return (
   <>
@@ -129,10 +146,10 @@ const Page = () => {
             lg={3}
           >
             <OverviewTotalCustomers
-              difference={16}
-              positive={false}
+              difference={parseFloat(monthDiff.toFixed(2))}
+              positive={monthDiff > 0}
               sx={{ height: '100%' }}
-              value="1.6k"
+              value={parseFloat(thisYear[formatDateToString(date.getMonth())])+"zł"}
             />
           </Grid>
           <Grid
