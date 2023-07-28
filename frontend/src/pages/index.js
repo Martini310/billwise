@@ -44,14 +44,16 @@ const Page = () => {
 
   const lastYear = {};
   const thisYear = {};
+  const date = new Date();
+  const year = date.getFullYear();
 
   invoices.forEach((invoice) => {
-    if (invoice.date.startsWith("2023")) {
-      const month = invoice.date.slice(5, 7);
-      thisYear[month] = (thisYear[month] || 0) + invoice.amount;
-    } else {
-      const month = invoice.date.slice(5, 7);
-      lastYear[month] = (lastYear[month] || 0) + invoice.amount;
+    const month = invoice.date.slice(5, 7);
+
+    if (invoice.date.startsWith(year)) {
+      thisYear[month] = (thisYear[month] || 0) + (invoice.amount).toFixed(2);
+    } else if (invoice.date.startsWith(year - 1)) {
+      lastYear[month] = (lastYear[month] || 0) + (invoice.amount).toFixed(2);
     }
   });
 
