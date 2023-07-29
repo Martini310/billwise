@@ -24,7 +24,10 @@ const Page = () => {
   
   useEffect(() => {
     // console.log(localStorage.getItem('access_token'))
-    axiosInstance.get(apiUrl + 'invoices/')
+    axiosInstance
+      .get(
+        apiUrl + 'invoices/', 
+        { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
       .then((res) => {
         const allInvoices = res.data;
         allInvoices.sort((a, b) => {
@@ -174,7 +177,7 @@ const Page = () => {
           >
             <OverviewTasksProgress
               sx={{ height: '100%' }}
-              value={parseFloat(paidInvoices / invoices.length * 100)}
+              value={parseFloat((paidInvoices / invoices.length * 100).toFixed(0))}
             />
           </Grid>
           <Grid

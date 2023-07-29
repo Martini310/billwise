@@ -16,9 +16,9 @@ from users.serializers import CustomUserSerializer
 
 
 class InvoiceList(ModelViewSet):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = InvoiceSerializer
-    queryset = invoices = Invoice.objects.all()
+    # queryset = invoices = Invoice.objects.all()
     
     # get certain Invoice by provide its number in url
     # /api/invoices/FV123aa
@@ -27,14 +27,14 @@ class InvoiceList(ModelViewSet):
         item = self.kwargs.get('pk')
         return get_object_or_404(Invoice, pk=item)
 
-    # def get_queryset(self):
-    #     if isinstance(self.request.user, AnonymousUser):
-    #         return []
+    def get_queryset(self):
+        if isinstance(self.request.user, AnonymousUser):
+            return []
         
     #     enea_sup = Supplier.objects.get(name='Enea')
     #     enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
     #     get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
-    #     return Invoice.objects.filter(user=self.request.user)
+        return Invoice.objects.filter(user=self.request.user)
 
 
 class AccountCreate(ModelViewSet):
