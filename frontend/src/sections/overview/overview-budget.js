@@ -5,7 +5,7 @@ import CurrencyDollarIcon from '@heroicons/react/24/solid/CurrencyDollarIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
 
 export const OverviewBudget = (props) => {
-  const { difference, positive = false, sx, value } = props;
+  const { supplier, sx, value } = props;
 
   return (
     <Card sx={sx}>
@@ -21,7 +21,7 @@ export const OverviewBudget = (props) => {
               color="text.secondary"
               variant="overline"
             >
-              Budget
+              Najnowsza płatność
             </Typography>
             <Typography variant="h4">
               {value}
@@ -39,7 +39,7 @@ export const OverviewBudget = (props) => {
             </SvgIcon>
           </Avatar>
         </Stack>
-        {difference && (
+        {supplier && (
           <Stack
             alignItems="center"
             direction="row"
@@ -51,24 +51,19 @@ export const OverviewBudget = (props) => {
               direction="row"
               spacing={0.5}
             >
-              <SvgIcon
-                color={positive ? 'success' : 'error'}
-                fontSize="small"
-              >
-                {positive ? <ArrowUpIcon /> : <ArrowDownIcon />}
-              </SvgIcon>
               <Typography
-                color={positive ? 'success.main' : 'error.main'}
-                variant="body2"
+                color="text.secondary"
+                variant="overline"
               >
-                {difference}%
+                Wystawione przez 
               </Typography>
             </Stack>
             <Typography
-              color="text.secondary"
+              color="text.primary"
               variant="caption"
+              
             >
-              Since last month
+              {supplier}
             </Typography>
           </Stack>
         )}
@@ -78,8 +73,7 @@ export const OverviewBudget = (props) => {
 };
 
 OverviewBudget.prototypes = {
-  difference: PropTypes.number,
-  positive: PropTypes.bool,
+  supplier: PropTypes.string,
   sx: PropTypes.object,
-  value: PropTypes.string.isRequired
+  value: PropTypes.string
 };

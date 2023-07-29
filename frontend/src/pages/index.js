@@ -27,6 +27,11 @@ const Page = () => {
     axiosInstance.get(apiUrl + 'invoices/')
       .then((res) => {
         const allInvoices = res.data;
+        allInvoices.sort((a, b) => {
+          let da = new Date(a.date),
+              db = new Date(b.date);
+          return db - da;
+        });
         setInvoices(allInvoices);
     });
   }, [setInvoices, apiUrl]);
@@ -105,10 +110,12 @@ const Page = () => {
       return "12"
     }
     return formatDateToString(month - 2)
-  }
+  };
 
-  const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100
+  const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100;
 
+  const newestInvoice = invoices[0];
+  console.log(newestInvoice);
   return (
   <>
     <Head>
@@ -134,10 +141,9 @@ const Page = () => {
             lg={3}
           >
             <OverviewBudget
-              difference={12}
-              positive
+              supplier={newestInvoice.supplier.name}
               sx={{ height: '100%' }}
-              value="$24k"
+              value={newestInvoice.amount + "zł"}
             />
           </Grid>
           <Grid
