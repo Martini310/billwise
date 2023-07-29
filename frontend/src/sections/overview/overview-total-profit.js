@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import CurrencyDollarIcon from '@heroicons/react/24/solid/CurrencyDollarIcon';
+import CalendarDaysIcon from '@heroicons/react/24/solid/CalendarDaysIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
 
 export const OverviewTotalProfit = (props) => {
-  const { value, sx } = props;
+  const { date, supplier, value, sx } = props;
 
   return (
     <Card sx={sx}>
@@ -12,14 +12,14 @@ export const OverviewTotalProfit = (props) => {
           alignItems="flex-start"
           direction="row"
           justifyContent="space-between"
-          spacing={3}
+          spacing={0}
         >
-          <Stack spacing={1}>
+          <Stack spacing={-1}>
             <Typography
               color="text.secondary"
               variant="overline"
             >
-              Total Profit
+              Najbliższa płatność
             </Typography>
             <Typography variant="h4">
               {value}
@@ -33,16 +33,72 @@ export const OverviewTotalProfit = (props) => {
             }}
           >
             <SvgIcon>
-              <CurrencyDollarIcon />
+              <CalendarDaysIcon />
             </SvgIcon>
           </Avatar>
         </Stack>
+        {supplier && (
+          <Stack
+            alignItems="center"
+            direction="row"
+            spacing={1}
+            sx={{ mt: 1 }}
+          >
+            <Stack
+              alignItems="center"
+              direction="row"
+              spacing={1}
+            >
+              <Typography
+                color="text.secondary"
+                variant="overline"
+              >
+                Wystawione przez 
+              </Typography>
+            </Stack>
+            <Typography
+              color="text.primary"
+              variant="caption"
+            >
+              {supplier}
+            </Typography>
+          </Stack>
+        )}
+          {date && (
+            <Stack
+              alignItems="center"
+              direction="row"
+              spacing={1}
+              sx={{ mt: -1 }}
+            >
+            <Stack
+              alignItems="center"
+              direction="row"
+              spacing={1}
+            >
+              <Typography
+                color="text.secondary"
+                variant="overline"
+              >
+                Płatne do 
+              </Typography>
+            </Stack>
+            <Typography
+              color="text.primary"
+              variant="caption"
+            >
+              {date}
+            </Typography>
+          </Stack>
+        )}
       </CardContent>
     </Card>
   );
 };
 
 OverviewTotalProfit.propTypes = {
+  date: PropTypes.string,
+  supplier: PropTypes.string,
   value: PropTypes.string,
   sx: PropTypes.object
 };

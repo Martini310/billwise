@@ -80,12 +80,15 @@ const Page = () => {
   });
 
   let paidInvoices = 0;
+  let unPaidInvoices = []
 
   invoices.forEach((invoice) => {
     categoryTotalAmount[invoice.supplier.media.name] += invoice.amount;
     totalAmount += invoice.amount;
     if (invoice.is_paid) {
       paidInvoices += 1
+    } else {
+      unPaidInvoices.push(invoice)
     }
   })
   
@@ -115,7 +118,13 @@ const Page = () => {
   const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100;
 
   const newestInvoice = invoices[0];
-  console.log(newestInvoice);
+
+  unPaidInvoices.sort((a, b) => {
+    let da = new Date(a.date),
+        db = new Date(b.date);
+    return db - da;
+  });
+
   return (
   <>
     <Head>
@@ -141,9 +150,9 @@ const Page = () => {
             lg={3}
           >
             <OverviewBudget
-              supplier={newestInvoice.supplier.name}
+              supplier={newestInvoice ? newestInvoice.supplier.name : "Brak faktur"}
               sx={{ height: '100%' }}
-              value={newestInvoice.amount + "zł"}
+              value={newestInvoice ? newestInvoice.amount + "zł" : "---"}
             />
           </Grid>
           <Grid
@@ -175,7 +184,9 @@ const Page = () => {
           >
             <OverviewTotalProfit
               sx={{ height: '100%' }}
-              value="$15k"
+              value={unPaidInvoices[0] ? unPaidInvoices[0].amount + "zł" : "Wszystkie faktury opłacone!"}
+              supplier={unPaidInvoices[0] ? unPaidInvoices[0].supplier.name : "---"}
+              date={unPaidInvoices[0] ? unPaidInvoices[0].date : "---"}
             />
           </Grid>
           <Grid
