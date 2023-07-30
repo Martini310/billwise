@@ -46,27 +46,28 @@ const Page = () => {
     onSubmit: async (values, helpers) => {
       try {
         await auth.signIn(values.email, values.password);
-        axiosInstance
-          .post(`token/`, {
-            email: values.email,
-            password: values.password,
-          })
-          .then((res) => {
-            localStorage.setItem('access_token', res.data.access);
-            localStorage.setItem('refresh_token', res.data.refresh);
-            axiosInstance.defaults.headers['Authorization'] =
-              'JWT ' + localStorage.getItem('access_token');
+        // axiosInstance
+        //   .post(`token/`, {
+        //     email: values.email,
+        //     password: values.password,
+        //   })
+        //   .then((res) => {
+        //     localStorage.setItem('access_token', res.data.access);
+        //     localStorage.setItem('refresh_token', res.data.refresh);
+        //     axiosInstance.defaults.headers['Authorization'] =
+        //       'JWT ' + localStorage.getItem('access_token');
 
-            const currentUserLink = baseURL + 'current-user/';
-            axiosInstance
-              .get(currentUserLink, 
-                { 'headers': { 'Authorization': 'JWT ' + res.data.access }})
-              .then((resp) => {
-                const data = resp.data;
-                localStorage.setItem('userID', data.id)
-            });
-          });
-        router.push('/');
+          //   const currentUserLink = baseURL + 'current-user/';
+          //   axiosInstance
+          //     .get(currentUserLink, 
+          //       { 'headers': { 'Authorization': 'JWT ' + res.data.access }})
+          //     .then((resp) => {
+          //       const data = resp.data;
+          //       localStorage.setItem('userID', data.id)
+          //   });
+          // });
+          setTimeout(router.push('/'), 5000) // TODO better implementation
+        ;
       } catch (err) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });

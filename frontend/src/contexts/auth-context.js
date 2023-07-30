@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { axiosInstance } from 'src/utils/axios';
 
 const HANDLERS = {
   INITIALIZE: 'INITIALIZE',
@@ -130,6 +131,17 @@ export const AuthProvider = (props) => {
   const signIn = async (email, password) => {
 
     try {
+      axiosInstance
+      .post(`token/`, {
+        email: email,
+        password: password,
+      })
+      .then((res) => {
+        localStorage.setItem('access_token', res.data.access);
+        localStorage.setItem('refresh_token', res.data.refresh);
+        axiosInstance.defaults.headers['Authorization'] =
+          'JWT ' + localStorage.getItem('access_token');
+      })
       window.sessionStorage.setItem('authenticated', 'true');
     } catch (err) {
       console.error(err);
@@ -153,6 +165,15 @@ export const AuthProvider = (props) => {
   };
 
   const signOut = () => {
+
+        axiosInstance.post('user/logout/blacklist/', {
+            refresh_token: localStorage.getItem('refresh_token'),
+        });
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('userID');
+        axiosInstance.defaults.headers['Authorization'] = null;
+
     dispatch({
       type: HANDLERS.SIGN_OUT
     });
