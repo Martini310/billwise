@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { axiosInstance } from 'src/utils/axios';
+import { useRouter } from 'next/navigation';
+
 
 const HANDLERS = {
   INITIALIZE: 'INITIALIZE',
@@ -64,6 +66,8 @@ export const AuthProvider = (props) => {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const initialized = useRef(false);
+  const router = useRouter();
+
 
   const initialize = async () => {
     // Prevent from calling twice in development mode with React.StrictMode enabled
@@ -131,6 +135,7 @@ export const AuthProvider = (props) => {
   const signIn = async (email, password) => {
 
     try {
+
       axiosInstance
       .post(`token/`, {
         email: email,
@@ -143,6 +148,7 @@ export const AuthProvider = (props) => {
           'JWT ' + localStorage.getItem('access_token');
       })
       window.sessionStorage.setItem('authenticated', 'true');
+      router.push('/');
     } catch (err) {
       console.error(err);
     }
@@ -160,8 +166,18 @@ export const AuthProvider = (props) => {
     });
   };
 
-  const signUp = async (email, name, password) => {
-    throw new Error('Sign up is not implemented');
+  const signUp = async (email, username, password) => {
+
+    axiosInstance
+      .post(`user/register/`, {
+        email: email,
+        user_name: username,
+        password: password,
+      })
+      .then((res) => {
+        console.log(res);
+        console.log(res.data);
+      });
   };
 
   const signOut = () => {

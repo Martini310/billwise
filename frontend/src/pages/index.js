@@ -24,19 +24,24 @@ const Page = () => {
   
   useEffect(() => {
     // console.log(localStorage.getItem('access_token'))
-    axiosInstance
-      .get(
-        apiUrl + 'invoices/', 
-        { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
-      .then((res) => {
-        const allInvoices = res.data;
-        allInvoices.sort((a, b) => {
-          let da = new Date(a.date),
-              db = new Date(b.date);
-          return db - da;
-        });
-        setInvoices(allInvoices);
-    });
+    const getData = async () => {
+
+      const data = await axiosInstance
+        .get(
+          apiUrl + 'invoices/', 
+          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
+        .then((res) => {
+          const allInvoices = res.data;
+          allInvoices.sort((a, b) => {
+            let da = new Date(a.date),
+                db = new Date(b.date);
+            return db - da;
+          });
+          setInvoices(allInvoices);
+          }
+        )
+      }
+    getData();
   }, [setInvoices, apiUrl]);
 
   useEffect(() => {

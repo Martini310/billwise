@@ -66,7 +66,7 @@ const Page = () => {
           //       localStorage.setItem('userID', data.id)
           //   });
           // });
-          setTimeout(router.push('/'), 5000) // TODO better implementation
+          // setTimeout(router.push('/'), 5000) // TODO better implementation
         ;
       } catch (err) {
         helpers.setStatus({ success: false });
