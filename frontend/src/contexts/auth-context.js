@@ -135,36 +135,83 @@ export const AuthProvider = (props) => {
   const signIn = async (email, password) => {
 
     try {
-
-      axiosInstance
-      .post(`token/`, {
+      const response = await axiosInstance.post(`token/`, {
         email: email,
         password: password,
-      })
-      .then((res) => {
-        localStorage.setItem('access_token', res.data.access);
-        localStorage.setItem('refresh_token', res.data.refresh);
+      });
+  
+      // Check if the response contains the access token
+      if (response.data.access) {
+        // Store the access token in local storage
+        localStorage.setItem('access_token', response.data.access);
+        localStorage.setItem('refresh_token', response.data.refresh);
+        localStorage.setItem('username', response.data.username);
+        window.sessionStorage.setItem('authenticated', 'true');
+
+        console.log(response.data.access, response.data.username)
+
+        // Set the authorization header for future requests
         axiosInstance.defaults.headers['Authorization'] =
-          'JWT ' + localStorage.getItem('access_token');
-      })
-      window.sessionStorage.setItem('authenticated', 'true');
-      router.push('/');
-    } catch (err) {
-      console.error(err);
+          'JWT ' + response.data.access;
+  
+        // Dispatch the SIGN_IN action with the user data
+        dispatch({
+          type: HANDLERS.SIGN_IN,
+          payload: {
+            id: response.data.id,
+            avatar: '/assets/avatars/avatar-anika-visser.png',
+            name: response.data.username,
+            email: email
+          }
+        });
+  
+        // Redirect the user or perform other actions as needed
+        router.push('/');
+      } else {
+        // Handle error: Unable to retrieve access token
+        console.error('Access token not found in response');
+      }
+    } catch (error) {
+      // Handle authentication error
+      console.error('Authentication failed:', error);
     }
-
-    const user = {
-      id: '5e86809283e28b96d2d38537',
-      avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: 'aaa',
-      email: email
-    };
-
-    dispatch({
-      type: HANDLERS.SIGN_IN,
-      payload: user
-    });
   };
+
+  //   try {
+
+  //     axiosInstance
+  //     .post(`token/`, {
+  //       email: email,
+  //       password: password,
+  //     })
+  //     .then((res) => {
+  //       localStorage.setItem('access_token', res.data.access);
+  //       localStorage.setItem('refresh_token', res.data.refresh);
+  //       localStorage.setItem('user', res.data.username);
+
+  //       console.log(res.data.access, res.data.username)
+  //       axiosInstance.defaults.headers['Authorization'] =
+  //         'JWT ' + localStorage.getItem('access_token');
+  //     })
+  //     window.sessionStorage.setItem('authenticated', 'true');
+  //     // router.push('/');
+  //     router.reload();
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+
+  //   const user = {
+  //     id: '5e86809283e28b96d2d38537',
+  //     avatar: '/assets/avatars/avatar-anika-visser.png',
+  //     name: localStorage.getItem('user'),
+  //     email: email
+  //   };
+
+  //   dispatch({
+  //     type: HANDLERS.SIGN_IN,
+  //     payload: user
+  //   });
+  // };
 
   const signUp = async (email, username, password) => {
 
@@ -187,7 +234,8 @@ export const AuthProvider = (props) => {
         });
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        localStorage.removeItem('userID');
+        localStorage.removeItem('username');
+        window.sessionStorage.setItem('authenticated', false);
         axiosInstance.defaults.headers['Authorization'] = null;
 
     dispatch({

@@ -42,7 +42,7 @@ export const AccountPopover = (props) => {
           color="text.secondary"
           variant="body2"
         >
-          Anika Visser
+          {localStorage.getItem('username')}
         </Typography>
       </Box>
       <Divider />

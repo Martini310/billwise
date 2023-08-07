@@ -24,12 +24,11 @@ const Page = () => {
   
   useEffect(() => {
     // console.log(localStorage.getItem('access_token'))
-    const getData = async () => {
 
-      const data = await axiosInstance
+      axiosInstance
         .get(
-          apiUrl + 'invoices/', 
-          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }})
+          apiUrl + 'invoices/',
+          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           const allInvoices = res.data;
           allInvoices.sort((a, b) => {
@@ -40,8 +39,6 @@ const Page = () => {
           setInvoices(allInvoices);
           }
         )
-      }
-    getData();
   }, [setInvoices, apiUrl]);
 
   useEffect(() => {
