@@ -24,7 +24,8 @@ export const OverviewTotalCustomers = (props) => {
               płatności w tym miesiącu
             </Typography>
             <Typography variant="h4">
-              {value}
+              {console.log(value === 'NaNzł')}
+              {value === 'NaNzł' ? 'Brak' : value}
             </Typography>
           </Stack>
           <Avatar
@@ -38,40 +39,42 @@ export const OverviewTotalCustomers = (props) => {
               <CreditCardIcon />
             </SvgIcon>
           </Avatar>
+
         </Stack>
-        {difference && (
-          <Stack
-            alignItems="center"
-            direction="row"
-            spacing={2}
-            sx={{ mt: 2 }}
-          >
+        {value === 'NaNzł' ? '---' : (
+          difference && (
             <Stack
               alignItems="center"
               direction="row"
-              spacing={0.5}
+              spacing={2}
+              sx={{ mt: 2 }}
             >
-              <SvgIcon
-                color={positive ? 'error' : 'success'}
-                fontSize="small"
+              <Stack
+                alignItems="center"
+                direction="row"
+                spacing={0.5}
               >
-                {positive ? <ArrowUpIcon /> : <ArrowDownIcon />}
-              </SvgIcon>
+                <SvgIcon
+                  color={positive ? 'error' : 'success'}
+                  fontSize="small"
+                >
+                  {positive ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                </SvgIcon>
+                <Typography
+                  color={positive ? 'error.main' : 'success.main'}
+                  variant="body2"
+                >
+                  {difference}%
+                </Typography>
+              </Stack>
               <Typography
-                color={positive ? 'error.main' : 'success.main'}
-                variant="body2"
+                color="text.secondary"
+                variant="caption"
               >
-                {difference}%
+                od poprz. miesiąca
               </Typography>
             </Stack>
-            <Typography
-              color="text.secondary"
-              variant="caption"
-            >
-              od poprz. miesiąca
-            </Typography>
-          </Stack>
-        )}
+          ))}
       </CardContent>
     </Card>
   );

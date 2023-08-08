@@ -177,42 +177,6 @@ export const AuthProvider = (props) => {
     }
   };
 
-  //   try {
-
-  //     axiosInstance
-  //     .post(`token/`, {
-  //       email: email,
-  //       password: password,
-  //     })
-  //     .then((res) => {
-  //       localStorage.setItem('access_token', res.data.access);
-  //       localStorage.setItem('refresh_token', res.data.refresh);
-  //       localStorage.setItem('user', res.data.username);
-
-  //       console.log(res.data.access, res.data.username)
-  //       axiosInstance.defaults.headers['Authorization'] =
-  //         'JWT ' + localStorage.getItem('access_token');
-  //     })
-  //     window.sessionStorage.setItem('authenticated', 'true');
-  //     // router.push('/');
-  //     router.reload();
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-
-  //   const user = {
-  //     id: '5e86809283e28b96d2d38537',
-  //     avatar: '/assets/avatars/avatar-anika-visser.png',
-  //     name: localStorage.getItem('user'),
-  //     email: email
-  //   };
-
-  //   dispatch({
-  //     type: HANDLERS.SIGN_IN,
-  //     payload: user
-  //   });
-  // };
-
   const signUp = async (email, username, password) => {
 
     axiosInstance
