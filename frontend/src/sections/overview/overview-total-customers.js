@@ -24,7 +24,6 @@ export const OverviewTotalCustomers = (props) => {
               płatności w tym miesiącu
             </Typography>
             <Typography variant="h4">
-              {console.log(value === 'NaNzł')}
               {value === 'NaNzł' ? 'Brak' : value}
             </Typography>
           </Stack>

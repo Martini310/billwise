@@ -24,7 +24,7 @@ import { useState } from 'react';
 const statusMap = {
   false: 'warning',
   true: 'success',
-  // refunded: 'error'
+  delayed: 'error'
 };
 
 export const OverviewLatestOrders = (props) => {
@@ -97,8 +97,19 @@ export const OverviewLatestOrders = (props) => {
                       {order.amount}
                     </TableCell>
                     <TableCell>
-                      <SeverityPill color={statusMap[order.is_paid]}>
-                        {order.is_paid ? "Zapłacone" : "Niezapłacone"}
+                      <SeverityPill color={order.is_paid
+                        ? statusMap[order.is_paid]
+                        : (new Date(order.pay_deadline).getTime() > new Date()
+                          ? statusMap[order.is_paid]
+                          : statusMap['delayed']
+                        )}
+                      >
+                        {order.is_paid
+                          ? "Zapłacone"
+                          : (new Date(order.pay_deadline).getTime() > new Date()
+                            ? "Niezapłacone"
+                            : "Po terminie")
+                        }
                       </SeverityPill>
                     </TableCell>
                   </TableRow>

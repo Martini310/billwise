@@ -22,9 +22,8 @@ const Page = () => {
   const [categories, setCategories] = useState([])
   const apiUrl = `http://127.0.0.1:8000/api/`;
   
+  // Fetch invoices and sort them by date
   useEffect(() => {
-    // console.log(localStorage.getItem('access_token'))
-
       axiosInstance
         .get(
           apiUrl + 'invoices/',
@@ -41,6 +40,7 @@ const Page = () => {
         )
   }, [setInvoices, apiUrl]);
 
+  // Fetch Categories and create array with category names
   useEffect(() => {
     axiosInstance.get(apiUrl + 'category/')
       .then((res) => {
@@ -58,13 +58,14 @@ const Page = () => {
   const year = date.getFullYear();
   const month = date.getMonth();
 
+  // Fill arrays with this year and previous year invoices
   invoices.forEach((invoice) => {
     const month = invoice.date.slice(5, 7);
 
     if (invoice.date.startsWith(year)) {
-      thisYear[month] = (thisYear[month] || 0) + (invoice.amount).toFixed(2);
+      thisYear[month] = (thisYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
     } else if (invoice.date.startsWith(year - 1)) {
-      lastYear[month] = (lastYear[month] || 0) + (invoice.amount).toFixed(2);
+      lastYear[month] = (lastYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
     }
   });
 
@@ -87,6 +88,7 @@ const Page = () => {
   let paidInvoices = 0;
   let unPaidInvoices = []
 
+  // Sum invoices amounts by categories and count paid an unpaid invoices
   invoices.forEach((invoice) => {
     categoryTotalAmount[invoice.supplier.media.name] += invoice.amount;
     totalAmount += invoice.amount;
@@ -98,18 +100,17 @@ const Page = () => {
   })
   
   const categoryPercentageValues = {};
+  // Count percentage of each category
   categories.forEach((category) => {
     const categoryAmount = categoryTotalAmount[category];
     const percentage = (categoryAmount / totalAmount) * 100;
     categoryPercentageValues[category] = parseFloat(percentage.toFixed(2)); // Round the percentage to 2 decimal places
   });
   
-
+  // Conver month number to string in 01, 02, 03... format
   function formatDateToString(month) {
- 
     let MM = ((month + 1) < 10 ? '0' : '')
         + (month + 1);
- 
     return MM;
   };
 
@@ -120,6 +121,7 @@ const Page = () => {
     return formatDateToString(month - 2)
   };
 
+  // Percentage difference Year-To-Year
   const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100;
 
   const newestInvoice = invoices[0];
@@ -169,7 +171,7 @@ const Page = () => {
               difference={parseFloat(monthDiff.toFixed(2))}
               positive={monthDiff > 0}
               sx={{ height: '100%' }}
-              value={parseFloat(thisYear[formatDateToString(date.getMonth())])+"zł"}
+              value={parseFloat(thisYear[formatDateToString(date.getMonth())]).toFixed(2)+"zł"}
             />
           </Grid>
           <Grid
