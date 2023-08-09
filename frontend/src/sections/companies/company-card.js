@@ -4,8 +4,8 @@ import ClockIcon from '@heroicons/react/24/solid/ClockIcon';
 import { Avatar, Box, Card, CardContent, Divider, Stack, SvgIcon, Typography } from '@mui/material';
 
 export const CompanyCard = (props) => {
-  const { company } = props;
-
+  const { account } = props;
+  const img='/assets/logos/logo-' + (account.supplier['name']).toLowerCase() + '.png'
   return (
     <Card
       sx={{
@@ -23,8 +23,10 @@ export const CompanyCard = (props) => {
           }}
         >
           <Avatar
-            src={company.logo}
+            // src='/assets/logos/logo-pgnig.png'
+            src={img}
             variant="square"
+            sx={{ width: 160, height: 100 }}
           />
         </Box>
         <Typography
@@ -32,13 +34,13 @@ export const CompanyCard = (props) => {
           gutterBottom
           variant="h5"
         >
-          {company.title}
+          {account.supplier['name']}
         </Typography>
         <Typography
           align="center"
           variant="body1"
         >
-          {company.description}
+          {account.supplier['url']}
         </Typography>
       </CardContent>
       <Box sx={{ flexGrow: 1 }} />
@@ -85,7 +87,7 @@ export const CompanyCard = (props) => {
             display="inline"
             variant="body2"
           >
-            {company.downloads} Downloads
+            {account.supplier['media']['name']} Downloads
           </Typography>
         </Stack>
       </Stack>
@@ -94,5 +96,5 @@ export const CompanyCard = (props) => {
 };
 
 CompanyCard.propTypes = {
-  company: PropTypes.object.isRequired
+  account: PropTypes.object.isRequired
 };

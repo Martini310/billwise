@@ -48,6 +48,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 
 class AccountSerializer(serializers.ModelSerializer):
+    supplier = SupplierSerializer(many=False)
+
     class Meta:
         model = Account
         fields = "__all__"
