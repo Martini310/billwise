@@ -38,9 +38,14 @@ class InvoiceList(ModelViewSet):
 
 
 class AccountCreate(ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = AccountSerializer
-    queryset = Account.objects.all()
+    # queryset = Account.objects.all()
 
+    def get_queryset(self):
+        if isinstance(self.request.user, AnonymousUser):
+            return []
+        return Account.objects.filter(user=self.request.user)
 
 class SupplierList(ModelViewSet):
     queryset = Supplier.objects.all()
