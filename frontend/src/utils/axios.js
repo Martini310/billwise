@@ -29,6 +29,7 @@ axiosInstance.interceptors.response.use(
 					'Sorry about this - we will get it fixed shortly.'
 			);
 			return Promise.reject(error);
+			console.log('blah')
 		}
 
 		if (
@@ -46,7 +47,12 @@ axiosInstance.interceptors.response.use(
 		) {
 			const refreshToken = localStorage.getItem('refresh_token');
 
-			if (refreshToken) {
+			if (refreshToken ) {
+
+				if (refreshToken === 'undefined') { 
+					window.location.href = 'auth/login/'
+					return console.log('Refresh token not available.')
+				}
 				const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
 
 				// exp date in token is expressed in seconds, while now() returns milliseconds:
