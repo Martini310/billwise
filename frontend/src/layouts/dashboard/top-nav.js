@@ -16,6 +16,7 @@ import {
 import { alpha } from '@mui/material/styles';
 import { usePopover } from 'src/hooks/use-popover';
 import { AccountPopover } from './account-popover';
+import { deepOrange, deepPurple } from '@mui/material/colors';
 
 const SIDE_NAV_WIDTH = 280;
 const TOP_NAV_HEIGHT = 64;
@@ -101,13 +102,16 @@ export const TopNav = (props) => {
             <Avatar
               onClick={accountPopover.handleOpen}
               ref={accountPopover.anchorRef}
-              sx={{
-                cursor: 'pointer',
-                height: 40,
-                width: 40
-              }}
-              src="/assets/avatars/avatar-anika-visser.png"
-            />
+              // sx={{
+              //   cursor: 'pointer',
+              //   height: 40,
+              //   width: 40
+              // }}
+              sx={{ cursor: 'pointer', bgcolor: deepPurple[500] }}
+              // src="/assets/avatars/avatar-anika-visser.png"
+            >
+              {localStorage.getItem('username')}
+            </Avatar>
           </Stack>
         </Stack>
       </Box>
