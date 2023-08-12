@@ -2,6 +2,9 @@ import PropTypes from 'prop-types';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
 import ClockIcon from '@heroicons/react/24/solid/ClockIcon';
 import { Avatar, Box, Card, CardContent, Divider, Stack, SvgIcon, Typography } from '@mui/material';
+import { CardActionArea } from '@mui/material';
+import Link from 'next/link';
+
 
 export const CompanyCard = (props) => {
   const { account } = props;
@@ -14,6 +17,8 @@ export const CompanyCard = (props) => {
         height: '100%'
       }}
     >
+      <Link href={{ pathname: 'edit-sup-account/', query: { accountId: account.id } }}>
+      <CardActionArea>
       <CardContent>
         <Box
           sx={{
@@ -33,7 +38,7 @@ export const CompanyCard = (props) => {
           align="center"
           gutterBottom
           variant="h5"
-        >
+          >
           {account.supplier['name']}
         </Typography>
         <Typography
@@ -42,7 +47,7 @@ export const CompanyCard = (props) => {
         >
           {account.supplier['url']}
         </Typography>
-      </CardContent>
+      </CardContent></CardActionArea></Link>
       <Box sx={{ flexGrow: 1 }} />
       <Divider />
       <Stack

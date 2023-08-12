@@ -42,9 +42,10 @@ class AccountCreate(ModelViewSet):
     serializer_class = AccountSerializer
     # queryset = Account.objects.all()
 
-    def get_queryset(self):
+    def get_queryset(self, id=None):
         if isinstance(self.request.user, AnonymousUser):
             return []
+        print(id)
         return Account.objects.filter(user=self.request.user)
 
 class SupplierList(ModelViewSet):
