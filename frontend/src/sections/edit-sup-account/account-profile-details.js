@@ -30,7 +30,9 @@ const states = [
   }
 ];
 
-export const AccountProfileDetails = () => {
+export const AccountProfileDetails = (props) => {
+  const { account } = props;
+
   const [values, setValues] = useState({
     firstName: 'test',
     lastName: 'Visser',
@@ -58,6 +60,7 @@ export const AccountProfileDetails = () => {
   );
 
   return (
+    account &&
     <form
       autoComplete="off"
       noValidate
@@ -66,7 +69,7 @@ export const AccountProfileDetails = () => {
       <Card>
         <CardHeader
           subheader="The information can be edited"
-          title="Profile"
+          title={ "Dane Twojego konta w " + account.supplier['name']}
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
@@ -81,11 +84,11 @@ export const AccountProfileDetails = () => {
                 <TextField
                   fullWidth
                   helperText="Please specify the first name"
-                  label="First name"
-                  name="firstName"
+                  label="Login"
+                  name="login"
                   onChange={handleChange}
                   required
-                  value={values.firstName}
+                  value={account.login}
                 />
               </Grid>
               <Grid
@@ -94,11 +97,11 @@ export const AccountProfileDetails = () => {
               >
                 <TextField
                   fullWidth
-                  label="Last name"
-                  name="lastName"
+                  label="Password"
+                  name="password"
                   onChange={handleChange}
                   required
-                  value={values.lastName}
+                  value={account.password}
                 />
               </Grid>
               <Grid
@@ -107,11 +110,11 @@ export const AccountProfileDetails = () => {
               >
                 <TextField
                   fullWidth
-                  label="Email Address"
-                  name="email"
+                  label="eBOK"
+                  name="ebok"
                   onChange={handleChange}
-                  required
-                  value={values.email}
+                  disabled
+                  value={account.supplier['url']}
                 />
               </Grid>
               <Grid
