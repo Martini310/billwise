@@ -10,37 +10,24 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
-
-const states = [
-  {
-    value: 'alabama',
-    label: 'Alabama'
-  },
-  {
-    value: 'new-york',
-    label: 'New York'
-  },
-  {
-    value: 'san-francisco',
-    label: 'San Francisco'
-  },
-  {
-    value: 'los-angeles',
-    label: 'Los Angeles'
-  }
-];
+import InputAdornment from '@mui/material/InputAdornment';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import IconButton from '@mui/material/IconButton';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export const AccountProfileDetails = (props) => {
-  const { account } = props;
+  const { account, categories } = props;
 
-  const [values, setValues] = useState({
-    firstName: 'test',
-    lastName: 'Visser',
-    email: 'demo@devias.io',
-    phone: '',
-    state: 'los-angeles',
-    country: 'USA'
-  });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const handleChange = useCallback(
     (event) => {
@@ -68,7 +55,7 @@ export const AccountProfileDetails = (props) => {
     >
       <Card>
         <CardHeader
-          subheader="The information can be edited"
+          subheader="Możesz je edytować"
           title={ "Dane Twojego konta w " + account.supplier['name']}
         />
         <CardContent sx={{ pt: 0 }}>
@@ -83,7 +70,7 @@ export const AccountProfileDetails = (props) => {
               >
                 <TextField
                   fullWidth
-                  helperText="Please specify the first name"
+                  helperText="Please specify your login"
                   label="Login"
                   name="login"
                   onChange={handleChange}
@@ -99,9 +86,23 @@ export const AccountProfileDetails = (props) => {
                   fullWidth
                   label="Password"
                   name="password"
+                  type={showPassword ? 'text' : 'password'}
                   onChange={handleChange}
                   required
                   value={account.password}
+                  InputProps={{
+                    endAdornment: 
+                      <InputAdornment position="end">
+                        <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            edge="end"
+                          >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>,
+                  }}
                 />
               </Grid>
               <Grid
@@ -123,46 +124,20 @@ export const AccountProfileDetails = (props) => {
               >
                 <TextField
                   fullWidth
-                  label="Phone Number"
-                  name="phone"
-                  onChange={handleChange}
-                  type="number"
-                  value={values.phone}
-                />
-              </Grid>
-              <Grid
-                xs={12}
-                md={6}
-              >
-                <TextField
-                  fullWidth
-                  label="Country"
-                  name="country"
-                  onChange={handleChange}
-                  required
-                  value={values.country}
-                />
-              </Grid>
-              <Grid
-                xs={12}
-                md={6}
-              >
-                <TextField
-                  fullWidth
-                  label="Select State"
-                  name="state"
+                  label="Kategoria"
+                  name="category"
                   onChange={handleChange}
                   required
                   select
                   SelectProps={{ native: true }}
-                  value={values.state}
+                  value={account.supplier['media']['name']}
                 >
-                  {states.map((option) => (
+                  {categories.map((category) => (
                     <option
-                      key={option.value}
-                      value={option.value}
+                      key={category}
+                      value={category}
                     >
-                      {option.label}
+                      {category}
                     </option>
                   ))}
                 </TextField>
@@ -171,10 +146,14 @@ export const AccountProfileDetails = (props) => {
           </Box>
         </CardContent>
         <Divider />
-        <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained">
-            Save details
+        <CardActions sx={{ justifyContent: 'space-between' }}>
+          <Button variant="contained" color="error">
+            Usuń
           </Button>
+          <Button variant="contained">
+            Zapisz zmiany
+          </Button>
+
         </CardActions>
       </Card>
     </form>

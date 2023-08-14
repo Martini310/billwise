@@ -42,19 +42,19 @@ export const AccountProfile = (props) => {
               gutterBottom
               variant="h5"
             >
-              {user.name}
+              {account.supplier['name']}
             </Typography>
             <Typography
               color="text.secondary"
               variant="body2"
             >
-              {user.city} {user.country}
+              jakiś tekst
             </Typography>
             <Typography
               color="text.secondary"
               variant="body2"
             >
-              {user.timezone}
+              i coś jeszcze
             </Typography>
           </Box>
         </CardContent>

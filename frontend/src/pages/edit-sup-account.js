@@ -17,6 +17,8 @@ const Page = () => {
   const [account, setAccount] = useState(null)
   const apiUrl = `http://127.0.0.1:8000/api/`;
   
+  const [categories, setCategories] = useState([])
+
   // Fetch user accounts
   useEffect(() => {
       axiosInstance
@@ -30,6 +32,18 @@ const Page = () => {
           console.error(error);
         });
   }, [setAccount, apiUrl]);
+
+  // Fetch Categories and create array with category names
+  useEffect(() => {
+    axiosInstance.get(apiUrl + 'category/')
+      .then((res) => {
+        const categories = res.data;
+        let categoryNames = [];
+        categories.forEach((category) => 
+          categoryNames.push(category.name))
+        setCategories(categoryNames);
+    });
+  }, [setCategories, apiUrl]);
 
   return (
   <>
@@ -49,7 +63,7 @@ const Page = () => {
         <Stack spacing={3}>
           <div>
             <Typography variant="h4">
-              Supplier {account ? account.supplier['name'] : 'brak' }
+              Dostawca
             </Typography>
           </div>
           <div>
@@ -69,7 +83,7 @@ const Page = () => {
                 md={6}
                 lg={8}
               >
-                <AccountProfileDetails account={account} />
+                <AccountProfileDetails account={account} categories={categories} />
               </Grid>
             </Grid>
           </div>
