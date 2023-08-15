@@ -9,6 +9,7 @@ import Link from 'next/link';
 export const CompanyCard = (props) => {
   const { account } = props;
   const img='/assets/logos/logo-' + (account.supplier['name']).toLowerCase() + '.png'
+
   return (
     <Card
       sx={{
@@ -17,7 +18,7 @@ export const CompanyCard = (props) => {
         height: '100%'
       }}
     >
-      <Link href={{ pathname: 'edit-sup-account/', query: { accountId: account.id } }}>
+      <Link href={{ pathname: 'edit-sup-account/', query: { accountId: account.id } }} style={{ textDecoration: 'none', color: 'black' }}>
       <CardActionArea>
       <CardContent>
         <Box
