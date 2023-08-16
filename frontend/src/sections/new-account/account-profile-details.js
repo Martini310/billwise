@@ -22,8 +22,8 @@ import { axiosInstance } from 'src/utils/axios';
 
 export const AccountProfileDetails = (props) => {
 
-  const [categories, setCategories] = useState([])
-  const [suppliers, setSuppliers] = useState([])
+  const [categories, setCategories] = useState()
+  const [suppliers, setSuppliers] = useState()
   const apiUrl = `http://127.0.0.1:8000/api/`;
 
   // Fetch Categories and create array with category names
@@ -43,7 +43,7 @@ export const AccountProfileDetails = (props) => {
       .then((res) => {
         const suppliers = res.data;
         setSuppliers(suppliers);
-        console.log(categories)
+        console.log(suppliers)
     });
   }, [setSuppliers, apiUrl]);
 

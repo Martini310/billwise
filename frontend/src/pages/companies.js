@@ -103,6 +103,7 @@ const Page = () => {
             </Stack>
             <div>
               <Button
+                href='new-account/'
                 startIcon={(
                   <SvgIcon fontSize="small">
                     <PlusIcon />
