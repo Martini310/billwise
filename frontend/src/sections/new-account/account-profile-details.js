@@ -25,6 +25,13 @@ export const AccountProfileDetails = (props) => {
   const [categories, setCategories] = useState()
   const [suppliers, setSuppliers] = useState()
   const apiUrl = `http://127.0.0.1:8000/api/`;
+  const [post, setPost] = useState({
+    login: '',
+    password: '',
+    supplier: '',
+    category: '',
+    user: ''
+  });
 
   // Fetch Categories and create array with category names
   useEffect(() => {
@@ -55,21 +62,25 @@ export const AccountProfileDetails = (props) => {
     event.preventDefault();
   };
 
-  const handleChange = useCallback(
-    (event) => {
-      setValues((prevState) => ({
-        ...prevState,
-        [event.target.name]: event.target.value
-      }));
-    },
-    []
-  );
+  const handleChange = (event) => {
+      setPost({...post, [event.target.name]: event.target.value});
+      console.log(post)
+    };
+
+  const handleInput = (event) => {
+    setPost({...post, [event.target.name]: event.target.value});
+    console.log(post);
+  }
 
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-    },
-    []
+      const post_link = apiUrl + 'account/add/';
+      console.log(post);
+      axiosInstance.post(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    }, [post]
   );
 
   return (
@@ -99,9 +110,9 @@ export const AccountProfileDetails = (props) => {
                   helperText="Please specify your login"
                   label="Login"
                   name="login"
-                  onChange={handleChange}
+                  onChange={handleInput}
                   required
-                  value=''
+                  value={post.login || ''}
                 />
               </Grid>
               <Grid
@@ -113,9 +124,9 @@ export const AccountProfileDetails = (props) => {
                   label="Password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  onChange={handleChange}
+                  onChange={handleInput}
                   required
-                  value=''
+                  value={post.password || ''}
                   InputProps={{
                     endAdornment: 
                       <InputAdornment position="end">
@@ -139,7 +150,7 @@ export const AccountProfileDetails = (props) => {
                   fullWidth
                   label="eBOK"
                   name="ebok"
-                  onChange={handleChange}
+                  onChange={handleInput}
                   disabled
                   value=''
                 />
@@ -152,7 +163,7 @@ export const AccountProfileDetails = (props) => {
                   fullWidth
                   label="Kategoria"
                   name="category"
-                  onChange={handleChange}
+                  onChange={handleInput}
                   required
                   select
                   SelectProps={{ native: true }}
@@ -176,7 +187,7 @@ export const AccountProfileDetails = (props) => {
                   fullWidth
                   label="Dostawca"
                   name="supplier"
-                  onChange={handleChange}
+                  onChange={handleInput}
                   required
                   select
                   SelectProps={{ native: true }}
@@ -200,7 +211,7 @@ export const AccountProfileDetails = (props) => {
           <Button variant="contained" color="error">
             Usuń
           </Button>
-          <Button variant="contained">
+          <Button variant="contained" type='submit'>
             Zapisz zmiany
           </Button>
 
