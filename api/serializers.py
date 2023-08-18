@@ -47,8 +47,14 @@ class InvoiceSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class AccountSerializer(serializers.ModelSerializer):
+class GetAccountSerializer(serializers.ModelSerializer):
     supplier = SupplierSerializer(many=False)
+
+    class Meta:
+        model = Account
+        fields = "__all__"
+
+class PostAccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account

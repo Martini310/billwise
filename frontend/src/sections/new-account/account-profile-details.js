@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
+import {useRouter} from 'next/router';
 import {
   Box,
   Button,
@@ -24,13 +25,14 @@ export const AccountProfileDetails = (props) => {
 
   const [categories, setCategories] = useState()
   const [suppliers, setSuppliers] = useState()
+  const router = useRouter()
   const apiUrl = `http://127.0.0.1:8000/api/`;
   const [post, setPost] = useState({
     login: '',
     password: '',
     supplier: '',
     category: '',
-    user: ''
+    user: localStorage.getItem('id')
   });
 
   // Fetch Categories and create array with category names
@@ -62,10 +64,10 @@ export const AccountProfileDetails = (props) => {
     event.preventDefault();
   };
 
-  const handleChange = (event) => {
-      setPost({...post, [event.target.name]: event.target.value});
-      console.log(post)
-    };
+  const handleSelect = (event) => {
+    setPost({...post, 'supplier': event.target.value});
+    console.log(post);
+  };
 
   const handleInput = (event) => {
     setPost({...post, [event.target.name]: event.target.value});
@@ -78,7 +80,10 @@ export const AccountProfileDetails = (props) => {
       const post_link = apiUrl + 'account/add/';
       console.log(post);
       axiosInstance.post(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
-        .then((res) => console.log(res))
+        .then((res) => {
+          console.log(res);
+          router.push("/companies/");
+        })
         .catch((err) => console.log(err));
     }, [post]
   );
@@ -187,7 +192,7 @@ export const AccountProfileDetails = (props) => {
                   fullWidth
                   label="Dostawca"
                   name="supplier"
-                  onChange={handleInput}
+                  onChange={handleSelect}
                   required
                   select
                   SelectProps={{ native: true }}
@@ -196,7 +201,7 @@ export const AccountProfileDetails = (props) => {
                   {suppliers.map((supplier) => (
                     <option
                       key={supplier.name}
-                      value={supplier.name}
+                      value={supplier.id}
                     >
                       {supplier.name}
                     </option>

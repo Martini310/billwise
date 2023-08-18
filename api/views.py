@@ -3,7 +3,7 @@ from rest_framework.generics import ListCreateAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from base.models import Invoice, Category, Supplier, Account
-from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializer, AccountSerializer, RegisterSerializer
+from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializer, GetAccountSerializer, PostAccountSerializer, RegisterSerializer
 from users.models import NewUser
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -39,8 +39,12 @@ class InvoiceList(ModelViewSet):
 
 class AccountCreate(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = AccountSerializer
+    # serializer_class = AccountSerializer
     # queryset = Account.objects.all()
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return PostAccountSerializer
+        return GetAccountSerializer
 
     def get_queryset(self):
         if isinstance(self.request.user, AnonymousUser):
@@ -52,6 +56,29 @@ class AccountCreate(ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+    
+    # def create(self, request, *args, **kwargs):
+    #     supplier_id = request.data.get('supplier_id')
+    #     supplier, _ = Supplier.objects.get_or_create(id=supplier_id)
+        
+    #     # Make sure to set a valid 'media' value for the supplier
+    #     supplier_id = request.data.get('supplier_id')
+    #     media_id = request.data.get('media')  # Provide the correct media_id
+        
+    #     supplier, _ = Supplier.objects.get_or_create(id=supplier_id)
+    #     supplier.media_id = media_id
+    #     supplier.save()
+         
+    #     # Set 'supplier' in the request data to the created/updated supplier's ID
+    #     request.data['supplier'] = supplier.id
+        
+    #     serializer = AccountSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+        
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SupplierList(ModelViewSet):
     queryset = Supplier.objects.all()

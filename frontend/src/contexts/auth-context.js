@@ -146,6 +146,7 @@ export const AuthProvider = (props) => {
         localStorage.setItem('access_token', response.data.access);
         localStorage.setItem('refresh_token', response.data.refresh);
         localStorage.setItem('username', response.data.username);
+        localStorage.setItem('id', response.data.id);
         window.sessionStorage.setItem('authenticated', 'true');
 
         console.log(response.data.access, response.data.username)
