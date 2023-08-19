@@ -5,11 +5,11 @@ import { createEmotionCache } from 'src/utils/create-emotion-cache';
 
 const Favicon = () => (
   <>
-    <link
+    {/* <link
       rel="apple-touch-icon"
       sizes="180x180"
       href="/apple-touch-icon.png"
-    />
+    /> */}
     <link
       rel="icon"
       href="/favicon.ico"

@@ -57,28 +57,6 @@ class AccountCreate(ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
     
-    # def create(self, request, *args, **kwargs):
-    #     supplier_id = request.data.get('supplier_id')
-    #     supplier, _ = Supplier.objects.get_or_create(id=supplier_id)
-        
-    #     # Make sure to set a valid 'media' value for the supplier
-    #     supplier_id = request.data.get('supplier_id')
-    #     media_id = request.data.get('media')  # Provide the correct media_id
-        
-    #     supplier, _ = Supplier.objects.get_or_create(id=supplier_id)
-    #     supplier.media_id = media_id
-    #     supplier.save()
-         
-    #     # Set 'supplier' in the request data to the created/updated supplier's ID
-    #     request.data['supplier'] = supplier.id
-        
-    #     serializer = AccountSerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-        
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SupplierList(ModelViewSet):
     queryset = Supplier.objects.all()
