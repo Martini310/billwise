@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from .models import Invoice, Supplier, User
+from .models import Invoice, Supplier, User, Account
 from users.models import NewUser
 import requests
 import urllib3
@@ -17,7 +17,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # PGNIG_PASSWORD = os.getenv('PGNIG_PASSWORD')
 
 
-def get_pgnig(pk, login=None, password=None):
+def get_pgnig(pk, login=None, password=None, account_pk=None):
     # Log in into PGNiG ebok
     token_post = requests.post(url="https://ebok.pgnig.pl/auth/login",
                                data={'identificator': login,
@@ -60,6 +60,7 @@ def get_pgnig(pk, login=None, password=None):
     # Get supplier and user pk
     sup = Supplier.objects.get(pk=1)
     us = NewUser.objects.get(pk=pk)
+    account = Account.objects.get(pk=account_pk)
 
     Invoice.objects.bulk_create([Invoice(number=invoice.get('Number'),
                                          date=datetime.fromisoformat(invoice.get('Date')[:-1]),
@@ -72,12 +73,13 @@ def get_pgnig(pk, login=None, password=None):
                                          supplier=sup,
                                          user=us,
                                          is_paid=invoice.get('IsPaid'),
-                                         consumption_point='test')
+                                         consumption_point='test',
+                                         account=account,)
                                  for invoice in faktury if
                                  not Invoice.objects.filter(user=us, number=invoice.get('Number')).exists()])
 
 
-def get_enea(pk, login=None, password=None):
+def get_enea(pk, login=None, password=None, account_pk=None):
     # Fill in your details here to be posted to the login form.
     payload = {
         'email': login,
@@ -129,7 +131,8 @@ def get_enea(pk, login=None, password=None):
             status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
 
             supplier = Supplier.objects.get(pk=3)
-            user = User.objects.get(pk=pk)
+            user = NewUser.objects.get(pk=pk)
+            account = Account.objects.get(pk=account_pk)
 
             all_invoices.append(Invoice(number=name.text.strip(),
                                         date=datetime.strptime(date.text.strip(), "%d.%m.%Y"),
@@ -142,7 +145,8 @@ def get_enea(pk, login=None, password=None):
                                         supplier=supplier,
                                         user=user,
                                         is_paid=True if 'Zapłacona' in status.text.strip() else False,
-                                        consumption_point='test'))
+                                        consumption_point='test',
+                                        account=account))
 
         Invoice.objects.bulk_create(
             [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()]

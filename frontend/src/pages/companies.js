@@ -41,7 +41,7 @@ const Page = () => {
   useEffect(() => {
       axiosInstance
         .get(
-          apiUrl + 'account/add/',
+          apiUrl + 'accounts/',
           { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           setAccounts(res.data);

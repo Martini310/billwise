@@ -93,7 +93,7 @@ export const CompanyCard = (props) => {
             display="inline"
             variant="body2"
           >
-            {account.supplier['media']['name']} Downloads
+            {account.category['name']} Downloads
           </Typography>
         </Stack>
       </Stack>

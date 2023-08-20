@@ -90,7 +90,7 @@ const Page = () => {
 
   // Sum invoices amounts by categories and count paid an unpaid invoices
   invoices.forEach((invoice) => {
-    categoryTotalAmount[invoice.supplier.media.name] += invoice.amount;
+    categoryTotalAmount[invoice.account.category.name] += invoice.amount;
     totalAmount += invoice.amount;
     if (invoice.is_paid) {
       paidInvoices += 1

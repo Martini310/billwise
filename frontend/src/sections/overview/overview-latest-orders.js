@@ -66,6 +66,9 @@ export const OverviewLatestOrders = (props) => {
                   Kwota
                 </TableCell>
                 <TableCell>
+                  Termin płatności
+                </TableCell>
+                <TableCell>
                   Status
                 </TableCell>
               </TableRow>
@@ -88,13 +91,16 @@ export const OverviewLatestOrders = (props) => {
                       {order.number}
                     </TableCell>
                     <TableCell>
-                      {order.supplier['media']['name']}
+                      {order.account['category']['name']}
                     </TableCell>
                     <TableCell>
                       {order.date}
                     </TableCell>
                     <TableCell>
                       {order.amount}
+                    </TableCell>
+                    <TableCell>
+                      {order.pay_deadline}
                     </TableCell>
                     <TableCell>
                       <SeverityPill color={order.is_paid

@@ -45,17 +45,18 @@ export const AccountProfileDetails = (props) => {
     console.log(post);
   }
 
-  const handleSelect = (event) => {
-    setPost({...post, 'category': event.target.value});
-    console.log(post);
-  };
+  // const handleSelect = (event) => {
+  //   setPost({...post, 'category': categories[event.target.value - 1]});
+  //   console.log(post);
+  // };
 
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = `${apiUrl}account/add/${post.id}/`;
+      const post_link = `${apiUrl}accounts/${post.id}/`;
+      delete post.supplier
       console.log(post);
-      axiosInstance.patch(post_link, {login:post.login, password:post.password}, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+      axiosInstance.patch(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           console.log(res);
           router.push("/companies/");
@@ -67,7 +68,7 @@ export const AccountProfileDetails = (props) => {
   const handleDelete = useCallback(
     (event) => {
       event.preventDefault();
-      const link = `${apiUrl}account/add/${account.id}/`;
+      const link = `${apiUrl}accounts/${account.id}/`;
       axiosInstance.delete(link, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           console.log(res);
@@ -157,18 +158,19 @@ export const AccountProfileDetails = (props) => {
                   fullWidth
                   label="Kategoria"
                   name="category"
-                  onChange={handleSelect}
+                  onChange={handleChange}
                   required
                   select
                   SelectProps={{ native: true }}
-                  value={post.category}
+                  value={post.category.id}
+                  // value={3}
                 >
                   {categories.map((category) => (
                     <option
-                      key={category}
-                      value={category}
+                      key={category.name}
+                      value={category.id}
                     >
-                      {category}
+                      {category.name}
                     </option>
                   ))}
                 </TextField>

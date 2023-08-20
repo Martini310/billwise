@@ -23,7 +23,7 @@ const Page = () => {
   useEffect(() => {
       axiosInstance
         .get(
-          apiUrl + 'account/add/' + accountId,
+          apiUrl + 'accounts/' + accountId,
           { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           setAccount(res.data);
@@ -41,7 +41,8 @@ const Page = () => {
         let categoryNames = [];
         categories.forEach((category) => 
           categoryNames.push(category.name))
-        setCategories(categoryNames);
+        // setCategories(categoryNames);
+        setCategories(categories);
     });
   }, [setCategories, apiUrl]);
 

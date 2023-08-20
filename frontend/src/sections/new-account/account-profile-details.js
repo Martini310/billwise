@@ -43,7 +43,8 @@ export const AccountProfileDetails = (props) => {
         let categoryNames = [];
         categories.forEach((category) => 
           categoryNames.push(category.name))
-        setCategories(categoryNames);
+        // setCategories(categoryNames);
+        setCategories(categories);
     });
   }, [setCategories, apiUrl]);
 
@@ -77,7 +78,7 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = apiUrl + 'account/add/';
+      const post_link = apiUrl + 'accounts/';
       console.log(post);
       axiosInstance.post(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
@@ -180,10 +181,10 @@ export const AccountProfileDetails = (props) => {
                     />
                   {categories.map((category) => (
                     <option
-                      key={category}
-                      value={category}
+                      key={category.name}
+                      value={category.id}
                     >
-                      {category}
+                      {category.name}
                     </option>
                   ))}
                 </TextField>

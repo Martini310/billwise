@@ -37,12 +37,12 @@ class InvoiceList(ModelViewSet):
         return Invoice.objects.filter(user=self.request.user)
 
 
-class AccountCreate(ModelViewSet):
+class AccountList(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     # serializer_class = AccountSerializer
     # queryset = Account.objects.all()
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method in ['POST', 'PATCH']:
             return PostAccountSerializer
         return GetAccountSerializer
 
@@ -110,8 +110,8 @@ class CurrentUser(ViewSet):
 #         return Response(serializer.data)
 
 
-class InvoiceCreate(CreateAPIView):
-    serializer_class = InvoiceSerializer
+# class InvoiceCreate(CreateAPIView):
+#     serializer_class = InvoiceSerializer
 
 
 # class InvoiceDetails(APIView):
@@ -180,27 +180,27 @@ class InvoiceCreate(CreateAPIView):
 #     serializer_class = CategorySerializer
 
 
-class CategoryDetails(APIView):
-    def get_media_by_pk(self, pk):
-        try:
-            return Category.objects.get(pk=pk)
-        except:
-            return Response({
-                'error': 'Category does not exist'
-            }, status=status.HTTP_404_NOT_FOUND)
+# class CategoryDetails(APIView):
+#     def get_media_by_pk(self, pk):
+#         try:
+#             return Category.objects.get(pk=pk)
+#         except:
+#             return Response({
+#                 'error': 'Category does not exist'
+#             }, status=status.HTTP_404_NOT_FOUND)
 
-    def get(self, request, pk):
-        media = self.get_media_by_pk(pk)
-        serializer = CategorySerializer(media)
-        return Response(serializer.data)
+#     def get(self, request, pk):
+#         media = self.get_media_by_pk(pk)
+#         serializer = CategorySerializer(media)
+#         return Response(serializer.data)
 
-    def put(self, request, pk):
-        media = self.get_media_by_pk(pk)
-        serializer = CategorySerializer(media, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def put(self, request, pk):
+#         media = self.get_media_by_pk(pk)
+#         serializer = CategorySerializer(media, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class SupplierList(ListCreateAPIView):
@@ -221,27 +221,27 @@ class CategoryDetails(APIView):
     #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SupplierDetails(APIView):
-    def get_supplier_by_pk(self, pk):
-        try:
-            return Supplier.objects.get(pk=pk)
-        except:
-            return Response({
-                'error': 'Supplier does not exist'
-            }, status=status.HTTP_404_NOT_FOUND)
+# class SupplierDetails(APIView):
+#     def get_supplier_by_pk(self, pk):
+#         try:
+#             return Supplier.objects.get(pk=pk)
+#         except:
+#             return Response({
+#                 'error': 'Supplier does not exist'
+#             }, status=status.HTTP_404_NOT_FOUND)
 
-    def get(self, request, pk):
-        supplier = self.get_supplier_by_pk(pk)
-        serializer = SupplierSerializer(supplier)
-        return Response(serializer.data)
+#     def get(self, request, pk):
+#         supplier = self.get_supplier_by_pk(pk)
+#         serializer = SupplierSerializer(supplier)
+#         return Response(serializer.data)
 
-    def put(self, request, pk):
-        supplier = self.get_supplier_by_pk(pk)
-        serializer = SupplierSerializer(supplier, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def put(self, request, pk):
+#         supplier = self.get_supplier_by_pk(pk)
+#         serializer = SupplierSerializer(supplier, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class AccountCreate(APIView):
