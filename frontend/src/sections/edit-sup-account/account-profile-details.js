@@ -26,6 +26,13 @@ export const AccountProfileDetails = (props) => {
 
   const apiUrl = `http://127.0.0.1:8000/api/`;
   const router = useRouter()
+  const [post, setPost] = useState({
+    login: '',
+    password: '',
+    supplier: '',
+    category: '',
+    user: localStorage.getItem('id')
+  });
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -48,8 +55,15 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-    },
-    []
+      const post_link = apiUrl + 'account/add/';
+      console.log(post);
+      axiosInstance.put(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .then((res) => {
+          console.log(res);
+          router.push("/companies/");
+        })
+        .catch((err) => console.log(err));
+    }, [post]
   );
 
   const handleDelete = useCallback(
