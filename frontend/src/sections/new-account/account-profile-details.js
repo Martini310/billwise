@@ -172,8 +172,12 @@ export const AccountProfileDetails = (props) => {
                   required
                   select
                   SelectProps={{ native: true }}
-                  value={categories[0]}
+                  value={post.category}
                 >
+                    <option
+                      key='blank'
+                      value=''
+                    />
                   {categories.map((category) => (
                     <option
                       key={category}
@@ -196,8 +200,12 @@ export const AccountProfileDetails = (props) => {
                   required
                   select
                   SelectProps={{ native: true }}
-                  value={suppliers[0]['name']}
+                  value={post.supplier}
                 >
+                  <option
+                      key='blank'
+                      value=''
+                    />
                   {suppliers.map((supplier) => (
                     <option
                       key={supplier.name}

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {useRouter} from 'next/router';
 import {
   Box,
@@ -26,14 +26,12 @@ export const AccountProfileDetails = (props) => {
 
   const apiUrl = `http://127.0.0.1:8000/api/`;
   const router = useRouter()
-  const [post, setPost] = useState({
-    login: '',
-    password: '',
-    supplier: '',
-    category: '',
-    user: localStorage.getItem('id')
-  });
+  const [post, setPost] = useState();
 
+  useEffect(() => {
+    setPost(props.account);
+    }, [props.account])
+  console.log(post)
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -42,22 +40,22 @@ export const AccountProfileDetails = (props) => {
     event.preventDefault();
   };
 
-  const handleChange = useCallback(
-    (event) => {
-      setValues((prevState) => ({
-        ...prevState,
-        [event.target.name]: event.target.value
-      }));
-    },
-    []
-  );
+  const handleChange = (event) => {
+    setPost({...post, [event.target.name]: event.target.value});
+    console.log(post);
+  }
+
+  const handleSelect = (event) => {
+    setPost({...post, 'category': event.target.value});
+    console.log(post);
+  };
 
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = apiUrl + 'account/add/';
+      const post_link = `${apiUrl}account/add/${post.id}/`;
       console.log(post);
-      axiosInstance.put(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+      axiosInstance.patch(post_link, {login:post.login, password:post.password}, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           console.log(res);
           router.push("/companies/");
@@ -69,7 +67,7 @@ export const AccountProfileDetails = (props) => {
   const handleDelete = useCallback(
     (event) => {
       event.preventDefault();
-      const link = apiUrl + 'account/add/' + account.id + '/';
+      const link = `${apiUrl}account/add/${account.id}/`;
       axiosInstance.delete(link, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           console.log(res);
@@ -80,7 +78,7 @@ export const AccountProfileDetails = (props) => {
   );
 
   return (
-    account &&
+    post &&
     <form
       autoComplete="off"
       noValidate
@@ -89,7 +87,7 @@ export const AccountProfileDetails = (props) => {
       <Card>
         <CardHeader
           subheader="Możesz je edytować"
-          title={ "Dane Twojego konta w " + account.supplier['name']}
+          title={ "Dane Twojego konta w " + post.supplier['name']}
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
@@ -108,7 +106,7 @@ export const AccountProfileDetails = (props) => {
                   name="login"
                   onChange={handleChange}
                   required
-                  value={account.login}
+                  value={post.login}
                 />
               </Grid>
               <Grid
@@ -122,7 +120,7 @@ export const AccountProfileDetails = (props) => {
                   type={showPassword ? 'text' : 'password'}
                   onChange={handleChange}
                   required
-                  value={account.password}
+                  value={post.password}
                   InputProps={{
                     endAdornment: 
                       <InputAdornment position="end">
@@ -148,7 +146,7 @@ export const AccountProfileDetails = (props) => {
                   name="ebok"
                   onChange={handleChange}
                   disabled
-                  value={account.supplier['url']}
+                  value={post.supplier['url']}
                 />
               </Grid>
               <Grid
@@ -159,11 +157,11 @@ export const AccountProfileDetails = (props) => {
                   fullWidth
                   label="Kategoria"
                   name="category"
-                  onChange={handleChange}
+                  onChange={handleSelect}
                   required
                   select
                   SelectProps={{ native: true }}
-                  value={account.supplier['media']['name']}
+                  value={post.category}
                 >
                   {categories.map((category) => (
                     <option
@@ -183,7 +181,7 @@ export const AccountProfileDetails = (props) => {
           <Button variant="contained" color="error" onClick={handleDelete}>
             Usuń
           </Button>
-          <Button variant="contained">
+          <Button variant="contained" type='submit'>
             Zapisz zmiany
           </Button>
 
