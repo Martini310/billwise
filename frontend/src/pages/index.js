@@ -122,7 +122,7 @@ const Page = () => {
   };
 
   // Percentage difference Year-To-Year
-  const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100;
+  const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100 - 100;
 
   const newestInvoice = invoices[0];
 
