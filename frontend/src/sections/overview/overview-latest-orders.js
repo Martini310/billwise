@@ -20,6 +20,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { SeverityPill } from 'src/components/severity-pill';
 import TablePagination from '@mui/material/TablePagination';
 import { useState } from 'react';
+import { BasicModal } from './overview-modal'
 
 const statusMap = {
   false: 'warning',
@@ -41,6 +42,8 @@ export const OverviewLatestOrders = (props) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   return (
     <Card sx={sx}>
@@ -83,6 +86,7 @@ export const OverviewLatestOrders = (props) => {
                   <TableRow
                     hover
                     key={order.id}
+                    onClick={() => setSelectedOrder(order)}
                   >
                     <TableCell>
                       {order.supplier['name']}
@@ -121,6 +125,13 @@ export const OverviewLatestOrders = (props) => {
                   </TableRow>
                 );
               })}
+              {selectedOrder && (
+                <BasicModal
+                  open={true} // Pass an open prop to control the modal's visibility
+                  order={selectedOrder} // Pass the selected order as a prop
+                  onClose={() => setSelectedOrder(null)} // Close the modal when needed
+                />
+              )}
             </TableBody>
           </Table>
           <TablePagination
