@@ -90,7 +90,7 @@ export const AccountProfileDetails = (props) => {
   );
 
   return (
-    suppliers, categories &&
+    (suppliers && categories) &&
     <form
       autoComplete="off"
       noValidate
