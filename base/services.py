@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from .models import Invoice, Supplier, User, Account
+from .models import Invoice, Supplier, Account
 from users.models import NewUser
 import requests
 import urllib3
@@ -130,7 +130,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
             payment = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
             status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
 
-            supplier = Supplier.objects.get(pk=3)
+            supplier = Supplier.objects.get(pk=2)
             user = NewUser.objects.get(pk=pk)
             account = Account.objects.get(pk=account_pk)
 
@@ -162,3 +162,158 @@ def get_enea(pk, login=None, password=None, account_pk=None):
         # for point in all:
         #     a = point.find('span')
         #     print(a.text)
+
+def get_aquanet(pk, login=None, password=None, account_pk=None):
+
+    payload = {
+    'user-login-email[email]': login,
+    'user-login-email[password]': password,
+    'user-login-email[submit]':	"Zaloguj"
+    }
+
+    all_invoices = []
+
+    supplier = Supplier.objects.get(pk=3)
+    user = NewUser.objects.get(pk=pk)
+    account = Account.objects.get(pk=account_pk)
+
+    with requests.Session() as s:
+
+        res = s.get('https://ebok.aquanet.pl/user/login', verify=False)
+        signin = BeautifulSoup(res._content, 'html.parser')
+        token = signin.find('input', type='hidden')['value']
+
+        payload['csrfp_token'] = token
+        print(payload)
+        cookies = s.cookies.items()
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Referer': 'https://ebok.aquanet.pl/user/login',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Origin': 'https://ebok.aquanet.pl',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Cookie': f'{cookies[0][0]}={cookies[0][1]}; {cookies[1][0]}={cookies[1][1]}; cookielaw=true',
+        }
+
+        response = s.post('https://ebok.aquanet.pl/user/login', headers=headers, data=payload)
+        # print(response.status_code)
+        # print(s.cookies.items())
+
+        # Get 'https://ebok.aquanet.pl/faktury' to get number of pages in table
+        faktury = s.get('https://ebok.aquanet.pl/faktury', headers=headers, verify=False)
+        # print(faktury.status_code)
+        
+        soup = BeautifulSoup(faktury.content, 'html.parser')
+        # Number of table pages
+        pages = soup.find('li', class_='last').find('a')
+        pages = pages['href'].lstrip('?page=')
+
+        # Find all unpaid invoices
+        tables = soup.find_all('table', class_='table')
+
+        unpaid_table = [table.find_all('tr') for table in tables if table.find('caption').find('h3').text == 'Niezapłacone'][0]
+        # print(tables[0].find('caption').find('h3').text)
+        unpaid_invoices = []
+        for row in unpaid_table:
+            invoice = [td.text for td in row.find_all('td') if td.text]
+            if invoice:
+                unpaid_invoices.append(invoice)
+        print(unpaid_invoices)
+
+        for unpaid in unpaid_invoices:
+            date_scope = unpaid[2]
+            start_date = ''
+            end_date = ''
+            if len(date_scope) < 22:
+                start_date = date_scope.partition('-')[0]
+                end_date = date_scope.partition('-')[2]
+            else:
+                start_date = date_scope.partition(' do ')[0].lstrip('Za okres od ').replace('/', '.')
+                end_date = date_scope.partition(' do ')[2].replace('/', '.')
+
+            date = unpaid[3]
+            number = unpaid[1]
+            pay_deadline = unpaid[4]
+            amount = unpaid[5].rstrip(' zł')
+            to_pay = unpaid[6].rstrip(' zł')
+
+            all_invoices.append(Invoice(number=number,
+                            date=datetime.strptime(date, "%d.%m.%Y"),
+                            amount=float(amount.replace(',', '.')),
+                            pay_deadline=datetime.strptime(pay_deadline, "%d.%m.%Y"),
+                            start_date=datetime.strptime(start_date, "%d.%m.%Y"),
+                            end_date=datetime.strptime(end_date, "%d.%m.%Y"),
+                            amount_to_pay=float(to_pay.replace(',', '.')),
+                            wear=None,
+                            supplier=supplier,
+                            user=user,
+                            is_paid=False,
+                            consumption_point='Brak informacji',
+                            account=account))
+
+        paid_invoices = []
+        # For every page find all rows with invoices and append to list
+        for page in range(int(pages) + 1):
+
+            test = {
+            "state[_id]": "09534ea9a0668ab4b3f0c011e6c84c11",
+            "state[_page]": page,
+            "state[_count]": "-1",
+            "sort[0][0]": "issuedAt",
+            "sort[0][1]": "-1",
+            "sort[1][0]": "id",
+            "sort[1][1]": "-1"
+            }
+
+            invoice_page = s.post('https://ebok.aquanet.pl/such/table/view', headers=headers, data=test, verify=False)
+
+            page_soup = BeautifulSoup(invoice_page.content, 'html.parser')
+
+            for tr in page_soup.find_all('tr')[1:11]:
+                paid_invoices.append([td.text for td in tr.find_all('td') if td.text])
+
+
+
+        for index, row in enumerate(paid_invoices):
+            # print(index, row)
+            date_scope = row[2]
+            start_date = ''
+            end_date = ''
+            if len(date_scope) < 22:
+                start_date = date_scope.partition('-')[0]
+                end_date = date_scope.partition('-')[2]
+            else:
+                start_date = date_scope.partition(' do ')[0].lstrip('Za okres od ').replace('/', '.')
+                end_date = date_scope.partition(' do ')[2].replace('/', '.')
+
+            date = row[3]
+            number = row[1]
+            pay_deadline = row[4]
+            amount = row[5].rstrip(' zł')
+
+            print([number, start_date, end_date, date, pay_deadline, amount])
+
+            all_invoices.append(Invoice(number=number,
+                                        date=datetime.strptime(date, "%d.%m.%Y"),
+                                        amount=float(amount.replace(',', '.')),
+                                        pay_deadline=datetime.strptime(pay_deadline, "%d.%m.%Y"),
+                                        start_date=datetime.strptime(start_date, "%d.%m.%Y"),
+                                        end_date=datetime.strptime(end_date, "%d.%m.%Y"),
+                                        amount_to_pay=0,
+                                        wear=None,
+                                        supplier=supplier,
+                                        user=user,
+                                        is_paid=True,
+                                        consumption_point='Brak informacji',
+                                        account=account))
+
+        Invoice.objects.bulk_create(
+            [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()]
+        )
+        # print(all_invoices)
+
+# get_aquanet(pk=1, account_pk=3)

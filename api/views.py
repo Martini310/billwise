@@ -7,7 +7,7 @@ from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializ
 from users.models import NewUser
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from base.services import get_pgnig, get_enea
+from base.services import get_pgnig, get_enea, get_aquanet
 from api.permissions import IsOwner
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from django.shortcuts import get_object_or_404
@@ -31,9 +31,17 @@ class InvoiceList(ModelViewSet):
         if isinstance(self.request.user, AnonymousUser):
             return []
         
-    #     enea_sup = Supplier.objects.get(name='Enea')
-    #     enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
-    #     get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
+        # enea_sup = Supplier.objects.get(name='Enea')
+        # pgnig_sup = Supplier.objects.get(name='PGNiG')
+        # aquanet_sup = Supplier.objects.get(name='Aquanet')
+
+        # enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
+        # pgnig_account = Account.objects.get(user=self.request.user.pk, supplier=pgnig_sup)
+        # aquanet_account = Account.objects.get(user=self.request.user.pk, supplier=aquanet_sup)
+
+        # get_enea(pk=self.request.user.pk, login=enea_account.login, password=enea_account.password, account_pk=2)
+        # get_pgnig(pk=self.request.user.pk, login=pgnig_account.login, password=pgnig_account.password, account_pk=1)
+        # get_aquanet(pk=self.request.user.pk, login=aquanet_account.login, password=aquanet_account.password, account_pk=3)
         return Invoice.objects.filter(user=self.request.user)
 
 
