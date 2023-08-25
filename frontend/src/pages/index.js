@@ -127,9 +127,9 @@ const Page = () => {
   const newestInvoice = invoices[0];
 
   unPaidInvoices.sort((a, b) => {
-    let da = new Date(a.date),
-        db = new Date(b.date);
-    return db - da;
+    let da = new Date(a.pay_deadline),
+        db = new Date(b.pay_deadline);
+    return da - db;
   });
 
   return (
@@ -193,7 +193,7 @@ const Page = () => {
               sx={{ height: '100%' }}
               value={unPaidInvoices[0] ? unPaidInvoices[0].amount + "zł" : "Wszystkie faktury opłacone!"}
               supplier={unPaidInvoices[0] ? unPaidInvoices[0].supplier.name : "---"}
-              date={unPaidInvoices[0] ? unPaidInvoices[0].date : "---"}
+              date={unPaidInvoices[0] ? unPaidInvoices[0].pay_deadline : "---"}
             />
           </Grid>
           <Grid
