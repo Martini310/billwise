@@ -22,11 +22,15 @@ class Supplier(models.Model):
     
 
 class Account(models.Model):
-    supplier = models.ForeignKey(to=Supplier, on_delete=models.CASCADE)
+    supplier = models.ForeignKey(to=Supplier, related_name='accounts', on_delete=models.CASCADE)
     login = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Konto {self.user.username} w kategorii {self.category.name}"
+
 
 class Invoice(models.Model):
     number = models.CharField(max_length=100)

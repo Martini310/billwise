@@ -41,9 +41,11 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
-    'base.apps.BaseConfig',
+    # 'base.apps.BaseConfig',
+    'base',
     'users',
     'rest_framework_simplejwt.token_blacklist',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -191,3 +193,11 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+# CELERY_BEAT_SCHEDULE = {
+#     "scheduled_task": {
+#         "task": "base.tasks.add",
+#         "schedule": 5.0,
+#         "args": (20,10),
+#     },
+# }
