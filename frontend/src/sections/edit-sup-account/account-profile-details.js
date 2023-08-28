@@ -31,7 +31,7 @@ export const AccountProfileDetails = (props) => {
   useEffect(() => {
     setPost(props.account);
     }, [props.account])
-  console.log(post)
+  // console.log(post)
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -42,7 +42,7 @@ export const AccountProfileDetails = (props) => {
 
   const handleChange = (event) => {
     setPost({...post, [event.target.name]: event.target.value});
-    console.log(post);
+    // console.log(post);
   }
 
   // const handleSelect = (event) => {
@@ -55,6 +55,7 @@ export const AccountProfileDetails = (props) => {
       event.preventDefault();
       const post_link = `${apiUrl}accounts/${post.id}/`;
       delete post.supplier
+      delete post.category
       console.log(post);
       axiosInstance.patch(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
