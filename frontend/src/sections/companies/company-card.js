@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
 import ClockIcon from '@heroicons/react/24/solid/ClockIcon';
+import UserCircleIcon from '@heroicons/react/24/solid/UserCircleIcon';
+import TagIcon from '@heroicons/react/24/solid/TagIcon';
 import { Avatar, Box, Card, CardContent, Divider, Stack, SvgIcon, Typography } from '@mui/material';
 import { CardActionArea } from '@mui/material';
 import Link from 'next/link';
@@ -67,14 +69,14 @@ export const CompanyCard = (props) => {
             color="action"
             fontSize="small"
           >
-            <ClockIcon />
+            <UserCircleIcon />
           </SvgIcon>
           <Typography
             color="text.secondary"
             display="inline"
             variant="body2"
           >
-            Updated 2hr ago
+            {account.login}
           </Typography>
         </Stack>
         <Stack
@@ -86,14 +88,14 @@ export const CompanyCard = (props) => {
             color="action"
             fontSize="small"
           >
-            <ArrowDownOnSquareIcon />
+            <TagIcon />
           </SvgIcon>
           <Typography
             color="text.secondary"
             display="inline"
             variant="body2"
           >
-            {account.category['name']} Downloads
+            {account.category['name']}
           </Typography>
         </Stack>
       </Stack>

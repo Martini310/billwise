@@ -29,7 +29,7 @@ class Account(models.Model):
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Konto {self.user.username} w kategorii {self.category.name}"
+        return f"Konto {self.user.user_name} w kategorii {self.category.name}"
 
 
 class Invoice(models.Model):

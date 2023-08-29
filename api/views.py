@@ -52,6 +52,8 @@ class AccountList(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
             return PostAccountSerializer
+        # elif self.request.method == 'PATCH':
+        #     return PatchAccountSerializer
         return GetAccountSerializer
 
     def get_queryset(self):
