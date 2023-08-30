@@ -2,13 +2,13 @@ import Head from 'next/head';
 import { subDays, subHours } from 'date-fns';
 import { Box, Container, Unstable_Grid2 as Grid } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
-import { OverviewBudget } from 'src/sections/overview/overview-budget';
-import { OverviewLatestOrders } from 'src/sections/overview/overview-latest-orders';
-import { OverviewSales } from 'src/sections/overview/overview-sales';
-import { OverviewTasksProgress } from 'src/sections/overview/overview-tasks-progress';
-import { OverviewTotalCustomers } from 'src/sections/overview/overview-total-customers';
-import { OverviewTotalProfit } from 'src/sections/overview/overview-total-profit';
-import { OverviewTraffic } from 'src/sections/overview/overview-traffic';
+import { OverviewNewestPayment } from 'src/sections/overview/overview-newest-payment';
+import { OverviewLatestPayments } from 'src/sections/overview/overview-latest-payments';
+import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-chart';
+import { OverviewPaidPercentage } from 'src/sections/overview/overview-paid-percentage';
+import { OverviewCurrentMonth } from 'src/sections/overview/overview-current-month';
+import { OverviewNextPayment } from 'src/sections/overview/overview-next-payment';
+import { OverviewCategoriesChart } from 'src/sections/overview/overview-categories-chart';
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
 
@@ -156,7 +156,7 @@ const Page = () => {
             sm={6}
             lg={3}
           >
-            <OverviewBudget
+            <OverviewNewestPayment
               supplier={newestInvoice ? newestInvoice.supplier.name : "Brak faktur"}
               sx={{ height: '100%' }}
               value={newestInvoice ? newestInvoice.amount + "zł" : "---"}
@@ -167,7 +167,7 @@ const Page = () => {
             sm={6}
             lg={3}
           >
-            <OverviewTotalCustomers
+            <OverviewCurrentMonth
               difference={parseFloat(monthDiff.toFixed(2))}
               positive={monthDiff > 0}
               sx={{ height: '100%' }}
@@ -179,7 +179,7 @@ const Page = () => {
             sm={6}
             lg={3}
           >
-            <OverviewTasksProgress
+            <OverviewPaidPercentage
               sx={{ height: '100%' }}
               value={parseFloat((paidInvoices / invoices.length * 100).toFixed(0))}
             />
@@ -189,7 +189,7 @@ const Page = () => {
             sm={6}
             lg={3}
           >
-            <OverviewTotalProfit
+            <OverviewNextPayment
               sx={{ height: '100%' }}
               value={unPaidInvoices[0] ? unPaidInvoices[0].amount + "zł" : "Wszystkie faktury opłacone!"}
               supplier={unPaidInvoices[0] ? unPaidInvoices[0].supplier.name : "---"}
@@ -200,7 +200,7 @@ const Page = () => {
             xs={12}
             lg={8}
           >
-            <OverviewSales
+            <OverviewMonthlyChart
               chartSeries={[
                 {
                   name: 'Last year',
@@ -219,7 +219,7 @@ const Page = () => {
             md={6}
             lg={4}
           >
-            <OverviewTraffic
+            <OverviewCategoriesChart
               chartSeries={Object.values(categoryPercentageValues)}
               labels={Object.keys(categoryPercentageValues)}
               // labels={categories}
@@ -232,7 +232,7 @@ const Page = () => {
             md={12}
             lg={12}
           >
-            <OverviewLatestOrders
+            <OverviewLatestPayments
               orders={invoices}
               sx={{ height: '100%' }}
             />

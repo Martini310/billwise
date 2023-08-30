@@ -13,8 +13,8 @@ import {
   Unstable_Grid2 as Grid
 } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
-import { CompanyCard } from 'src/sections/companies/company-card';
-import { CompaniesSearch } from 'src/sections/companies/companies-search';
+import { AccountCard } from 'src/sections/accounts/account-card';
+import { AccountsSearch } from 'src/sections/accounts/accounts-search';
 import { axiosInstance } from 'src/utils/axios';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -115,7 +115,7 @@ const Page = () => {
               </Button>
             </div>
           </Stack>
-          <CompaniesSearch />
+          <AccountsSearch />
           <Grid
             container
             spacing={3}
@@ -128,7 +128,7 @@ const Page = () => {
                     lg={4}
                     key={account.id}
                   >
-                    <CompanyCard account={account} />
+                    <AccountCard account={account} />
                   </Grid>
                 ))
               : <Grid />}

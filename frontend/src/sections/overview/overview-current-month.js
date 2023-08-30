@@ -4,7 +4,7 @@ import ArrowUpIcon from '@heroicons/react/24/solid/ArrowUpIcon';
 import CreditCardIcon from '@heroicons/react/24/solid/CreditCardIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
 
-export const OverviewTotalCustomers = (props) => {
+export const OverviewCurrentMonth = (props) => {
   const { difference, positive = false, sx, value } = props;
 
   return (
@@ -79,7 +79,7 @@ export const OverviewTotalCustomers = (props) => {
   );
 };
 
-OverviewTotalCustomers.propTypes = {
+OverviewCurrentMonth.propTypes = {
   difference: PropTypes.number,
   positive: PropTypes.bool,
   value: PropTypes.string.isRequired,

@@ -28,7 +28,7 @@ const statusMap = {
   delayed: 'error'
 };
 
-export const OverviewLatestOrders = (props) => {
+export const OverviewLatestPayments = (props) => {
   const { orders = [], sx } = props;
 
   const [page, setPage] = useState(0);
@@ -164,7 +164,7 @@ export const OverviewLatestOrders = (props) => {
   );
 };
 
-OverviewLatestOrders.prototype = {
+OverviewLatestPayments.prototype = {
   orders: PropTypes.array,
   sx: PropTypes.object
 };

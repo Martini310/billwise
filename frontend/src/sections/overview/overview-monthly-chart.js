@@ -104,7 +104,7 @@ const useChartOptions = () => {
   };
 };
 
-export const OverviewSales = (props) => {
+export const OverviewMonthlyChart = (props) => {
   const { chartSeries, sx } = props;
   const chartOptions = useChartOptions();
 
@@ -153,7 +153,7 @@ export const OverviewSales = (props) => {
   );
 };
 
-OverviewSales.protoTypes = {
+OverviewMonthlyChart.protoTypes = {
   chartSeries: PropTypes.array.isRequired,
   sx: PropTypes.object
 };

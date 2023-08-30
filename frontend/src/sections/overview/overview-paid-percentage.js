@@ -12,7 +12,7 @@ import {
   Typography
 } from '@mui/material';
 
-export const OverviewTasksProgress = (props) => {
+export const OverviewPaidPercentage = (props) => {
   const { value, sx } = props;
 
   return (
@@ -59,7 +59,7 @@ export const OverviewTasksProgress = (props) => {
   );
 };
 
-OverviewTasksProgress.propTypes = {
+OverviewPaidPercentage.propTypes = {
   value: PropTypes.number.isRequired,
   sx: PropTypes.object
 };

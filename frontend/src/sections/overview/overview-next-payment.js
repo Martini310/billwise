@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import CalendarDaysIcon from '@heroicons/react/24/solid/CalendarDaysIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
 
-export const OverviewTotalProfit = (props) => {
+export const OverviewNextPayment = (props) => {
   const { date, supplier, value, sx } = props;
 
   return (
@@ -96,7 +96,7 @@ export const OverviewTotalProfit = (props) => {
   );
 };
 
-OverviewTotalProfit.propTypes = {
+OverviewNextPayment.propTypes = {
   date: PropTypes.string,
   supplier: PropTypes.string,
   value: PropTypes.string,

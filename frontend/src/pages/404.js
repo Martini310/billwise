@@ -7,7 +7,7 @@ const Page = () => (
   <>
     <Head>
       <title>
-        404 | Devias Kit
+        404 | Not Found
       </title>
     </Head>
     <Box
@@ -48,7 +48,7 @@ const Page = () => (
             sx={{ mb: 3 }}
             variant="h3"
           >
-            404: The page you are looking for isn’t here
+            404: Strona, której szukasz nie istnieje.
           </Typography>
           <Typography
             align="center"

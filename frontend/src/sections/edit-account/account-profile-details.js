@@ -60,7 +60,7 @@ export const AccountProfileDetails = (props) => {
       axiosInstance.patch(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           console.log(res);
-          router.push("/companies/");
+          router.push("/accounts/");
         })
         .catch((err) => console.log(err));
     }, [post]
@@ -73,7 +73,7 @@ export const AccountProfileDetails = (props) => {
       axiosInstance.delete(link, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           console.log(res);
-          router.push("/companies/");
+          router.push("/accounts/");
         })
         .catch((err) => console.log(err));
     }, [account]

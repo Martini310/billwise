@@ -4,7 +4,7 @@ import ArrowUpIcon from '@heroicons/react/24/solid/ArrowUpIcon';
 import CurrencyDollarIcon from '@heroicons/react/24/solid/CurrencyDollarIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
 
-export const OverviewBudget = (props) => {
+export const OverviewNewestPayment = (props) => {
   const { supplier, sx, value } = props;
 
   return (
@@ -72,7 +72,7 @@ export const OverviewBudget = (props) => {
   );
 };
 
-OverviewBudget.prototypes = {
+OverviewNewestPayment.prototypes = {
   supplier: PropTypes.string,
   sx: PropTypes.object,
   value: PropTypes.string
