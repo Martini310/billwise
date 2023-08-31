@@ -53,7 +53,7 @@ const Page = () => {
   <>
     <Head>
       <title>
-        Companies | Devias Kit
+        Dostawcy | Billwise
       </title>
     </Head>
     <Box

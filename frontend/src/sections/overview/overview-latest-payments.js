@@ -21,6 +21,8 @@ import { SeverityPill } from 'src/components/severity-pill';
 import TablePagination from '@mui/material/TablePagination';
 import { useState } from 'react';
 import { BasicModal } from './overview-modal'
+import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
+
 
 const statusMap = {
   false: 'warning',
@@ -47,7 +49,21 @@ export const OverviewLatestPayments = (props) => {
 
   return (
     <Card sx={sx}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <CardHeader title="Ostatnie faktury" />
+      <Button
+        href='invoice/'
+        sx={{ mr: 10 }}
+        startIcon={(
+          <SvgIcon fontSize="small">
+            <PlusIcon />
+          </SvgIcon>
+        )}
+        variant="contained"
+      >
+        Dodaj
+      </Button>
+      </Box>
       <Scrollbar sx={{ flexGrow: 1 }}>
         <Box sx={{ minWidth: 800 }}>
           <Table>
