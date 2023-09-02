@@ -3,7 +3,14 @@ from rest_framework.generics import ListCreateAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from base.models import Invoice, Category, Supplier, Account
-from .serializers import InvoiceSerializer, CategorySerializer, SupplierSerializer, GetAccountSerializer, PostAccountSerializer, RegisterSerializer
+from .serializers import (
+    InvoiceSerializer,
+    CategorySerializer,
+    SupplierSerializer,
+    GetAccountSerializer,
+    PostAccountSerializer,
+    RegisterSerializer,
+    PostInvoiceSerializer,)
 from users.models import NewUser
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -43,6 +50,11 @@ class InvoiceList(ModelViewSet):
         # get_pgnig(pk=self.request.user.pk, login=pgnig_account.login, password=pgnig_account.password, account_pk=1)
         # get_aquanet(pk=self.request.user.pk, login=aquanet_account.login, password=aquanet_account.password, account_pk=3)
         return Invoice.objects.filter(user=self.request.user)
+    
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH']:
+            return PostInvoiceSerializer
+        return InvoiceSerializer
 
 
 class AccountList(ModelViewSet):

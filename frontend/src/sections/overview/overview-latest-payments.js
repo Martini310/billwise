@@ -111,7 +111,7 @@ export const OverviewLatestPayments = (props) => {
                       {order.number}
                     </TableCell>
                     <TableCell>
-                      {order.account['category']['name']}
+                      {order.account ? order.account['category']['name'] : 'Inne'}
                     </TableCell>
                     <TableCell>
                       {order.date}

@@ -55,10 +55,17 @@ class PostAccountSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    # supplier = serializers.StringRelatedField()
     supplier = SupplierSerializer(many=False)
     account = GetAccountSerializer(many=False)
 
     class Meta:
         model = Invoice
         fields = "__all__"
+
+
+class PostInvoiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Invoice
+        fields = "__all__"
+        

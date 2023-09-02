@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
+import {useRouter} from 'next/router';
 import {
   Button,
   Card,
@@ -18,19 +19,20 @@ export const InvoiceForm = () => {
     date: '',
     amount: 0,
     pay_deadline: '',
-    start_date: '',
-    end_date: '',
+    start_date: undefined,
+    end_date: undefined,
     amount_to_pay: 0,
-    wear: '',
+    wear: undefined,
     supplier: '',
     user: localStorage.getItem('id'),
     is_paid: false,
     consumption_point: '',
-    account: '',
   });
   
   const [suppliers, setSuppliers] = useState()
   const apiUrl = `http://127.0.0.1:8000/api/`;
+  const router = useRouter()
+  const [isFormInvalid, setIsFormInvalid] = useState(true);
   
   useEffect(() => {
     axiosInstance.get(apiUrl + 'suppliers/')
@@ -47,15 +49,29 @@ export const InvoiceForm = () => {
         ...prevState,
         [event.target.name]: event.target.value
       }));
+      if (event.target.value !== "") {
+        setIsFormInvalid(false);
+      } else {
+        setIsFormInvalid(true);
+      }
     },
     []
   );
 
+
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-    },
-    []
+      const post_link = apiUrl + 'invoices/';
+      console.log(values);
+      axiosInstance
+        .post(post_link, values, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .then((res) => {
+          console.log(res);
+          router.push("/");
+        })
+        .catch((err) => console.log(err));
+    }, [values]
   );
 
   return ( suppliers &&
@@ -72,6 +88,8 @@ export const InvoiceForm = () => {
             sx={{ maxWidth: 400 }}
           >
             <TextField
+              error={isFormInvalid}
+              helperText={isFormInvalid && 'To pole jest wymagane'}
               fullWidth
               label="Numer faktury"
               name="number"
@@ -142,16 +160,10 @@ export const InvoiceForm = () => {
               select
               value={values.supplier}
             >
-              <MenuItem
-                key='Inne'
-                value='Inne'
-              >
-                Inne
-              </MenuItem>
               {suppliers.map((supplier) => (
                 <MenuItem
                   key={supplier.name}
-                  value={supplier.id}
+                  value={parseInt(supplier.id)}
                 >
                   {supplier.name}
                 </MenuItem>
@@ -175,7 +187,7 @@ export const InvoiceForm = () => {
             <TextField
               fullWidth
               label="Punkt poboru"
-              name="consumtion_point"
+              name="consumption_point"
               onChange={handleChange}
               value={values.consumption_point}
             />
@@ -183,7 +195,7 @@ export const InvoiceForm = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained">
+          <Button variant="contained" type='submit'>
             Update
           </Button>
         </CardActions>

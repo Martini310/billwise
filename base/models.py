@@ -15,7 +15,7 @@ class Category(models.Model):
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
     # media = models.ForeignKey(to=Category, on_delete=models.CASCADE)
-    url = models.URLField()
+    url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -44,8 +44,8 @@ class Invoice(models.Model):
     supplier = models.ForeignKey(to=Supplier, on_delete=models.CASCADE)
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     is_paid = models.BooleanField()
-    consumption_point = models.CharField(max_length=100, null=True, blank=True)
-    account = models.ForeignKey(to=Account, on_delete=models.CASCADE)
+    consumption_point = models.CharField(max_length=100, blank=True)
+    account = models.ForeignKey(to=Account, on_delete=models.CASCADE, null=True, blank=True)
     
     def __str__(self):
         return f"Faktura nr {self.number} za {self.supplier} dla {self.user.user_name}"

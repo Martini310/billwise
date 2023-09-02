@@ -1,0 +1,9 @@
+
+Worker do wykonywania zadań
+celery -A billwise worker -l info --pool=solo
+
+Planer wysyłający zadania z bazy danych
+celery -A billwise beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+Flower - monitoring zadań
+celery -A billwise flower --port=5555   
