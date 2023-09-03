@@ -28,18 +28,16 @@ export const InvoiceForm = () => {
     is_paid: false,
     consumption_point: '',
   });
-  
-  const [suppliers, setSuppliers] = useState()
+
+  const [suppliers, setSuppliers] = useState();
   const apiUrl = `http://127.0.0.1:8000/api/`;
-  const router = useRouter()
-  const [isFormInvalid, setIsFormInvalid] = useState(true);
+  const router = useRouter();
   
   useEffect(() => {
     axiosInstance.get(apiUrl + 'suppliers/')
       .then((res) => {
         const suppliers = res.data;
         setSuppliers(suppliers);
-        console.log(suppliers)
     });
   }, [setSuppliers, apiUrl]);
 
@@ -49,11 +47,6 @@ export const InvoiceForm = () => {
         ...prevState,
         [event.target.name]: event.target.value
       }));
-      if (event.target.value !== "") {
-        setIsFormInvalid(false);
-      } else {
-        setIsFormInvalid(true);
-      }
     },
     []
   );
@@ -84,13 +77,12 @@ export const InvoiceForm = () => {
         <Divider />
         <CardContent>
           <Stack
-            spacing={3}
+            spacing={1}
             sx={{ maxWidth: 400 }}
           >
             <TextField
-              error={isFormInvalid}
-              helperText={isFormInvalid && 'To pole jest wymagane'}
               fullWidth
+              required
               label="Numer faktury"
               name="number"
               onChange={handleChange}
@@ -98,6 +90,7 @@ export const InvoiceForm = () => {
             />
             <TextField
               fullWidth
+              required
               label="Data faktury"
               name="date"
               onChange={handleChange}
@@ -106,6 +99,7 @@ export const InvoiceForm = () => {
             />
             <TextField
               fullWidth
+              required
               label="Kwota"
               name="amount"
               onChange={handleChange}
@@ -114,6 +108,7 @@ export const InvoiceForm = () => {
             />
             <TextField
               fullWidth
+              required
               label="Termin płatności"
               name="pay_deadline"
               onChange={handleChange}
@@ -154,6 +149,7 @@ export const InvoiceForm = () => {
             />
             <TextField
               fullWidth
+              required
               label="Dostawca"
               name="supplier"
               onChange={handleChange}
@@ -171,6 +167,7 @@ export const InvoiceForm = () => {
             </TextField>
             <TextField
               fullWidth
+              required
               label="Status"
               name="is_paid"
               onChange={handleChange}
@@ -178,10 +175,10 @@ export const InvoiceForm = () => {
               value={values.is_paid}
             >
               <MenuItem key='zapłacone' value={true}>
-              Zapłacone
+                Zapłacone
               </MenuItem>
               <MenuItem key='niezapłacone' value={false}>
-              Niezapłacone
+                Niezapłacone
               </MenuItem>
             </TextField>
             <TextField
