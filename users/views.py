@@ -4,6 +4,9 @@ from rest_framework.views import APIView
 from .serializers import CustomUserSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.viewsets import ModelViewSet
+from .models import NewUser
+
 
 
 # Create your views here.
@@ -30,4 +33,12 @@ class BlacklistTokenView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+class UserInfoView(ModelViewSet):
+    serializer_class=CustomUserSerializer
+    
+    def get_queryset(self):
+        pk = self.request.user.pk
+        return NewUser.objects.filter(pk=pk)
+
         

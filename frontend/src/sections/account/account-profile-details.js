@@ -1,4 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import { axiosInstance, baseURL } from 'src/utils/axios';
+import {useRouter} from 'next/router';
 import {
   Box,
   Button,
@@ -11,38 +13,32 @@ import {
   Unstable_Grid2 as Grid
 } from '@mui/material';
 
-const states = [
-  {
-    value: 'alabama',
-    label: 'Alabama'
-  },
-  {
-    value: 'new-york',
-    label: 'New York'
-  },
-  {
-    value: 'san-francisco',
-    label: 'San Francisco'
-  },
-  {
-    value: 'los-angeles',
-    label: 'Los Angeles'
-  }
-];
 
 export const AccountProfileDetails = () => {
-  const [values, setValues] = useState({
-    firstName: 'Anika',
-    lastName: 'Visser',
-    email: 'demo@devias.io',
-    phone: '',
-    state: 'los-angeles',
-    country: 'USA'
-  });
+
+  const user_pk = localStorage.getItem('id');
+  const [profileDetails, setProfileDetails] = useState({password: ''});
+  const [initialData, setInitialData] = useState();
+  
+  // Fetch user info
+  useEffect(() => {
+      axiosInstance
+        .get(
+          `${baseURL}user/user-info/${user_pk}`,
+          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .then((res) => {
+          setInitialData(res.data);
+          setProfileDetails(res.data);
+          }
+        )
+  }, [setProfileDetails, baseURL]);
+
+  console.log(profileDetails)
+  console.log(initialData)
 
   const handleChange = useCallback(
     (event) => {
-      setValues((prevState) => ({
+      setProfileDetails((prevState) => ({
         ...prevState,
         [event.target.name]: event.target.value
       }));
@@ -53,11 +49,17 @@ export const AccountProfileDetails = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
+      if (initialData.password !== profileDetails.password) {
+        console.log('ulala')
+      } else {
+        console.log('aas')
+      }
     },
     []
   );
 
   return (
+    profileDetails &&
     <form
       autoComplete="off"
       noValidate
@@ -66,7 +68,7 @@ export const AccountProfileDetails = () => {
       <Card>
         <CardHeader
           subheader="The information can be edited"
-          title="Profile"
+          title="profileDetails"
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
@@ -81,11 +83,11 @@ export const AccountProfileDetails = () => {
                 <TextField
                   fullWidth
                   helperText="Please specify the first name"
-                  label="First name"
-                  name="firstName"
+                  label="Imię"
+                  name="first_name"
                   onChange={handleChange}
                   required
-                  value={values.firstName}
+                  value={profileDetails.first_name}
                 />
               </Grid>
               <Grid
@@ -94,11 +96,11 @@ export const AccountProfileDetails = () => {
               >
                 <TextField
                   fullWidth
-                  label="Last name"
-                  name="lastName"
+                  label="Nazwa użytkownika"
+                  name="user_name"
                   onChange={handleChange}
                   required
-                  value={values.lastName}
+                  value={profileDetails.user_name}
                 />
               </Grid>
               <Grid
@@ -107,11 +109,11 @@ export const AccountProfileDetails = () => {
               >
                 <TextField
                   fullWidth
-                  label="Email Address"
+                  label="Adres Email"
                   name="email"
                   onChange={handleChange}
                   required
-                  value={values.email}
+                  value={profileDetails.email}
                 />
               </Grid>
               <Grid
@@ -120,11 +122,10 @@ export const AccountProfileDetails = () => {
               >
                 <TextField
                   fullWidth
-                  label="Phone Number"
-                  name="phone"
+                  label="O mnie"
+                  name="about"
                   onChange={handleChange}
-                  type="number"
-                  value={values.phone}
+                  value={profileDetails.about}
                 />
               </Grid>
               <Grid
@@ -133,44 +134,33 @@ export const AccountProfileDetails = () => {
               >
                 <TextField
                   fullWidth
-                  label="Country"
-                  name="country"
-                  onChange={handleChange}
-                  required
-                  value={values.country}
-                />
-              </Grid>
-              <Grid
-                xs={12}
-                md={6}
-              >
-                <TextField
-                  fullWidth
-                  label="Select State"
-                  name="state"
+                  label="Hasło"
+                  name="password"
                   onChange={handleChange}
                   required
-                  select
-                  SelectProps={{ native: true }}
-                  value={values.state}
-                >
-                  {states.map((option) => (
-                    <option
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </option>
-                  ))}
-                </TextField>
+                  value={profileDetails.password}
+                />
+              </Grid>
+              <Grid
+                xs={12}
+                md={6}
+              >
+                <TextField
+                  fullWidth
+                  label="Potwierdź hasło"
+                  name="confirm-password"
+                  onChange={handleChange}
+                  required
+                  value=''
+                />
               </Grid>
             </Grid>
           </Box>
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained">
-            Save details
+          <Button variant="contained" type='submit'>
+            Zapisz
           </Button>
         </CardActions>
       </Card>
