@@ -17,8 +17,11 @@ import {
 export const AccountProfileDetails = () => {
 
   const user_pk = localStorage.getItem('id');
-  const [profileDetails, setProfileDetails] = useState({password: ''});
+  const [profileDetails, setProfileDetails] = useState();
   const [initialData, setInitialData] = useState();
+  const patchURL = baseURL + 'user/user-info/' + localStorage.getItem('id') + '/'
+  const router = useRouter()
+
   
   // Fetch user info
   useEffect(() => {
@@ -27,6 +30,7 @@ export const AccountProfileDetails = () => {
           `${baseURL}user/user-info/${user_pk}`,
           { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
+          delete res.data.id
           setInitialData(res.data);
           setProfileDetails(res.data);
           }
@@ -34,28 +38,35 @@ export const AccountProfileDetails = () => {
   }, [setProfileDetails, baseURL]);
 
   console.log(profileDetails)
-  console.log(initialData)
-
-  const handleChange = useCallback(
+  
+  const handleChange = 
     (event) => {
       setProfileDetails((prevState) => ({
         ...prevState,
         [event.target.name]: event.target.value
       }));
-    },
-    []
-  );
+    };
 
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      if (initialData.password !== profileDetails.password) {
-        console.log('ulala')
-      } else {
-        console.log('aas')
-      }
+      // if (initialData.password !== profileDetails.password) {
+      //   console.log('ulala')
+      // } else {
+      //   console.log('aas')
+      // }
+      console.log(initialData)
+      console.log(profileDetails)
+      let updatedData = {...initialData, ...profileDetails}
+      console.log(updatedData)
+      axiosInstance.patch(patchURL, updatedData, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .then((res) => {
+          console.log(res);
+          router.push("/");
+        })
+        .catch((err) => console.log(err));
     },
-    []
+    [initialData, profileDetails]
   );
 
   return (
