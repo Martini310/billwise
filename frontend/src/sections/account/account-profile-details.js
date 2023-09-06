@@ -78,8 +78,8 @@ export const AccountProfileDetails = () => {
     >
       <Card>
         <CardHeader
-          subheader="The information can be edited"
-          title="profileDetails"
+          subheader="Możesz je edytować"
+          title="Informacje profilowe"
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
@@ -137,32 +137,6 @@ export const AccountProfileDetails = () => {
                   name="about"
                   onChange={handleChange}
                   value={profileDetails.about}
-                />
-              </Grid>
-              <Grid
-                xs={12}
-                md={6}
-              >
-                <TextField
-                  fullWidth
-                  label="Hasło"
-                  name="password"
-                  onChange={handleChange}
-                  required
-                  value={profileDetails.password}
-                />
-              </Grid>
-              <Grid
-                xs={12}
-                md={6}
-              >
-                <TextField
-                  fullWidth
-                  label="Potwierdź hasło"
-                  name="confirm-password"
-                  onChange={handleChange}
-                  required
-                  value=''
                 />
               </Grid>
             </Grid>

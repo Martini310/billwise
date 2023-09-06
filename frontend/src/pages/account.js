@@ -3,12 +3,13 @@ import { Box, Container, Stack, Typography, Unstable_Grid2 as Grid } from '@mui/
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { AccountProfile } from 'src/sections/account/account-profile';
 import { AccountProfileDetails } from 'src/sections/account/account-profile-details';
+import { AccountProfilePassword } from 'src/sections/account/account-profile-password';
 
 const Page = () => (
   <>
     <Head>
       <title>
-        Account | Devias Kit
+        Mój profil | Billwise
       </title>
     </Head>
     <Box
@@ -43,6 +44,13 @@ const Page = () => (
                 lg={8}
               >
                 <AccountProfileDetails />
+              </Grid>
+              <Grid
+                xs={12}
+                md={6}
+                lg={12}
+              >
+                <AccountProfilePassword />
               </Grid>
             </Grid>
           </div>
