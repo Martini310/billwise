@@ -68,4 +68,3 @@ class PostInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = "__all__"
-        
