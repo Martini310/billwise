@@ -16,20 +16,36 @@ import {
 
 export const AccountProfilePassword = () => {
 
-  const patchURL = baseURL + 'user/user-info/' + localStorage.getItem('id') + '/'
+  const postURL = baseURL + 'user/change_password/'
   const router = useRouter()
+  const [passwords, setPasswords] = useState({'old_password': '', 'new_password': ''})
 
   const handleChange = 
     (event) => {
-      setProfileDetails((prevState) => ({
+      setPasswords((prevState) => ({
         ...prevState,
         [event.target.name]: event.target.value
       }));
     };
 
+  const comparePasswords = (event) => {
+    console.log(event.target.value === passwords['new_password'])
+    return event.target.value === passwords['new_password']
+  }
+
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
+      console.log(passwords)
+      if (comparePasswords) {
+        console.log('lala')
+        axiosInstance.post(postURL, passwords, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .then((res) => {
+          console.log(res);
+          router.push("/");
+        })
+        .catch((err) => console.log(err));
+      }
     });
 
   return (
@@ -56,10 +72,10 @@ export const AccountProfilePassword = () => {
                 <TextField
                   fullWidth
                   label="Stare hasło"
-                  name="old-password"
+                  name="old_password"
                   onChange={handleChange}
                   required
-                  value=''
+                  value={passwords['old_password']}
                 />
               </Grid>
               <Grid
@@ -69,10 +85,10 @@ export const AccountProfilePassword = () => {
                 <TextField
                   fullWidth
                   label="Nowe hasło"
-                  name="password"
+                  name="new_password"
                   onChange={handleChange}
                   required
-                  value=''
+                  value={passwords['new_password']}
                 />
               </Grid>
               <Grid
@@ -83,9 +99,8 @@ export const AccountProfilePassword = () => {
                   fullWidth
                   label="Potwierdź nowe hasło"
                   name="confirm-password"
-                  onChange={handleChange}
+                  onChange={comparePasswords}
                   required
-                  value=''
                 />
               </Grid>
             </Grid>
