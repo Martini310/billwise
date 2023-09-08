@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 # from .views import InvoiceList, InvoiceCreate, InvoiceDetails, CategoryList, CategoryDetails, AccountCreate, SupplierList, \
 #     SupplierDetails
-from .views import InvoiceList, AccountList, SupplierList, CategoryList, CurrentUser
+from .views import InvoiceList, AccountList, SupplierList, CategoryList, CurrentUser, SyncAccounts
 from rest_framework.routers import DefaultRouter
 
 app_name = 'billwise_api'
@@ -12,7 +12,11 @@ router.register('accounts', AccountList, basename='accounts')
 router.register('suppliers', SupplierList, basename='suppliers')
 router.register('category', CategoryList, basename='category')
 router.register('current-user', CurrentUser, basename='current_user')
-urlpatterns = router.urls
+# urlpatterns = router.urls
+urlpatterns = [
+    path('', include(router.urls)),
+    path('sync/', SyncAccounts.as_view(), name='sync'),
+]
 
 
 

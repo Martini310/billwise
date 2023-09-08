@@ -20,6 +20,8 @@ from rest_framework.viewsets import ViewSet, ModelViewSet
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import AnonymousUser
 from users.serializers import CustomUserSerializer
+from base.tasks import sync_accounts_task
+from django.http import HttpResponse
 
 
 class InvoiceList(ModelViewSet):
@@ -97,6 +99,13 @@ class CurrentUser(ViewSet):
     def list(self, request):
         user = self.request.user
         return Response({'id': user.id})
+    
+
+class SyncAccounts(APIView):
+    def get(self, request):
+        sync_accounts_task.delay(self.request.user.pk)
+        return Response("Done")
+    
 #### OLD VIEWS ####
 
 # class InvoiceList(ViewSet):

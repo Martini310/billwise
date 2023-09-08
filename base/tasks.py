@@ -3,11 +3,20 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 from django.db import connection
 from .models import Account, Supplier
-from .services import get_enea, get_aquanet, get_pgnig
+from .services import get_enea, get_aquanet, get_pgnig, sync_accounts
+
 
 @shared_task
 def add(x, y):
     return x + y
+
+
+
+@shared_task
+def sync_accounts_task(user_pk):
+    return sync_accounts(user_pk)
+
+
 
 @shared_task
 def scheduled_get_enea():

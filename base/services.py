@@ -129,7 +129,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
             value = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-value')
             payment = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
             status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
-
+            print(payment_date.text.strip().split()[0])
             supplier = Supplier.objects.get(pk=2)
             user = NewUser.objects.get(pk=pk)
             account = Account.objects.get(pk=account_pk)
@@ -137,7 +137,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
             all_invoices.append(Invoice(number=name.text.strip(),
                                         date=datetime.strptime(date.text.strip(), "%d.%m.%Y"),
                                         amount=float(value.text.strip().rstrip('\xa0 zł').replace(',', '.')),
-                                        pay_deadline=datetime.strptime(payment_date.text.strip(), "%d.%m.%Y"),
+                                        pay_deadline=datetime.strptime(payment_date.text.strip().split()[0], "%d.%m.%Y"),
                                         start_date=None,
                                         end_date=None,
                                         amount_to_pay=float(payment.text.strip().rstrip('\xa0 zł').replace(',', '.')),
@@ -317,3 +317,13 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
         # print(all_invoices)
 
 # get_aquanet(pk=1, account_pk=3)
+
+funcs = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
+
+def sync_accounts(user_pk):
+    accounts = Account.objects.filter(user__pk=user_pk)
+    print('działam')
+    for account in accounts:
+        fetch = funcs.get(account.supplier.name)
+        fetch(user_pk, account.login, account.password, account.pk)
+        print('pobrałem')
