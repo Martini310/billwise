@@ -7,3 +7,11 @@ celery -A billwise beat -l INFO --scheduler django_celery_beat.schedulers:Databa
 
 Flower - monitoring zadań
 celery -A billwise flower --port=5555   
+
+C:\nodejs\node-v18.16.1-win-x64
+set PATH=C:\nodejs\node-v18.16.1-win-x64;%PATH%
+Z:\Desktop\Pyton\Bills\frontend
+npm start
+
+npm install react-router-dom
+npm install @material-ui/core --legacy-peer-deps

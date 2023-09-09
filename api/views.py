@@ -1,8 +1,10 @@
+from django.contrib.auth import login
+from django.contrib.auth.models import AnonymousUser
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView, CreateAPIView
 from rest_framework.response import Response
-from rest_framework import status, generics, permissions
-from base.models import Invoice, Category, Supplier, Account
+from rest_framework.viewsets import ViewSet, ModelViewSet
+from rest_framework import permissions
 from .serializers import (
     InvoiceSerializer,
     CategorySerializer,
@@ -11,17 +13,12 @@ from .serializers import (
     PostAccountSerializer,
     RegisterSerializer,
     PostInvoiceSerializer,)
-from users.models import NewUser
-from django.contrib.auth import login
-from rest_framework.authtoken.serializers import AuthTokenSerializer
+from base.models import Invoice, Category, Supplier, Account
 from base.services import get_pgnig, get_enea, get_aquanet
-from api.permissions import IsOwner
-from rest_framework.viewsets import ViewSet, ModelViewSet
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import AnonymousUser
-from users.serializers import CustomUserSerializer
 from base.tasks import sync_accounts_task
-from django.http import HttpResponse
+from users.models import NewUser
+from users.serializers import CustomUserSerializer
+from api.permissions import IsOwner
 
 
 class InvoiceList(ModelViewSet):
@@ -39,18 +36,6 @@ class InvoiceList(ModelViewSet):
     def get_queryset(self):
         if isinstance(self.request.user, AnonymousUser):
             return []
-        
-        # enea_sup = Supplier.objects.get(name='Enea')
-        # pgnig_sup = Supplier.objects.get(name='PGNiG')
-        # aquanet_sup = Supplier.objects.get(name='Aquanet')
-
-        # enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
-        # pgnig_account = Account.objects.get(user=self.request.user.pk, supplier=pgnig_sup)
-        # aquanet_account = Account.objects.get(user=self.request.user.pk, supplier=aquanet_sup)
-
-        # get_enea(pk=self.request.user.pk, login=enea_account.login, password=enea_account.password, account_pk=2)
-        # get_pgnig(pk=self.request.user.pk, login=pgnig_account.login, password=pgnig_account.password, account_pk=1)
-        # get_aquanet(pk=self.request.user.pk, login=aquanet_account.login, password=aquanet_account.password, account_pk=3)
         return Invoice.objects.filter(user=self.request.user)
     
     def get_serializer_class(self):
@@ -66,8 +51,6 @@ class AccountList(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
             return PostAccountSerializer
-        # elif self.request.method == 'PATCH':
-        #     return PatchAccountSerializer
         return GetAccountSerializer
 
     def get_queryset(self):
@@ -105,187 +88,3 @@ class SyncAccounts(APIView):
     def get(self, request):
         sync_accounts_task.delay(self.request.user.pk)
         return Response("Done")
-    
-#### OLD VIEWS ####
-
-# class InvoiceList(ViewSet):
-#     # permission_classes = [permissions.IsAuthenticated]
-#     queryset = invoices = Invoice.objects.all()
-
-#     def list(self, request):
-#         serializer = InvoiceSerializer(self.queryset, many=True)
-#         return Response(serializer.data)
-    
-#     def retrieve(self, request, pk=None):
-#         invoice = get_object_or_404(self.queryset, pk=pk)
-#         serializer = InvoiceSerializer(invoice)
-#         return Response(serializer.data)
-    
-#     def destroy(self, request, pk=None):
-#         invoice = get_object_or_404(self.queryset, pk=pk)
-#         invoice.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
-# class InvoiceList(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get(self, request):
-#         # enea_sup = Supplier.objects.get(name='Enea')
-#         # enea_account = Account.objects.get(user=self.request.user.pk, supplier=enea_sup)
-#         # get_enea(self.request.user.pk, enea_account.login, enea_account.password)
-#         # get_pgnig(self.request.user.pk, enea_account.login, enea_account.password)
-
-#         # invoices = Invoice.objects.filter(user=self.request.user)
-#         invoices = Invoice.objects.all()
-#         serializer = InvoiceSerializer(invoices, many=True)
-#         return Response(serializer.data)
-
-
-# class InvoiceCreate(CreateAPIView):
-#     serializer_class = InvoiceSerializer
-
-
-# class InvoiceDetails(APIView):
-#     # permission_classes = [permissions.IsAuthenticated, IsOwner]
-
-#     def get_invoice_by_pk(self, pk, user):
-#         try:
-#             invoice = Invoice.objects.get(pk=pk)
-#             if invoice.user == user:
-#                 return invoice
-#             return Response({
-#                 'error': f'Brak dostępu!'
-#             }, status=status.HTTP_404_NOT_FOUND)
-#         except AttributeError as E:
-#             return f"No data {E}"
-
-#     def get(self, request, pk):
-#         try:
-#             invoice = self.get_invoice_by_pk(pk=pk, user=self.request.user)
-#             print(3)
-#             print(invoice)
-#             if isinstance(invoice, Response):
-#                 return invoice
-
-#             serializer = InvoiceSerializer(invoice)
-#             return Response(serializer.data)
-#         except Exception as E:
-#             return Response({
-#                 'error': f'Invoice does not exist {E}'
-#             }, status=status.HTTP_404_NOT_FOUND)
-
-#     def put(self, request, pk):
-#         invoice = Invoice.objects.get(pk=pk)
-#         serializer = InvoiceSerializer(invoice, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     def delete(self, request, pk):
-#         try:
-#             invoice = Invoice.objects.get(pk=pk)
-#             invoice.delete()
-#             return Response(status=status.HTTP_204_NO_CONTENT)
-#         except ValueError:
-#             return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-# class CategoryList(APIView):
-#     def get(self, request):
-#         media = Category.objects.all()
-#         serializer = CategorySerializer(media, many=True)
-#         return Response(serializer.data)
-#
-#     def post(self, request):
-#         serializer = CategorySerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class CategoryList(ListCreateAPIView):
-#     queryset = Category.objects.all()
-#     serializer_class = CategorySerializer
-
-
-# class CategoryDetails(APIView):
-#     def get_media_by_pk(self, pk):
-#         try:
-#             return Category.objects.get(pk=pk)
-#         except:
-#             return Response({
-#                 'error': 'Category does not exist'
-#             }, status=status.HTTP_404_NOT_FOUND)
-
-#     def get(self, request, pk):
-#         media = self.get_media_by_pk(pk)
-#         serializer = CategorySerializer(media)
-#         return Response(serializer.data)
-
-#     def put(self, request, pk):
-#         media = self.get_media_by_pk(pk)
-#         serializer = CategorySerializer(media, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class SupplierList(ListCreateAPIView):
-#     queryset = Supplier.objects.all()
-#     serializer_class = SupplierSerializer
-    
-    # def get(self, request):
-    #     supplier = Supplier.objects.all()
-    #     serializer = SupplierSerializer(supplier, many=True)
-    #     return Response(serializer.data)
-    #
-    # def post(self, request):
-    #     serializer = SupplierSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data)
-    #     else:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class SupplierDetails(APIView):
-#     def get_supplier_by_pk(self, pk):
-#         try:
-#             return Supplier.objects.get(pk=pk)
-#         except:
-#             return Response({
-#                 'error': 'Supplier does not exist'
-#             }, status=status.HTTP_404_NOT_FOUND)
-
-#     def get(self, request, pk):
-#         supplier = self.get_supplier_by_pk(pk)
-#         serializer = SupplierSerializer(supplier)
-#         return Response(serializer.data)
-
-#     def put(self, request, pk):
-#         supplier = self.get_supplier_by_pk(pk)
-#         serializer = SupplierSerializer(supplier, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class AccountCreate(APIView):
-#     def post(self, request):
-#         serializer = AccountSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class AccountCreate(CreateAPIView):
-#     serializer_class = AccountSerializer
-
-

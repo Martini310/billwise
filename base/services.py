@@ -1,20 +1,11 @@
+import urllib3
+import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 from .models import Invoice, Supplier, Account
 from users.models import NewUser
-import requests
-import urllib3
-from datetime import datetime
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-# from dotenv import load_dotenv
-# from pathlib import Path
-# import os
-#
-# dotenv_path = Path('../.env')
-# load_dotenv(dotenv_path=dotenv_path)
-#
-# PGNIG_LOGIN = os.getenv('PGNIG_LOGIN')
-# PGNIG_PASSWORD = os.getenv('PGNIG_PASSWORD')
 
 
 def get_pgnig(pk, login=None, password=None, account_pk=None):
@@ -220,7 +211,8 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
         unpaid_invoices = []
         for row in unpaid_table:
             invoice = [td.text for td in row.find_all('td') if td.text]
-            if invoice:
+            if invoice and invoice[0].strip() != 'Brak danych':
+                print(invoice[0].strip())
                 unpaid_invoices.append(invoice)
         print(unpaid_invoices)
 
@@ -278,8 +270,9 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
 
 
 
-        for index, row in enumerate(paid_invoices):
+        for index, row in enumerate(paid_invoices[:-1:]):
             # print(index, row)
+            print(row)
             date_scope = row[2]
             start_date = ''
             end_date = ''
@@ -317,6 +310,7 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
         # print(all_invoices)
 
 # get_aquanet(pk=1, account_pk=3)
+
 
 funcs = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
 

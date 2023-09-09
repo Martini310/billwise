@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.conf import settings
 
 # Create your models here.
@@ -14,7 +13,6 @@ class Category(models.Model):
 
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
-    # media = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     url = models.URLField(null=True, blank=True)
 
     def __str__(self):
