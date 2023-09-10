@@ -58,3 +58,14 @@ def scheduled_get_aquanet():
                     data.append([account.login, account.password, account.category.name])
         return data
     
+
+funcs = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
+
+@shared_task
+def scheduled_get_data():
+    with connection.cursor() as cursor:
+        accounts = Account.objects.all()
+        for account in accounts:
+            fetch_data = funcs.get(account.supplier.name)
+            fetch_data(account.user.id, account.login, account.password, account.pk)
+        return "Data is synchronized"

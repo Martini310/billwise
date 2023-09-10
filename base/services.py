@@ -42,7 +42,7 @@ def get_pgnig(pk, login=None, password=None, account_pk=None):
                                 headers={'AuthToken': token},
                                 verify=False
                                 )
-
+    print(get_invoices.status_code)
     # Dict with all information about invoices.
     invoices_json = get_invoices.json()
     # List of all invoices as dicts.
@@ -102,6 +102,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
         print(p.status_code)
         # An authorised request.
         page = s.get('https://ebok.enea.pl/invoices/invoice-history')
+        print(page.status_code)
         soup = BeautifulSoup(page.content, 'html.parser')
 
         # Find username and account number.
@@ -120,7 +121,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
             value = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-value')
             payment = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
             status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
-            print(payment_date.text.strip().split()[0])
+            # print(payment_date.text.strip().split()[0])
             supplier = Supplier.objects.get(pk=2)
             user = NewUser.objects.get(pk=pk)
             account = Account.objects.get(pk=account_pk)
@@ -175,7 +176,7 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
         token = signin.find('input', type='hidden')['value']
 
         payload['csrfp_token'] = token
-        print(payload)
+        # print(payload)
         cookies = s.cookies.items()
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0',
@@ -212,9 +213,9 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
         for row in unpaid_table:
             invoice = [td.text for td in row.find_all('td') if td.text]
             if invoice and invoice[0].strip() != 'Brak danych':
-                print(invoice[0].strip())
+                # print(invoice[0].strip())
                 unpaid_invoices.append(invoice)
-        print(unpaid_invoices)
+        # print(unpaid_invoices)
 
         for unpaid in unpaid_invoices:
             date_scope = unpaid[2]
@@ -272,7 +273,7 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
 
         for index, row in enumerate(paid_invoices[:-1:]):
             # print(index, row)
-            print(row)
+            # print(row)
             date_scope = row[2]
             start_date = ''
             end_date = ''
@@ -288,7 +289,7 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
             pay_deadline = row[4]
             amount = row[5].rstrip(' zł')
 
-            print([number, start_date, end_date, date, pay_deadline, amount])
+            # print([number, start_date, end_date, date, pay_deadline, amount])
 
             all_invoices.append(Invoice(number=number,
                                         date=datetime.strptime(date, "%d.%m.%Y"),
@@ -308,6 +309,7 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
             [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()]
         )
         # print(all_invoices)
+        print(faktury.status_code)
 
 # get_aquanet(pk=1, account_pk=3)
 
@@ -320,4 +322,5 @@ def sync_accounts(user_pk):
     for account in accounts:
         fetch = funcs.get(account.supplier.name)
         fetch(user_pk, account.login, account.password, account.pk)
+        print(fetch.__name__)
         print('pobrałem')
