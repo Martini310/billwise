@@ -91,6 +91,7 @@ export const InvoiceForm = () => {
             <TextField
               fullWidth
               required
+              InputLabelProps={{ shrink: true }}
               label="Data faktury"
               name="date"
               onChange={handleChange}
@@ -109,6 +110,7 @@ export const InvoiceForm = () => {
             <TextField
               fullWidth
               required
+              InputLabelProps={{ shrink: true }}
               label="Termin płatności"
               name="pay_deadline"
               onChange={handleChange}
@@ -117,6 +119,7 @@ export const InvoiceForm = () => {
             />
             <TextField
               fullWidth
+              InputLabelProps={{ shrink: true }}
               label="Data początkowa"
               name="start_date"
               onChange={handleChange}
@@ -125,6 +128,7 @@ export const InvoiceForm = () => {
             />
             <TextField
               fullWidth
+              InputLabelProps={{ shrink: true }}
               label="Data końcowa"
               name="end_date"
               onChange={handleChange}
