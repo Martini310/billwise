@@ -312,6 +312,13 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
                                         consumption_point='Brak informacji',
                                         account=account))
 
+        for invoice in all_invoices:
+            db = Invoice.objects.filter(number=invoice.number).get()
+            if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
+                print(f'{invoice.number} - Update')
+                Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
+                
+
         Invoice.objects.bulk_create(
             [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()],
         )
