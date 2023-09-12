@@ -18,6 +18,7 @@ import { AccountsSearch } from 'src/sections/accounts/accounts-search';
 import { axiosInstance } from 'src/utils/axios';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { baseURL } from 'src/utils/axios';
 
 
 const companies = [
@@ -35,19 +36,18 @@ const companies = [
 const Page = () => {
 
   const [accounts, setAccounts] = useState([])
-  const apiUrl = `http://127.0.0.1:8000/api/`;
   
   // Fetch user accounts
   useEffect(() => {
       axiosInstance
         .get(
-          apiUrl + 'accounts/',
+          baseURL + 'accounts/',
           { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           setAccounts(res.data);
           }
         )
-  }, [setAccounts, apiUrl]);
+  }, [setAccounts, baseURL]);
 
   return (
   <>

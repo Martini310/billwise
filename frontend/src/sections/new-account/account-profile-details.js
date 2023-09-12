@@ -18,7 +18,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { axiosInstance } from 'src/utils/axios';
+import { axiosInstance, baseURL } from 'src/utils/axios';
 
 
 export const AccountProfileDetails = (props) => {
@@ -26,7 +26,7 @@ export const AccountProfileDetails = (props) => {
   const [categories, setCategories] = useState()
   const [suppliers, setSuppliers] = useState()
   const router = useRouter()
-  const apiUrl = `http://127.0.0.1:8000/api/`;
+
   const [post, setPost] = useState({
     login: '',
     password: '',
@@ -37,7 +37,7 @@ export const AccountProfileDetails = (props) => {
 
   // Fetch Categories and create array with category names
   useEffect(() => {
-    axiosInstance.get(apiUrl + 'category/')
+    axiosInstance.get(baseURL + 'category/')
       .then((res) => {
         const categories = res.data;
         let categoryNames = [];
@@ -46,16 +46,16 @@ export const AccountProfileDetails = (props) => {
         // setCategories(categoryNames);
         setCategories(categories);
     });
-  }, [setCategories, apiUrl]);
+  }, [setCategories, baseURL]);
 
   useEffect(() => {
-    axiosInstance.get(apiUrl + 'suppliers/')
+    axiosInstance.get(baseURL + 'suppliers/')
       .then((res) => {
         const suppliers = res.data;
         setSuppliers(suppliers);
         console.log(suppliers)
     });
-  }, [setSuppliers, apiUrl]);
+  }, [setSuppliers, baseURL]);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -78,7 +78,7 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = apiUrl + 'accounts/';
+      const post_link = baseURL + 'accounts/';
       console.log(post);
       axiosInstance.post(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {

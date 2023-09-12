@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { axiosInstance } from 'src/utils/axios';
+import { axiosInstance, baseURL } from 'src/utils/axios';
 import {useRouter} from 'next/router';
 import {
   Button,
@@ -30,16 +30,16 @@ export const InvoiceForm = () => {
   });
 
   const [suppliers, setSuppliers] = useState();
-  const apiUrl = `http://127.0.0.1:8000/api/`;
+
   const router = useRouter();
   
   useEffect(() => {
-    axiosInstance.get(apiUrl + 'suppliers/')
+    axiosInstance.get(baseURL + 'suppliers/')
       .then((res) => {
         const suppliers = res.data;
         setSuppliers(suppliers);
     });
-  }, [setSuppliers, apiUrl]);
+  }, [setSuppliers, baseURL]);
 
   const handleChange = useCallback(
     (event) => {
@@ -55,7 +55,7 @@ export const InvoiceForm = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = apiUrl + 'invoices/';
+      const post_link = baseURL + 'invoices/';
       console.log(values);
       axiosInstance
         .post(post_link, values, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})

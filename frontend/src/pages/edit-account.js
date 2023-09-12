@@ -6,7 +6,7 @@ import { AccountProfileDetails } from 'src/sections/edit-account/account-profile
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
-
+import { baseURL } from 'src/utils/axios';
 
 
 const Page = () => {
@@ -15,7 +15,6 @@ const Page = () => {
   const { accountId } = router.query; // Get the accountId query parameter
 
   const [account, setAccount] = useState(null)
-  const apiUrl = `http://127.0.0.1:8000/api/`;
   
   const [categories, setCategories] = useState([])
 
@@ -23,7 +22,7 @@ const Page = () => {
   useEffect(() => {
       axiosInstance
         .get(
-          apiUrl + 'accounts/' + accountId,
+          baseURL + 'accounts/' + accountId,
           { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           setAccount(res.data);
@@ -31,11 +30,11 @@ const Page = () => {
         .catch((error) => {
           console.error(error);
         });
-  }, [setAccount, apiUrl]);
+  }, [setAccount, baseURL]);
 
   // Fetch Categories and create array with category names
   useEffect(() => {
-    axiosInstance.get(apiUrl + 'category/')
+    axiosInstance.get(baseURL + 'category/')
       .then((res) => {
         const categories = res.data;
         let categoryNames = [];
@@ -44,7 +43,7 @@ const Page = () => {
         // setCategories(categoryNames);
         setCategories(categories);
     });
-  }, [setCategories, apiUrl]);
+  }, [setCategories, baseURL]);
 
   return (
   <>

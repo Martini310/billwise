@@ -11,6 +11,7 @@ import { OverviewNextPayment } from 'src/sections/overview/overview-next-payment
 import { OverviewCategoriesChart } from 'src/sections/overview/overview-categories-chart';
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
+import { baseURL } from 'src/utils/axios';
 
 
 const now = new Date();
@@ -20,13 +21,12 @@ const Page = () => {
 
   const [invoices, setInvoices] = useState([])
   const [categories, setCategories] = useState([])
-  const apiUrl = `http://127.0.0.1:8000/api/`;
   
   // Fetch invoices and sort them by date
   useEffect(() => {
       axiosInstance
         .get(
-          apiUrl + 'invoices/',
+          baseURL + 'invoices/',
           { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           const allInvoices = res.data;
@@ -38,11 +38,11 @@ const Page = () => {
           setInvoices(allInvoices);
           }
         )
-  }, [setInvoices, apiUrl]);
+  }, [setInvoices, baseURL]);
 
   // Fetch Categories and create array with category names
   useEffect(() => {
-    axiosInstance.get(apiUrl + 'category/')
+    axiosInstance.get(baseURL + 'category/')
       .then((res) => {
         const categories = res.data;
         let categoryNames = [];
@@ -50,7 +50,7 @@ const Page = () => {
           categoryNames.push(category.name))
         setCategories(categoryNames);
     });
-  }, [setCategories, apiUrl]);
+  }, [setCategories, baseURL]);
 
   const lastYear = {};
   const thisYear = {};

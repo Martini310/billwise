@@ -18,13 +18,12 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { axiosInstance } from 'src/utils/axios';
+import { axiosInstance, baseURL } from 'src/utils/axios';
 
 
 export const AccountProfileDetails = (props) => {
   const { account, categories } = props;
 
-  const apiUrl = `http://127.0.0.1:8000/api/`;
   const router = useRouter()
   const [post, setPost] = useState();
 
@@ -54,7 +53,7 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = `${apiUrl}accounts/${post.id}/`;
+      const post_link = `${baseURL}accounts/${post.id}/`;
       delete post.supplier
       console.log(post);
       axiosInstance.patch(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
@@ -69,7 +68,7 @@ export const AccountProfileDetails = (props) => {
   const handleDelete = useCallback(
     (event) => {
       event.preventDefault();
-      const link = `${apiUrl}accounts/${account.id}/`;
+      const link = `${baseURL}accounts/${account.id}/`;
       axiosInstance.delete(link, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
         .then((res) => {
           console.log(res);
