@@ -53,6 +53,13 @@ def get_pgnig(pk, login=None, password=None, account_pk=None):
     us = NewUser.objects.get(pk=pk)
     account = Account.objects.get(pk=account_pk)
 
+    for invoice in faktury:
+        db = Invoice.objects.filter(number=invoice.number).get()
+        if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
+            print(f'{invoice.number} - to samo')
+            Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
+                
+
     Invoice.objects.bulk_create([Invoice(number=invoice.get('Number'),
                                          date=datetime.fromisoformat(invoice.get('Date')[:-1]),
                                          amount=invoice.get('GrossAmount'),
