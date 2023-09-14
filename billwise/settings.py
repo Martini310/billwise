@@ -98,12 +98,23 @@ WSGI_APPLICATION = 'billwise.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         # Feel free to alter this value to suit your needs.
+#         default='postgresql://postgres:postgres@localhost:5432/billwise',
+#         conn_max_age=600
+#     )
+# }
+
 DATABASES = {
-    'default': dj_database_url.config(
-        # Feel free to alter this value to suit your needs.
-        default='postgresql://postgres:postgres@localhost:5432/billwise',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'billwise_db',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'db',   # Use the service name from Docker Compose
+        'PORT': '5432',  # Default PostgreSQL port
+    }
 }
 
 
