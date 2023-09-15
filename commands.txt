@@ -15,3 +15,6 @@ npm start
 
 npm install react-router-dom
 npm install @material-ui/core --legacy-peer-deps
+
+Wejście do kontenera
+docker exec -it <id> /bin/bash

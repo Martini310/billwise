@@ -240,3 +240,30 @@ SIMPLE_JWT = {
 #         "args": (20,10),
 #     },
 # }
+
+# Celery configuration
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
+CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
+
+# Include tasks from all installed apps
+CELERY_IMPORTS = ('base.tasks',)  # Replace 'yourapp' with the actual app name
+
+# Optional: Set the default queue for your tasks (if not specified in tasks)
+CELERY_DEFAULT_QUEUE = 'default'
+
+# Optional: Configure concurrency (adjust as needed)
+CELERY_WORKER_CONCURRENCY = 4  # Number of concurrent workers
+
+# Optional: Configure other Celery settings as needed
+# For example, task time limits, task retries, etc.
+CELERY_TASK_TIME_LIMIT = 300  # Maximum task execution time in seconds
+CELERY_TASK_MAX_RETRIES = 3   # Maximum number of times a task will be retried
+
+# Celery Beat (periodic task scheduler) configuration
+CELERY_BEAT_SCHEDULE = {
+    # Define your scheduled tasks here
+    'my_periodic_task': {
+        'task': 'base.tasks.scheduled_get_data',  # Replace with your actual task
+        'schedule': timedelta(minutes=1),  # Adjust the schedule as needed
+    },
+}

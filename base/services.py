@@ -53,13 +53,6 @@ def get_pgnig(pk, login=None, password=None, account_pk=None):
     us = NewUser.objects.get(pk=pk)
     account = Account.objects.get(pk=account_pk)
 
-    for invoice in faktury:
-        db = Invoice.objects.filter(number=invoice.number).get()
-        if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
-            print(f'{invoice.number} - to samo')
-            Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
-                
-
     Invoice.objects.bulk_create([Invoice(number=invoice.get('Number'),
                                          date=datetime.fromisoformat(invoice.get('Date')[:-1]),
                                          amount=invoice.get('GrossAmount'),
@@ -75,6 +68,13 @@ def get_pgnig(pk, login=None, password=None, account_pk=None):
                                          account=account,)
                                  for invoice in faktury if
                                  not Invoice.objects.filter(user=us, number=invoice.get('Number')).exists()])
+    
+    for invoice in faktury:
+        db = Invoice.objects.filter(number=invoice.get('Number')).get()
+        if invoice.get('IsPaid') != db.is_paid or invoice.get('AmountToPay') != db.amount_to_pay or invoice.get('GrossAmount') != db.amount:
+            print(f'{invoice.get("Number")} - to samo')
+            Invoice.objects.filter(number=invoice.get("Number")).update(is_paid=invoice.get('IsPaid'), amount_to_pay=invoice.get('AmountToPay'), amount=invoice.get('GrossAmount'))
+    print("Pobrałem pgnig i zapisałem w db")
 
 
 def get_enea(pk, login=None, password=None, account_pk=None):
@@ -147,16 +147,16 @@ def get_enea(pk, login=None, password=None, account_pk=None):
                                         consumption_point='test',
                                         account=account))
 
-        for invoice in all_invoices:
-            db = Invoice.objects.filter(number=invoice.number).get()
-            if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
-                print(f'{invoice.number} - to samo')
-                Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
                 
         Invoice.objects.bulk_create(
             [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()],
         )
 
+        for invoice in all_invoices:
+            db = Invoice.objects.filter(number=invoice.number).get()
+            if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
+                print(f'{invoice.number} - to samo')
+                Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
 
         # Get entry points
         # data = {'guid': '4218f3de-e608-e911-80de-005056b326a5', 'view': 'invoice'}
@@ -319,16 +319,17 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
                                         consumption_point='Brak informacji',
                                         account=account))
 
-        for invoice in all_invoices:
-            db = Invoice.objects.filter(number=invoice.number).get()
-            if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
-                print(f'{invoice.number} - Update')
-                Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
                 
 
         Invoice.objects.bulk_create(
             [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()],
         )
+        
+        for invoice in all_invoices:
+            db = Invoice.objects.filter(number=invoice.number).get()
+            if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
+                print(f'{invoice.number} - Update')
+                Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
         # print(all_invoices)
         print(faktury.status_code)
 
