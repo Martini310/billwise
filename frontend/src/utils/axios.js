@@ -31,7 +31,6 @@ axiosInstance.interceptors.response.use(
 					'Sorry about this - we will get it fixed shortly.'
 			);
 			return Promise.reject(error);
-			console.log('blah')
 		}
 
 		if (

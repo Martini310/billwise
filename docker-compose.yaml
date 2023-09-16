@@ -13,16 +13,17 @@ services:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
       - IN_DOCKER=1
-      # - CELERY_RESULT_BACKEND=redis://redis:6379/0  # Optional: Use Redis as a result backend
     command: python manage.py runserver 0.0.0.0:8000
 
   nextjs:
+    container_name: nextjs
     build:
       context: ./frontend
     ports:
       - "3000:3000"
 
   db:
+    container_name: postgres
     image: postgres:12
     environment:
       POSTGRES_DB: billwise_db
@@ -32,13 +33,15 @@ services:
       - 5432:5432
 
   rabbitmq:
+    container_name: rabbitmq
     image: "rabbitmq:3.12-alpine"
     ports:
       - "15672:15672"  # RabbitMQ management UI
       - "5672:5672"    # RabbitMQ
 
   celery_worker:
-    <<: *django
+    <<: *django 
+    container_name: celery_worker
     build:
       context: .
     depends_on:
@@ -51,6 +54,7 @@ services:
     command: celery -A billwise worker -l INFO
 
   celery_beat:
+    container_name: celery_beat
     build:
       context: .
     depends_on:
@@ -59,14 +63,16 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
-    command: celery -A billwise beat -l info # --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A billwise beat -l info
 
-  # flower:
-  #   image: mher/flower
-  #   ports:
-  #     - "5555:5555"  # Flower web UI
-  #   depends_on:
-  #     - celery_worker
-
-  #   # command: ["./scripts/wait-for-it.sh", "rabbitmq:5672", "--", "celery", "--broker=amqp://guest:guest@rabbitmq:5672", "flower"]
-  #   command: celery --broker=amqp://guest:guest@localhost:5672// flower
+  flower:
+    image: mher/flower
+    container_name: flower
+    depends_on:
+      - celery_worker
+    command: celery flower
+    environment:
+      - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
+      - FLOWER_PORT=5555
+    ports:
+    - "5555:5555"

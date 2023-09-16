@@ -28,9 +28,11 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'RENDER' not in os.environ
+# DEBUG = 'RENDER' not in os.environ
+DEBUG = 'IN_DOCKER' not in os.environ
+# DEBUG = os.environ.get('IN_DOCKER', True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
@@ -48,7 +50,6 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
-    # 'base.apps.BaseConfig',
     'base',
     'users',
     'rest_framework_simplejwt.token_blacklist',
@@ -90,32 +91,24 @@ WSGI_APPLICATION = 'billwise.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         # Feel free to alter this value to suit your needs.
-#         default='postgresql://postgres:postgres@localhost:5432/billwise',
-#         conn_max_age=600
-#     )
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'billwise_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'db',   # Use the service name from Docker Compose
-        'PORT': '5432',  # Default PostgreSQL port
+if not DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'billwise_db',
+            'USER': 'admin',
+            'PASSWORD': 'admin',
+            'HOST': 'db',   # Use the service name from Docker Compose
+            'PORT': '5432',  # Default PostgreSQL port
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -242,28 +235,29 @@ SIMPLE_JWT = {
 # }
 
 # Celery configuration
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
-CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
+if not DEBUG:
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
+    CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
 
-# Include tasks from all installed apps
-CELERY_IMPORTS = ('base.tasks',)  # Replace 'yourapp' with the actual app name
+    # Include tasks from all installed apps
+    CELERY_IMPORTS = ('base.tasks',)  # Replace 'yourapp' with the actual app name
 
-# Optional: Set the default queue for your tasks (if not specified in tasks)
-CELERY_DEFAULT_QUEUE = 'default'
+    # Optional: Set the default queue for your tasks (if not specified in tasks)
+    CELERY_DEFAULT_QUEUE = 'default'
 
-# Optional: Configure concurrency (adjust as needed)
-CELERY_WORKER_CONCURRENCY = 4  # Number of concurrent workers
+    # Optional: Configure concurrency (adjust as needed)
+    CELERY_WORKER_CONCURRENCY = 4  # Number of concurrent workers
 
-# Optional: Configure other Celery settings as needed
-# For example, task time limits, task retries, etc.
-CELERY_TASK_TIME_LIMIT = 300  # Maximum task execution time in seconds
-CELERY_TASK_MAX_RETRIES = 3   # Maximum number of times a task will be retried
+    # Optional: Configure other Celery settings as needed
+    # For example, task time limits, task retries, etc.
+    CELERY_TASK_TIME_LIMIT = 300  # Maximum task execution time in seconds
+    CELERY_TASK_MAX_RETRIES = 3   # Maximum number of times a task will be retried
 
 # Celery Beat (periodic task scheduler) configuration
 CELERY_BEAT_SCHEDULE = {
     # Define your scheduled tasks here
-    'my_periodic_task': {
+    'scheduled_synchronizing_data': {
         'task': 'base.tasks.scheduled_get_data',  # Replace with your actual task
-        'schedule': timedelta(minutes=1),  # Adjust the schedule as needed
+        'schedule': timedelta(minutes=10),  # Adjust the schedule as needed
     },
 }

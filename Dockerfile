@@ -18,12 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the Django project into the container
 COPY . /app/
 
-# # Copy the wait-for-it.sh script into the container
-# COPY ./scripts/wait-for-it.sh /scripts/wait-for-it.sh
-
-# # Ensure the script is executable
-# RUN chmod +x /scripts/wait-for-it.sh
-
 # Expose the port your application runs on
 EXPOSE 8000
 
