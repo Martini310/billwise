@@ -1,8 +1,9 @@
 version: '3'
 services:
   django: &django
-    build:
-      context: .
+    # build:
+    #   context: .
+    image: martin310/billwise-drf:1.0.0
     ports:
       - "8000:8000"
     depends_on:
@@ -17,8 +18,9 @@ services:
 
   nextjs:
     container_name: nextjs
-    build:
-      context: ./frontend
+    # build:
+    #   context: ./frontend
+    image: martin310/billwise-nextjs:1.0.0
     ports:
       - "3000:3000"
 
