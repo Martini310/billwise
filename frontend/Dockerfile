@@ -4,6 +4,10 @@ FROM node:slim
 # Set the working directory
 WORKDIR /app
 
+# Install vim
+RUN ["apt-get", "update"]
+RUN ["apt-get", "-y", "install", "vim"]
+
 # Install dependencies
 COPY package*.json ./
 RUN npm install
