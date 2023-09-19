@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import { subDays, subHours } from 'date-fns';
 import { Box, Container, Unstable_Grid2 as Grid } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { OverviewNewestPayment } from 'src/sections/overview/overview-newest-payment';
@@ -12,6 +11,7 @@ import { OverviewCategoriesChart } from 'src/sections/overview/overview-categori
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
 import { baseURL } from 'src/utils/axios';
+import { withComponentLoading } from 'src/utils/componentLoading';
 
 
 const now = new Date();
@@ -22,6 +22,13 @@ const Page = () => {
   const [invoices, setInvoices] = useState([])
   const [categories, setCategories] = useState([])
   
+  const MonthlyChartLoading = withComponentLoading(OverviewMonthlyChart);
+  const [appState, setAppState] = useState({
+    loading: true,
+    chartSeries: null,
+    sx: null
+  });
+
   // Fetch invoices and sort them by date
   useEffect(() => {
       axiosInstance
@@ -36,9 +43,12 @@ const Page = () => {
             return db - da;
           });
           setInvoices(allInvoices);
+          setAppState({...appState, loading:false})
           }
         )
   }, [setInvoices, baseURL]);
+
+
 
   // Fetch Categories and create array with category names
   useEffect(() => {
@@ -61,7 +71,7 @@ const Page = () => {
   // Fill arrays with this year and previous year invoices
   invoices.forEach((invoice) => {
     const month = invoice.date.slice(5, 7);
-
+    setTimeout((console.log('śpię')), 5000)
     if (invoice.date.startsWith(year)) {
       thisYear[month] = (thisYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
     } else if (invoice.date.startsWith(year - 1)) {
@@ -200,7 +210,7 @@ const Page = () => {
             xs={12}
             lg={8}
           >
-            <OverviewMonthlyChart
+            <MonthlyChartLoading isLoading={appState.loading} 
               chartSeries={[
                 {
                   name: 'Last year',
@@ -213,6 +223,7 @@ const Page = () => {
               ]}
               sx={{ height: '100%' }}
             />
+
           </Grid>
           <Grid
             xs={12}

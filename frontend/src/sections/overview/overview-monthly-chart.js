@@ -122,8 +122,6 @@ export const OverviewMonthlyChart = (props) => {
     })
     .catch((err) => console.log(err));
 
-
-
   return (
     <Card sx={sx}>
       <CardHeader

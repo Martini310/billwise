@@ -19,6 +19,7 @@ from base.tasks import sync_accounts_task
 from users.models import NewUser
 from users.serializers import CustomUserSerializer
 from api.permissions import IsOwner
+import time
 
 
 class InvoiceList(ModelViewSet):
@@ -36,6 +37,7 @@ class InvoiceList(ModelViewSet):
     def get_queryset(self):
         if isinstance(self.request.user, AnonymousUser):
             return []
+        time.sleep(4) # Only to demonstrate loading circle
         return Invoice.objects.filter(user=self.request.user)
     
     def get_serializer_class(self):
