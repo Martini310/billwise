@@ -12,9 +12,6 @@ import {
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { Chart } from 'src/components/chart';
-import { axiosInstance, baseURL } from 'src/utils/axios';
-import {useRouter} from 'next/router';
-
 
 
 const useChartOptions = () => {
@@ -109,18 +106,8 @@ const useChartOptions = () => {
 };
 
 export const OverviewMonthlyChart = (props) => {
-  const { chartSeries, sx } = props;
+  const { chartSeries, sx, sync } = props;
   const chartOptions = useChartOptions();
-  const router = useRouter()
-
-
-  const sync = () => axiosInstance.get(baseURL + 'sync/', { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
-    .then((res) => {
-      console.log(res);
-      // router.push("/");
-      router.reload()
-    })
-    .catch((err) => console.log(err));
 
   return (
     <Card sx={sx}>

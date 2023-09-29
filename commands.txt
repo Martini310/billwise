@@ -19,3 +19,5 @@ npm install @material-ui/core --legacy-peer-deps
 Wejście do kontenera
 docker exec -it <id> /bin/bash
 apt-get install vim
+
+coverage run --omit='*/venv/*' manage.py test

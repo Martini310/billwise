@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
 import { baseURL } from 'src/utils/axios';
 import { withComponentLoading } from 'src/utils/componentLoading';
+import {useRouter} from 'next/router';
 
 
 const now = new Date();
@@ -21,6 +22,8 @@ const Page = () => {
 
   const [invoices, setInvoices] = useState([])
   const [categories, setCategories] = useState([])
+  const router = useRouter()
+
   
   const MonthlyChartLoading = withComponentLoading(OverviewMonthlyChart);
   const [appState, setAppState] = useState({
@@ -48,7 +51,16 @@ const Page = () => {
         )
   }, [setInvoices, baseURL]);
 
-
+  // Synchronize data from suppliers
+  const sync = () => {
+    setAppState({...appState, loading:true});
+    axiosInstance
+    .get(baseURL + 'sync/', { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+    .then((res) => {
+      console.log(res);
+      router.reload()
+    })
+    .catch((err) => console.log(err));}
 
   // Fetch Categories and create array with category names
   useEffect(() => {
@@ -71,7 +83,6 @@ const Page = () => {
   // Fill arrays with this year and previous year invoices
   invoices.forEach((invoice) => {
     const month = invoice.date.slice(5, 7);
-    setTimeout((console.log('śpię')), 5000)
     if (invoice.date.startsWith(year)) {
       thisYear[month] = (thisYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
     } else if (invoice.date.startsWith(year - 1)) {
@@ -222,6 +233,7 @@ const Page = () => {
                 }
               ]}
               sx={{ height: '100%' }}
+              sync={sync}
             />
 
           </Grid>
