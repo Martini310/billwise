@@ -29,8 +29,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = 'RENDER' not in os.environ
-DEBUG = 'IN_DOCKER' not in os.environ
-# DEBUG = os.environ.get('IN_DOCKER', True)
+# DEBUG = 'IN_DOCKER' not in os.environ
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'billwise.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if not DEBUG:
+if os.environ.get('IN_DOCKER', False):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
