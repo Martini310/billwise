@@ -2,5 +2,10 @@ node_modules/
 .dockerignore
 .git
 .gitignore
+.gitattributes
+.eslintrc.json
+.editorconfig
+next.config.js
 .next
 out
+last/
