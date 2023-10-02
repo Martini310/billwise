@@ -4,8 +4,4 @@ node_modules/
 .gitignore
 .gitattributes
 .eslintrc.json
-.editorconfig
-next.config.js
-.next
-out
 last/
