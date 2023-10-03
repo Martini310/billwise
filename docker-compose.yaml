@@ -3,7 +3,6 @@ services:
   django: &django
     build:
       context: .
-    # image: martin310/billwise-drf:1.0.0
     volumes:
       - .:/app
     ports:
@@ -22,16 +21,13 @@ services:
     container_name: nextjs
     build:
       context: ./frontend
-      # context: .
       dockerfile: Dockerfile
     volumes:
       - ./frontend:/frontend
       - /frontend/node_modules
       - /frontend/.next
-    # image: martin310/billwise-nextjs:1.0.0
     ports:
       - "3000:3000"
-    # command: npm run start
 
   db:
     container_name: postgres
