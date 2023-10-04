@@ -60,7 +60,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = "__all__"
+        fields = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 'end_date', 'amount_to_pay', 'wear', 'supplier', 'is_paid', 'consumption_point', 'account']
 
 
 class PostInvoiceSerializer(serializers.ModelSerializer):

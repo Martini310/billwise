@@ -46,7 +46,7 @@ export const BasicModal = (props) => {
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
+            Szczegóły faktury
           </Typography>
           <Grid
               container
@@ -58,7 +58,25 @@ export const BasicModal = (props) => {
               }
 
               const verboseName = verboseNames[key] || key; // Use verbose name if available, otherwise use key
-              const displayValue = typeof value === 'string' ? value : String(value);
+              let displayValue = typeof value === 'string' ? value : String(value);
+              
+              // Assign verbose name to is_paid status instead of boolean
+              if (verboseName === 'Status') {
+                if (displayValue === 'true') {
+                  displayValue = 'Zapłacone';
+                } else {
+                  displayValue = 'Niezapłacone';
+                }
+              };
+
+              // Assign '---' if there is no value
+              if (displayValue === '') {
+                displayValue = '---';
+              };
+
+              if (verboseName === 'Kwota' || verboseName === 'Do zapłaty') {
+                displayValue += 'zł'
+              }
 
               return (
                 <React.Fragment key={key}>
