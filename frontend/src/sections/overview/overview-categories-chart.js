@@ -29,7 +29,8 @@ const useChartOptions = (labels) => {
     colors: [
       theme.palette.primary.main,
       theme.palette.success.main,
-      theme.palette.warning.main
+      theme.palette.warning.main,
+      theme.palette.secondary.main,
     ],
     dataLabels: {
       enabled: false
@@ -83,6 +84,11 @@ const iconMap = {
       <BoltIcon />
     </SvgIcon>
   ),
+  Inne: (
+    <SvgIcon>
+      <PhoneIcon />
+    </SvgIcon>
+  ),
   Desktop: (
     <SvgIcon>
       <ComputerDesktopIcon />
@@ -91,11 +97,6 @@ const iconMap = {
   Tablet: (
     <SvgIcon>
       <DeviceTabletIcon />
-    </SvgIcon>
-  ),
-  Phone: (
-    <SvgIcon>
-      <PhoneIcon />
     </SvgIcon>
   ),
 };
