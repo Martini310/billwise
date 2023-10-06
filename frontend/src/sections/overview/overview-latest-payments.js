@@ -101,7 +101,7 @@ export const OverviewLatestPayments = (props) => {
                 return (
                   <TableRow
                     hover
-                    key={order.id}
+                    key={order.number}
                     onClick={() => setSelectedOrder(order)}
                   >
                     <TableCell>
