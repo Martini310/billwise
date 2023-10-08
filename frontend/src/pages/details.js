@@ -50,57 +50,80 @@ const Page = () => {
     });
   }, [setCategories, baseURL]);
 
-  const lastYear = {};
-  const thisYear = {};
   const date = new Date();
   const year = date.getFullYear();
-  const month = date.getMonth();
 
-  // Fill arrays with this year and previous year invoices
+  let sortedAccounts = {}
+
   invoices.forEach((invoice) => {
+    const account = invoice.account.supplier.name;
     const month = invoice.date.slice(5, 7);
-    if (invoice.date.startsWith(year)) {
-      thisYear[month] = (thisYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
-    } else if (invoice.date.startsWith(year - 1)) {
-      lastYear[month] = (lastYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
+
+    if (!sortedAccounts[account]) {
+      sortedAccounts[account] = {
+        'thisYear': {'01':0, '02':0, '03':0, '04':0, '05':0, '06':0, '07':0, '08':0, '09':0, '10':0, '11':0, '12':0},
+        'lastYear': {'01':0, '02':0, '03':0, '04':0, '05':0, '06':0, '07':0, '08':0, '09':0, '10':0, '11':0, '12':0}}
     }
-  });
 
-  
-  const sortedThisYear = Object.keys(thisYear)
-    .sort((a, b) => parseInt(a) - parseInt(b))
-    .map((key) => thisYear[key]);
+    if (invoice.date.startsWith(year)) {
+      sortedAccounts[account]['thisYear'][month] = (sortedAccounts[account]['thisYear'][month] || 0) + parseFloat((invoice.amount).toFixed(2));
+    } else if (invoice.date.startsWith(year - 1)) {
+      sortedAccounts[account]['lastYear'][month] = (sortedAccounts[account]['lastYear'][month] || 0) + parseFloat((invoice.amount).toFixed(2));
+    }
+  })
 
-  const sortedLastYear = Object.keys(lastYear)
-    .sort((a, b) => parseInt(a) - parseInt(b))
-    .map((key) => lastYear[key]);
-  console.log(sortedLastYear)
+  console.log(sortedAccounts)
   return (  
     <>
-        <Head>
-        <title>
-            Account | Devias Kit
-        </title>
-        </Head>
+      <Head>
+      <title>
+          Szczegóły | BillWise
+      </title>
+      </Head>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          py: 8
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid container spacing={3}>
+            {Object.keys(sortedAccounts).map((accountName) => {
+              const value = sortedAccounts[accountName];
 
-        <MonthlyChartLoading isLoading={appState.loading} 
-                chartSeries={[
-                    {
-                    name: 'Last year',
-                    data: sortedLastYear
-                    },
-                    {
-                    name: 'This year',
-                    data: sortedThisYear
-                    }
-                ]}
-                sx={{ height: '100%' }}
-                sync=''
-                />
-
+              return (
+                <Grid item xs={12} sm={6} lg={6} key={accountName}>
+                  <MonthlyChartLoading
+                    isLoading={appState.loading}
+                    chartSeries={[
+                      {
+                        name: 'Last year',
+                        data: Object.keys(value.lastYear)
+                                .sort((a, b) => parseInt(a) - parseInt(b))
+                                .map((key) => value.lastYear[key])
+                      },
+                      {
+                        name: 'This year',
+                        data: Object.keys(value.thisYear)
+                                .sort((a, b) => parseInt(a) - parseInt(b))
+                                .map((key) => value.thisYear[key])
+                      }
+                    ]}
+                    sx={{ height: '100%' }}
+                    // sync=''
+                    title={accountName}
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Container>
+      </Box>
     </>
   )
-};
+}
+
 
 Page.getLayout = (page) => (
   <DashboardLayout>

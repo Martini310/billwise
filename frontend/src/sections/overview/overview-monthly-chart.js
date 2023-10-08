@@ -12,6 +12,8 @@ import {
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { Chart } from 'src/components/chart';
+import {useRouter} from 'next/router';
+
 
 
 const useChartOptions = () => {
@@ -106,8 +108,10 @@ const useChartOptions = () => {
 };
 
 export const OverviewMonthlyChart = (props) => {
-  const { chartSeries, sx, sync } = props;
+  const { chartSeries, sx, sync, title } = props;
   const chartOptions = useChartOptions();
+
+  const router = useRouter()
 
   return (
     <Card sx={sx}>
@@ -126,7 +130,7 @@ export const OverviewMonthlyChart = (props) => {
             Sync
           </Button>
         )}
-        title="Podsumowanie"
+        title={title}
       />
       <CardContent>
         <Chart
@@ -141,6 +145,7 @@ export const OverviewMonthlyChart = (props) => {
       <CardActions sx={{ justifyContent: 'flex-end' }}>
         <Button
           color="inherit"
+          onClick={() => router.push("/details/")}
           endIcon={(
             <SvgIcon fontSize="small">
               <ArrowRightIcon />

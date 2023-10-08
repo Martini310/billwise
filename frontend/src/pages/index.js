@@ -234,6 +234,7 @@ const Page = () => {
               ]}
               sx={{ height: '100%' }}
               sync={sync}
+              title='Podsumowanie'
             />
 
           </Grid>
