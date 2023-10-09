@@ -6,11 +6,57 @@ import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-cha
 import { withComponentLoading } from 'src/utils/componentLoading';
 import { baseURL, axiosInstance } from 'src/utils/axios';
 
+// Function to fetch invoices
+async function fetchInvoices() {
+  try {
+    const response = await axiosInstance.get(baseURL + 'invoices/', {
+      headers: { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }
+    });
+    return response.data;
+  } catch (error) {
+    // Handle the error here, e.g., display an error message.
+    console.error('Error fetching invoices:', error);
+    return [];
+  }
+}
+
+function calculateMonthlyAmounts(invoices) {
+  const date = new Date();
+  const currentYear = date.getFullYear();
+  const monthNames = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+
+  const monthlyAmounts = {};
+
+  invoices.forEach((invoice) => {
+    const account = invoice.account.supplier.name;
+    const invoiceDate = new Date(invoice.date);
+    const invoiceYear = invoiceDate.getFullYear();
+    const invoiceMonth = monthNames[invoiceDate.getMonth()];
+
+    // Initialize the account's data if not present
+    if (!monthlyAmounts[account]) {
+      monthlyAmounts[account] = {
+        thisYear: Object.fromEntries(monthNames.map((month) => [month, 0])),
+        lastYear: Object.fromEntries(monthNames.map((month) => [month, 0])),
+      };
+    }
+
+    // Check if the invoice is from the current or last year and update accordingly
+    if (invoiceYear === currentYear) {
+      monthlyAmounts[account].thisYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
+    } else if (invoiceYear === currentYear - 1) {
+      monthlyAmounts[account].lastYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
+    }
+  });
+
+  return monthlyAmounts;
+}
+
 
 const Page = () => {
 
   const [invoices, setInvoices] = useState([])
-  const [categories, setCategories] = useState([])
+  // const [categories, setCategories] = useState([])
 
   const MonthlyChartLoading = withComponentLoading(OverviewMonthlyChart);
   const [appState, setAppState] = useState({
@@ -19,58 +65,17 @@ const Page = () => {
       sx: null
   });
 
-  // Fetch invoices and sort them by date
+  // Fetch invoices and categories
   useEffect(() => {
-    axiosInstance
-      .get(
-        baseURL + 'invoices/',
-        { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
-      .then((res) => {
-        const allInvoices = res.data;
-        allInvoices.sort((a, b) => {
-          let da = new Date(a.date),
-              db = new Date(b.date);
-          return db - da;
-        });
-        setInvoices(allInvoices);
-        setAppState({...appState, loading:false})
-        }
-      )
-  }, [setInvoices, baseURL]);
+    fetchInvoices()
+      .then((data) => {
+        setInvoices(data);
+        setAppState({...appState, loading:false});
+      })
+  }, []);
 
-  // Fetch Categories and create array with category names
-  useEffect(() => {
-    axiosInstance.get(baseURL + 'category/')
-      .then((res) => {
-        const categories = res.data;
-        let categoryNames = [];
-        categories.forEach((category) => 
-          categoryNames.push(category.name))
-        setCategories(categoryNames);
-    });
-  }, [setCategories, baseURL]);
-
-  const date = new Date();
-  const year = date.getFullYear();
-
-  let sortedAccounts = {}
-
-  invoices.forEach((invoice) => {
-    const account = invoice.account.supplier.name;
-    const month = invoice.date.slice(5, 7);
-
-    if (!sortedAccounts[account]) {
-      sortedAccounts[account] = {
-        'thisYear': {'01':0, '02':0, '03':0, '04':0, '05':0, '06':0, '07':0, '08':0, '09':0, '10':0, '11':0, '12':0},
-        'lastYear': {'01':0, '02':0, '03':0, '04':0, '05':0, '06':0, '07':0, '08':0, '09':0, '10':0, '11':0, '12':0}}
-    }
-
-    if (invoice.date.startsWith(year)) {
-      sortedAccounts[account]['thisYear'][month] = (sortedAccounts[account]['thisYear'][month] || 0) + parseFloat((invoice.amount).toFixed(2));
-    } else if (invoice.date.startsWith(year - 1)) {
-      sortedAccounts[account]['lastYear'][month] = (sortedAccounts[account]['lastYear'][month] || 0) + parseFloat((invoice.amount).toFixed(2));
-    }
-  })
+  // Process the invoices to calculate monthly amounts
+  const sortedAccounts = calculateMonthlyAmounts(invoices);
 
   console.log(sortedAccounts)
   return (  
