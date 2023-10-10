@@ -144,10 +144,10 @@ export const AuthProvider = (props) => {
       // Check if the response contains the access token
       if (response.data.access) {
         // Store the access token in local storage
-        localStorage.setItem('access_token', response.data.access);
-        localStorage.setItem('refresh_token', response.data.refresh);
-        localStorage.setItem('username', response.data.username);
-        localStorage.setItem('id', response.data.id);
+        // localStorage.setItem('access_token', response.data.access);
+        // localStorage.setItem('refresh_token', response.data.refresh);
+        // localStorage.setItem('username', response.data.username);
+        // localStorage.setItem('id', response.data.id);
         window.sessionStorage.setItem('authenticated', 'true');
 
         console.log(response.data.access, response.data.username)
@@ -159,7 +159,10 @@ export const AuthProvider = (props) => {
         console.log(response.data)
         // After successfully obtaining the JWT token from your authentication API
         const token = response.data.access;
-        Cookies.set('access_token', token);
+        Cookies.set('access_token', token, {sameSite: 'Lax'});
+        Cookies.set('refresh_token', response.data.refresh, {sameSite: 'Lax'});
+        Cookies.set('username', response.data.username, {sameSite: 'Lax'});
+        Cookies.set('id', response.data.id, {sameSite: 'Lax'});
   
         // Dispatch the SIGN_IN action with the user data
         dispatch({
@@ -201,13 +204,17 @@ export const AuthProvider = (props) => {
   const signOut = () => {
 
         axiosInstance.post('user/logout/blacklist/', {
-            refresh_token: localStorage.getItem('refresh_token'),
+            // refresh_token: localStorage.getItem('refresh_token'),
+            refresh_token: Cookies.get('refresh_token')
         });
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('username');
+        // localStorage.removeItem('access_token');
+        // localStorage.removeItem('refresh_token');
+        // localStorage.removeItem('username');
         window.sessionStorage.setItem('authenticated', false);
         axiosInstance.defaults.headers['Authorization'] = null;
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        Cookies.remove('username');
 
     dispatch({
       type: HANDLERS.SIGN_OUT
