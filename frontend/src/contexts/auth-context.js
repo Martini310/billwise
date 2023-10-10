@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useReducer, useRef } from 'react'
 import PropTypes from 'prop-types';
 import { axiosInstance } from 'src/utils/axios';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 
 const HANDLERS = {
@@ -154,6 +155,11 @@ export const AuthProvider = (props) => {
         // Set the authorization header for future requests
         axiosInstance.defaults.headers['Authorization'] =
           'JWT ' + response.data.access;
+
+        console.log(response.data)
+        // After successfully obtaining the JWT token from your authentication API
+        const token = response.data.access;
+        Cookies.set('access_token', token);
   
         // Dispatch the SIGN_IN action with the user data
         dispatch({

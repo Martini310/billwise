@@ -36,8 +36,8 @@ const Page = () => {
   useEffect(() => {
       axiosInstance
         .get(
-          baseURL + 'invoices/',
-          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+          'invoices/',
+          )
         .then((res) => {
           const allInvoices = res.data;
           allInvoices.sort((a, b) => {
@@ -64,7 +64,8 @@ const Page = () => {
 
   // Fetch Categories and create array with category names
   useEffect(() => {
-    axiosInstance.get(baseURL + 'category/')
+    axiosInstance
+      .get('category/')
       .then((res) => {
         const categories = res.data;
         let categoryNames = [];
@@ -235,6 +236,7 @@ const Page = () => {
               sx={{ height: '100%' }}
               sync={sync}
               title='Podsumowanie'
+              overview="/details/"
             />
 
           </Grid>

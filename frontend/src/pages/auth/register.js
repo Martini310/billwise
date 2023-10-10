@@ -14,6 +14,7 @@ const Page = () => {
     initialValues: {
       email: '',
       name: '',
+      username: '',
       password: '',
       submit: null
     },
@@ -27,6 +28,10 @@ const Page = () => {
         .string()
         .max(255)
         .required('Name is required'),
+      username: Yup
+        .string()
+        .max(255)
+        .required('Userame is required'),
       password: Yup
         .string()
         .max(255)
@@ -105,6 +110,16 @@ const Page = () => {
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                   value={formik.values.name}
+                />
+                <TextField
+                  error={!!(formik.touched.username && formik.errors.username)}
+                  fullWidth
+                  helperText={formik.touched.username && formik.errors.username}
+                  label="Nazwa użytkownika"
+                  name="username"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values.username}
                 />
                 <TextField
                   error={!!(formik.touched.email && formik.errors.email)}

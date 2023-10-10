@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // export const baseURL = 'http://127.0.0.1:8000/api/';
 // export const baseURL = 'https://billwise-api.onrender.com/api/';
@@ -8,14 +9,23 @@ export const axiosInstance = axios.create({
     baseURL: baseURL,
     timeout: 30000,
     headers: {
-        // Authorization: localStorage.getItem('access_token')
-        //     ? 'JWT ' + localStorage.getItem('access_token')
-        //     : null,
+        Authorization: typeof localStorage !== 'undefined' && localStorage.getItem('access_token')
+		? 'JWT ' + localStorage.getItem('access_token')
+		: null,
         'Content-Type': 'application/json',
         accept: 'application/json',
 
     },
 });
+
+// Request interceptor to add the JWT token from cookies to the headers
+axiosInstance.interceptors.request.use((config) => {
+	const token = Cookies.get('access_token');
+	if (token) {
+	  config.headers.Authorization = `JWT ${token}`;
+	}
+	return config;
+  });
 
 axiosInstance.interceptors.response.use(
 	(response) => {

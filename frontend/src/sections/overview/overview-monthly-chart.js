@@ -21,7 +21,7 @@ const useChartOptions = () => {
 
   return {
     chart: {
-      background: 'transparent',
+      background: 'rgba(211, 211, 211, 0.25)',
       stacked: false,
       toolbar: {
         show: false
@@ -108,7 +108,7 @@ const useChartOptions = () => {
 };
 
 export const OverviewMonthlyChart = (props) => {
-  const { chartSeries, sx, sync, title } = props;
+  const { chartSeries, sx, sync, title, overview } = props;
   const chartOptions = useChartOptions();
 
   const router = useRouter()
@@ -116,7 +116,7 @@ export const OverviewMonthlyChart = (props) => {
   return (
     <Card sx={sx}>
       <CardHeader
-        action={(
+        action={!sync ? null : (
           <Button
             onClick={sync}
             color="inherit"
@@ -143,18 +143,20 @@ export const OverviewMonthlyChart = (props) => {
       </CardContent>
       <Divider />
       <CardActions sx={{ justifyContent: 'flex-end' }}>
-        <Button
-          color="inherit"
-          onClick={() => router.push("/details/")}
-          endIcon={(
-            <SvgIcon fontSize="small">
-              <ArrowRightIcon />
-            </SvgIcon>
-          )}
-          size="small"
-        >
-          Overview
-        </Button>
+        {!overview ? null : (
+          <Button
+            color="inherit"
+            onClick={() => router.push(overview)}
+            endIcon={(
+              <SvgIcon fontSize="small">
+                <ArrowRightIcon />
+              </SvgIcon>
+            )}
+            size="small"
+          >
+            Overview
+          </Button>
+        )}
       </CardActions>
     </Card>
   );
