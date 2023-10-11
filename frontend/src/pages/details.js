@@ -1,10 +1,11 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
-import { Box, Container, Stack, Typography, Unstable_Grid2 as Grid } from '@mui/material';
+import { Box, Container, Stack, Switch, Typography, ToggleButton, ToggleButtonGroup, Unstable_Grid2 as Grid } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-chart';
 import { withComponentLoading } from 'src/utils/componentLoading';
 import { baseURL, axiosInstance } from 'src/utils/axios';
+
 
 // Function to fetch invoices
 async function fetchInvoices() {
@@ -25,17 +26,19 @@ function calculateMonthlyAmounts(invoices) {
   const currentYear = date.getFullYear();
   const monthNames = ['01','02','03','04','05','06','07','08','09','10','11','12'];
 
-  const monthlyAmounts = {};
+  const monthlyAmounts = {'categories': {}, 'accounts': {}};
 
   invoices.forEach((invoice) => {
     const account = invoice.account.supplier.name;
+    const category = invoice.account.category.name;
     const invoiceDate = new Date(invoice.date);
     const invoiceYear = invoiceDate.getFullYear();
     const invoiceMonth = monthNames[invoiceDate.getMonth()];
 
+    // ACCOUNTS
     // Initialize the account's data if not present
-    if (!monthlyAmounts[account]) {
-      monthlyAmounts[account] = {
+    if (!monthlyAmounts.accounts[account]) {
+      monthlyAmounts.accounts[account] = {
         thisYear: Object.fromEntries(monthNames.map((month) => [month, 0])),
         lastYear: Object.fromEntries(monthNames.map((month) => [month, 0])),
       };
@@ -43,9 +46,25 @@ function calculateMonthlyAmounts(invoices) {
 
     // Check if the invoice is from the current or last year and update accordingly
     if (invoiceYear === currentYear) {
-      monthlyAmounts[account].thisYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
+      monthlyAmounts.accounts[account].thisYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
     } else if (invoiceYear === currentYear - 1) {
-      monthlyAmounts[account].lastYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
+      monthlyAmounts.accounts[account].lastYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
+    }
+
+    // CATEGORIES
+    // Initialize the account's data if not present
+    if (!monthlyAmounts.categories[category]) {
+      monthlyAmounts.categories[category] = {
+        thisYear: Object.fromEntries(monthNames.map((month) => [month, 0])),
+        lastYear: Object.fromEntries(monthNames.map((month) => [month, 0])),
+      };
+    }
+
+    // Check if the invoice is from the current or last year and update accordingly
+    if (invoiceYear === currentYear) {
+      monthlyAmounts.categories[category].thisYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
+    } else if (invoiceYear === currentYear - 1) {
+      monthlyAmounts.categories[category].lastYear[invoiceMonth] += parseFloat(invoice.amount).toFixed(2);
     }
   });
 
@@ -56,7 +75,12 @@ function calculateMonthlyAmounts(invoices) {
 const Page = () => {
 
   const [invoices, setInvoices] = useState([])
-  // const [categories, setCategories] = useState([])
+
+  const [dataBy, setDataBy] = useState('accounts'); // Initially display data by accounts
+
+  const handleDataToggle = (event, newAlignment) => {
+    setDataBy(newAlignment);
+  };
 
   const MonthlyChartLoading = withComponentLoading(OverviewMonthlyChart);
   const [appState, setAppState] = useState({
@@ -93,9 +117,19 @@ const Page = () => {
         }}
       >
         <Container maxWidth="xl">
+          <ToggleButtonGroup
+            color='info'
+            value={dataBy}
+            exclusive
+            onChange={handleDataToggle}
+            aria-label="Show by"
+          >
+            <ToggleButton value="accounts">Accounts</ToggleButton>
+            <ToggleButton value="categories">Categories</ToggleButton>
+          </ToggleButtonGroup>
           <Grid container spacing={3}>
-            {Object.keys(sortedAccounts).map((accountName) => {
-              const value = sortedAccounts[accountName];
+            {Object.keys(sortedAccounts[dataBy]).map((accountName) => {
+              const value = sortedAccounts[dataBy][accountName];
 
               return (
                 <Grid item xs={12} sm={6} lg={6} key={accountName}>
