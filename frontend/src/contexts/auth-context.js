@@ -113,26 +113,6 @@ export const AuthProvider = (props) => {
     []
   );
 
-  const skip = () => {
-    try {
-      window.sessionStorage.setItem('authenticated', 'true');
-    } catch (err) {
-      console.error(err);
-    }
-
-    const user = {
-      id: '5e86809283e28b96d2d38537',
-      avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: 'Anika Visser',
-      email: 'anika.visser@devias.io'
-    };
-
-    dispatch({
-      type: HANDLERS.SIGN_IN,
-      payload: user
-    });
-  };
-
   const signIn = async (email, password) => {
 
     try {
@@ -140,36 +120,30 @@ export const AuthProvider = (props) => {
         email: email,
         password: password,
       });
-  
+      console.log(response)
       // Check if the response contains the access token
       if (response.data.access) {
-        // Store the access token in local storage
-        // localStorage.setItem('access_token', response.data.access);
-        // localStorage.setItem('refresh_token', response.data.refresh);
-        // localStorage.setItem('username', response.data.username);
-        // localStorage.setItem('id', response.data.id);
-        window.sessionStorage.setItem('authenticated', 'true');
-
-        console.log(response.data.access, response.data.username)
-
-        // Set the authorization header for future requests
-        axiosInstance.defaults.headers['Authorization'] =
-          'JWT ' + response.data.access;
-
-        console.log(response.data)
-        // After successfully obtaining the JWT token from your authentication API
+        // Store the access token in Cookies
         const token = response.data.access;
         Cookies.set('access_token', token, {sameSite: 'Lax'});
         Cookies.set('refresh_token', response.data.refresh, {sameSite: 'Lax'});
         Cookies.set('username', response.data.username, {sameSite: 'Lax'});
         Cookies.set('id', response.data.id, {sameSite: 'Lax'});
+
+        window.sessionStorage.setItem('authenticated', 'true');
+
+        // Set the authorization header for future requests
+        axiosInstance.defaults.headers['Authorization'] =
+          'JWT ' + token;
+
+        console.log(response.data)
   
         // Dispatch the SIGN_IN action with the user data
         dispatch({
           type: HANDLERS.SIGN_IN,
           payload: {
             id: response.data.id,
-            avatar: '/assets/avatars/avatar-anika-visser.png',
+            avatar: '/assets/avatars/avatar-fran-perez.png',
             name: response.data.username,
             email: email
           }
@@ -177,6 +151,7 @@ export const AuthProvider = (props) => {
   
         // Redirect the user or perform other actions as needed
         router.push('/');
+
       } else {
         // Handle error: Unable to retrieve access token
         console.error('Access token not found in response');
@@ -184,15 +159,17 @@ export const AuthProvider = (props) => {
     } catch (error) {
       // Handle authentication error
       console.error('Authentication failed:', error);
+      return error.response.data.detail
     }
   };
 
-  const signUp = async (email, username, password) => {
+  const signUp = async (email, username, name, password) => {
 
     axiosInstance
       .post(`user/register/`, {
         email: email,
         user_name: username,
+        first_name: name,
         password: password,
       })
       .then((res) => {
@@ -202,19 +179,15 @@ export const AuthProvider = (props) => {
   };
 
   const signOut = () => {
-
         axiosInstance.post('user/logout/blacklist/', {
-            // refresh_token: localStorage.getItem('refresh_token'),
             refresh_token: Cookies.get('refresh_token')
         });
-        // localStorage.removeItem('access_token');
-        // localStorage.removeItem('refresh_token');
-        // localStorage.removeItem('username');
         window.sessionStorage.setItem('authenticated', false);
         axiosInstance.defaults.headers['Authorization'] = null;
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
         Cookies.remove('username');
+        Cookies.remove('id');
 
     dispatch({
       type: HANDLERS.SIGN_OUT
@@ -225,7 +198,6 @@ export const AuthProvider = (props) => {
     <AuthContext.Provider
       value={{
         ...state,
-        skip,
         signIn,
         signUp,
         signOut
