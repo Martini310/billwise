@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import Head from 'next/head';
 import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -18,12 +17,10 @@ import {
 } from '@mui/material';
 import { useAuth } from 'src/hooks/use-auth';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
-import { axiosInstance } from 'src/utils/axios';
-import { baseURL } from 'src/utils/axios';
 
 
 const Page = () => {
-  const router = useRouter();
+
   const auth = useAuth();
   const [method, setMethod] = useState('email');
   const formik = useFormik({
@@ -43,34 +40,22 @@ const Page = () => {
         .max(255)
         .required('Password is required')
     }),
-    onSubmit: async (values, helpers) => {
-      try {
-        await auth.signIn(values.email, values.password);
-        // axiosInstance
-        //   .post(`token/`, {
-        //     email: values.email,
-        //     password: values.password,
-        //   })
-        //   .then((res) => {
-        //     localStorage.setItem('access_token', res.data.access);
-        //     localStorage.setItem('refresh_token', res.data.refresh);
-        //     axiosInstance.defaults.headers['Authorization'] =
-        //       'JWT ' + localStorage.getItem('access_token');
 
-          //   const currentUserLink = baseURL + 'current-user/';
-          //   axiosInstance
-          //     .get(currentUserLink, 
-          //       { 'headers': { 'Authorization': 'JWT ' + res.data.access }})
-          //     .then((resp) => {
-          //       const data = resp.data;
-          //       localStorage.setItem('userID', data.id)
-          //   });
-          // });
-          // setTimeout(router.push('/'), 5000) // TODO better implementation
-        ;
+    onSubmit: async (values, helpers) => {
+      let error; // Declare the error variable here
+    
+      try {
+        error = await auth.signIn(values.email, values.password); // Assign the value within the try block
+        console.log('Error from signIn:', error); // Check the error here
+        if (error) {
+          helpers.setStatus({ success: false });
+          helpers.setErrors({ submit: error });
+          helpers.setSubmitting(false);
+        }
       } catch (err) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
+        helpers.setErrors({ submit: err });
         helpers.setSubmitting(false);
       }
     }
@@ -81,14 +66,6 @@ const Page = () => {
       setMethod(value);
     },
     []
-  );
-
-  const handleSkip = useCallback(
-    () => {
-      auth.skip();
-      router.push('/');
-    },
-    [auth, router]
   );
 
   return (
@@ -182,16 +159,13 @@ const Page = () => {
                     value={formik.values.password}
                   />
                 </Stack>
-                <FormHelperText sx={{ mt: 1 }}>
-                  Optionally you can skip.
-                </FormHelperText>
                 {formik.errors.submit && (
                   <Typography
                     color="error"
                     sx={{ mt: 3 }}
                     variant="body2"
                   >
-                    {formik.errors.submit}
+                    <b>{formik.errors.submit}</b>
                   </Typography>
                 )}
                 <Button
@@ -202,14 +176,6 @@ const Page = () => {
                   variant="contained"
                 >
                   Continue
-                </Button>
-                <Button
-                  fullWidth
-                  size="large"
-                  sx={{ mt: 3 }}
-                  onClick={handleSkip}
-                >
-                  Skip authentication
                 </Button>
                 <Alert
                   color="primary"
