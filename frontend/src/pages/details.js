@@ -5,14 +5,13 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-chart';
 import { withComponentLoading } from 'src/utils/componentLoading';
 import { baseURL, axiosInstance } from 'src/utils/axios';
+import LinearProgress from '@mui/material/LinearProgress';
 
 
 // Function to fetch invoices
 async function fetchInvoices() {
   try {
-    const response = await axiosInstance.get(baseURL + 'invoices/', {
-      headers: { 'Authorization': 'JWT ' + localStorage.getItem('access_token') }
-    });
+    const response = await axiosInstance.get('invoices/');
     return response.data;
   } catch (error) {
     // Handle the error here, e.g., display an error message.
@@ -82,7 +81,8 @@ const Page = () => {
     setDataBy(newAlignment);
   };
 
-  const MonthlyChartLoading = withComponentLoading(OverviewMonthlyChart);
+  // const MonthlyChartLoading = withComponentLoading(OverviewMonthlyChart);
+  const MonthlyChartLoading = OverviewMonthlyChart;
   const [appState, setAppState] = useState({
       loading: true,
       chartSeries: null,
@@ -101,7 +101,6 @@ const Page = () => {
   // Process the invoices to calculate monthly amounts
   const sortedAccounts = calculateMonthlyAmounts(invoices);
 
-  console.log(sortedAccounts)
   return (  
     <>
       <Head>
@@ -127,36 +126,41 @@ const Page = () => {
             <ToggleButton value="accounts">Accounts</ToggleButton>
             <ToggleButton value="categories">Categories</ToggleButton>
           </ToggleButtonGroup>
-          <Grid container spacing={3}>
-            {Object.keys(sortedAccounts[dataBy]).map((accountName) => {
-              const value = sortedAccounts[dataBy][accountName];
+          {appState.loading ? (
+            <Box sx={{ py: 3 }}>
+              <LinearProgress />
+            </Box>
+            ) : (
+            <Grid container spacing={3}>
+              {Object.keys(sortedAccounts[dataBy]).map((accountName) => {
+                const value = sortedAccounts[dataBy][accountName];
 
-              return (
-                <Grid item xs={12} sm={6} lg={6} key={accountName}>
-                  <MonthlyChartLoading
-                    isLoading={appState.loading}
-                    chartSeries={[
-                      {
-                        name: 'Last year',
-                        data: Object.keys(value.lastYear)
-                                .sort((a, b) => parseInt(a) - parseInt(b))
-                                .map((key) => value.lastYear[key])
-                      },
-                      {
-                        name: 'This year',
-                        data: Object.keys(value.thisYear)
-                                .sort((a, b) => parseInt(a) - parseInt(b))
-                                .map((key) => value.thisYear[key])
-                      }
-                    ]}
-                    sx={{ height: '100%' }}
-                    // sync=''
-                    title={accountName}
-                  />
-                </Grid>
-              );
-            })}
-          </Grid>
+                return (
+                  <Grid item xs={12} sm={6} lg={6} key={accountName}>
+                    <MonthlyChartLoading
+                      isLoading={appState.loading}
+                      chartSeries={[
+                        {
+                          name: 'Last year',
+                          data: Object.keys(value.lastYear)
+                                  .sort((a, b) => parseInt(a) - parseInt(b))
+                                  .map((key) => value.lastYear[key])
+                        },
+                        {
+                          name: 'This year',
+                          data: Object.keys(value.thisYear)
+                                  .sort((a, b) => parseInt(a) - parseInt(b))
+                                  .map((key) => value.thisYear[key])
+                        }
+                      ]}
+                      sx={{ height: '100%' }}
+                      title={accountName}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
         </Container>
       </Box>
     </>
