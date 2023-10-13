@@ -69,15 +69,16 @@ export const SideNav = (props) => {
             <div>
               <Typography
                 color="inherit"
-                variant="subtitle1"
+                variant="subtitle2"
+                fontWeight='bold'
               >
-                Devias
+                B I L L W I S E
               </Typography>
               <Typography
                 color="neutral.400"
                 variant="body2"
               >
-                Production
+                Wszystkie płatności w jednym miejscu
               </Typography>
             </div>
             <SvgIcon
