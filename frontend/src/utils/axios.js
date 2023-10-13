@@ -34,8 +34,8 @@ axiosInstance.interceptors.response.use(
 		if (typeof error.response === 'undefined') {
 			alert(
 				'A server/network error occurred. ' +
-					'Looks like CORS might be the problem. ' +
-					'Sorry about this - we will get it fixed shortly.'
+				'Looks like CORS might be the problem. ' +
+				'Sorry about this - we will get it fixed shortly.'
 			);
 			return Promise.reject(error);
 		}
@@ -43,17 +43,17 @@ axiosInstance.interceptors.response.use(
 		if (
 			error.response.status === 401 &&
 			originalRequest.url === baseURL + 'token/refresh/'
-		) {
-			window.location.href = '/auth/login/';
-			return Promise.reject(error);
+			) {
+				window.location.href = '/auth/login/';
+				return Promise.reject(error);
 		}
 
 		if (
 			error.response.data.code === 'token_not_valid' &&
 			error.response.status === 401 &&
 			error.response.statusText === 'Unauthorized'
-		) {
-			const refreshToken = localStorage.getItem('refresh_token');
+			) {
+			const refreshToken = Cookies.get('refresh_token');
 
 			if (refreshToken ) {
 
@@ -71,8 +71,8 @@ axiosInstance.interceptors.response.use(
 					return axiosInstance
 						.post('/token/refresh/', { refresh: refreshToken })
 						.then((response) => {
-							localStorage.setItem('access_token', response.data.access);
-							localStorage.setItem('refresh_token', response.data.refresh);
+							Cookies.set('access_token', response.data.access);
+							Cookies.set('refresh_token', response.data.refresh);
 
 							axiosInstance.defaults.headers['Authorization'] =
 								'JWT ' + response.data.access;

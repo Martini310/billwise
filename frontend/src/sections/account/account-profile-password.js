@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { axiosInstance, baseURL } from 'src/utils/axios';
+import { axiosInstance } from 'src/utils/axios';
 import {useRouter} from 'next/router';
 import {
   Box,
@@ -16,7 +16,6 @@ import {
 
 export const AccountProfilePassword = () => {
 
-  const postURL = 'user/change_password/'
   const router = useRouter()
   const [passwords, setPasswords] = useState({'old_password': '', 'new_password': ''})
 
@@ -37,12 +36,13 @@ export const AccountProfilePassword = () => {
     (event) => {
       event.preventDefault();
       if (comparePasswords) {
-        axiosInstance.post(postURL, passwords)
-        .then((res) => {
-          console.log(res);
-          router.push("/");
-        })
-        .catch((err) => console.log(err));
+        axiosInstance
+          .post('user/change_password/', passwords)
+          .then((res) => {
+            console.log(res);
+            router.push("/");
+          })
+          .catch((err) => console.log(err));
       }
     });
 

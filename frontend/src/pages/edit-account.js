@@ -6,7 +6,6 @@ import { AccountProfileDetails } from 'src/sections/edit-account/account-profile
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
-import { baseURL } from 'src/utils/axios';
 
 
 const Page = () => {

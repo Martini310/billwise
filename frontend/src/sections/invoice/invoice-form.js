@@ -12,6 +12,8 @@ import {
   TextField,
   MenuItem
 } from '@mui/material';
+import Cookies from 'js-cookie';
+
 
 export const InvoiceForm = () => {
   const [values, setValues] = useState({
@@ -24,7 +26,7 @@ export const InvoiceForm = () => {
     amount_to_pay: 0,
     wear: undefined,
     supplier: '',
-    user: localStorage.getItem('id'),
+    user: Cookies.get('id'),
     is_paid: false,
     consumption_point: '',
   });

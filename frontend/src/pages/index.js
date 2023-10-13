@@ -10,7 +10,6 @@ import { OverviewNextPayment } from 'src/sections/overview/overview-next-payment
 import { OverviewCategoriesChart } from 'src/sections/overview/overview-categories-chart';
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
-import { baseURL } from 'src/utils/axios';
 import { withComponentLoading } from 'src/utils/componentLoading';
 import {useRouter} from 'next/router';
 
@@ -49,18 +48,18 @@ const Page = () => {
           setAppState({...appState, loading:false})
           }
         )
-  }, [setInvoices, baseURL]);
+  }, [setInvoices]);
 
   // Synchronize data from suppliers
   const sync = () => {
     setAppState({...appState, loading:true});
     axiosInstance
-    .get(baseURL + 'sync/', { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
-    .then((res) => {
-      console.log(res);
-      router.reload()
-    })
-    .catch((err) => console.log(err));}
+      .get('sync/')
+      .then((res) => {
+        console.log(res);
+        router.reload()
+      })
+      .catch((err) => console.log(err));}
 
   // Fetch Categories and create array with category names
   useEffect(() => {
@@ -73,7 +72,7 @@ const Page = () => {
           categoryNames.push(category.name))
         setCategories(categoryNames);
     });
-  }, [setCategories, baseURL]);
+  }, [setCategories]);
 
   const lastYear = {};
   const thisYear = {};

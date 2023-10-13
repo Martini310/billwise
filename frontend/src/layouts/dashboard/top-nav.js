@@ -110,7 +110,7 @@ export const TopNav = (props) => {
               sx={{ cursor: 'pointer', bgcolor: deepPurple[500] }}
               // src="/assets/avatars/avatar-anika-visser.png"
             >
-              {localStorage.getItem('username')}
+              
             </Avatar>
           </Stack>
         </Stack>
