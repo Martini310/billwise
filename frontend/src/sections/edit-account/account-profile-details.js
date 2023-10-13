@@ -12,13 +12,10 @@ import {
   Unstable_Grid2 as Grid
 } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { axiosInstance, baseURL } from 'src/utils/axios';
+import { axiosInstance } from 'src/utils/axios';
 
 
 export const AccountProfileDetails = (props) => {
@@ -30,7 +27,7 @@ export const AccountProfileDetails = (props) => {
   useEffect(() => {
     setPost(props.account);
     }, [props.account])
-  // console.log(post)
+
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -40,23 +37,16 @@ export const AccountProfileDetails = (props) => {
   };
 
   const handleChange = (event) => {
-    // console.log(event);
     setPost({...post, [event.target.name]: event.target.value});
-    // console.log(post);
   }
-
-  // const handleSelect = (event) => {
-  //   setPost({...post, 'category': categories[event.target.value - 1]});
-  //   console.log(post);
-  // };
 
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = `${baseURL}accounts/${post.id}/`;
+      const post_link = `accounts/${post.id}/`;
       delete post.supplier
       console.log(post);
-      axiosInstance.patch(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+      axiosInstance.patch(post_link, post)
         .then((res) => {
           console.log(res);
           router.push("/accounts/");
@@ -68,8 +58,8 @@ export const AccountProfileDetails = (props) => {
   const handleDelete = useCallback(
     (event) => {
       event.preventDefault();
-      const link = `${baseURL}accounts/${account.id}/`;
-      axiosInstance.delete(link, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+      const link = `accounts/${account.id}/`;
+      axiosInstance.delete(link)
         .then((res) => {
           console.log(res);
           router.push("/accounts/");

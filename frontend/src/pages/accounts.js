@@ -17,10 +17,9 @@ import { AccountCard } from 'src/sections/accounts/account-card';
 import { AccountsSearch } from 'src/sections/accounts/accounts-search';
 import { axiosInstance } from 'src/utils/axios';
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { baseURL } from 'src/utils/axios';
 
 
+// Example company
 const companies = [
   {
     id: '2569ce0d517a7f06d3ea1f24',
@@ -40,14 +39,12 @@ const Page = () => {
   // Fetch user accounts
   useEffect(() => {
       axiosInstance
-        .get(
-          baseURL + 'accounts/',
-          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .get('accounts/')
         .then((res) => {
           setAccounts(res.data);
           }
         )
-  }, [setAccounts, baseURL]);
+  }, [setAccounts]);
 
   return (
   <>

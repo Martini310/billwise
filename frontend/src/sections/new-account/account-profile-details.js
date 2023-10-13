@@ -12,13 +12,10 @@ import {
   Unstable_Grid2 as Grid
 } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { axiosInstance, baseURL } from 'src/utils/axios';
+import { axiosInstance } from 'src/utils/axios';
 
 
 export const AccountProfileDetails = (props) => {
@@ -37,25 +34,22 @@ export const AccountProfileDetails = (props) => {
 
   // Fetch Categories and create array with category names
   useEffect(() => {
-    axiosInstance.get(baseURL + 'category/')
+    axiosInstance
+      .get('category/')
       .then((res) => {
         const categories = res.data;
-        let categoryNames = [];
-        categories.forEach((category) => 
-          categoryNames.push(category.name))
-        // setCategories(categoryNames);
         setCategories(categories);
     });
-  }, [setCategories, baseURL]);
+  }, [setCategories]);
 
   useEffect(() => {
-    axiosInstance.get(baseURL + 'suppliers/')
+    axiosInstance
+      .get('suppliers/')
       .then((res) => {
         const suppliers = res.data;
         setSuppliers(suppliers);
-        console.log(suppliers)
     });
-  }, [setSuppliers, baseURL]);
+  }, [setSuppliers]);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -78,9 +72,8 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = baseURL + 'accounts/';
       console.log(post);
-      axiosInstance.post(post_link, post, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+      axiosInstance.post('accounts/', post)
         .then((res) => {
           console.log(res);
           router.push("/accounts/");

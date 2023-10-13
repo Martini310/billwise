@@ -1,6 +1,4 @@
 import PropTypes from 'prop-types';
-import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
-import ClockIcon from '@heroicons/react/24/solid/ClockIcon';
 import UserCircleIcon from '@heroicons/react/24/solid/UserCircleIcon';
 import TagIcon from '@heroicons/react/24/solid/TagIcon';
 import { Avatar, Box, Card, CardContent, Divider, Stack, SvgIcon, Typography } from '@mui/material';
@@ -31,7 +29,6 @@ export const AccountCard = (props) => {
           }}
         >
           <Avatar
-            // src='/assets/logos/logo-pgnig.png'
             src={img}
             variant="square"
             sx={{ width: 160, height: 100 }}

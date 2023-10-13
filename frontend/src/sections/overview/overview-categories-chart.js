@@ -5,8 +5,6 @@ import PhoneIcon from '@heroicons/react/24/solid/PhoneIcon';
 import BoltIcon from '@heroicons/react/24/solid/BoltIcon';
 import FireIcon from '@heroicons/react/24/solid/FireIcon';
 import CloudIcon from '@heroicons/react/24/solid/CloudIcon';
-
-
 import {
   Box,
   Card,

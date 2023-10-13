@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { axiosInstance, baseURL } from 'src/utils/axios';
+import { axiosInstance } from 'src/utils/axios';
 import {useRouter} from 'next/router';
 import {
   Box,
@@ -12,30 +12,29 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
+import Cookies from 'js-cookie';
 
 
 export const AccountProfileDetails = () => {
 
-  const user_pk = localStorage.getItem('id');
+  const user_pk = Cookies.get('id');
   const [profileDetails, setProfileDetails] = useState();
   const [initialData, setInitialData] = useState();
-  const patchURL = baseURL + 'user/user-info/' + localStorage.getItem('id') + '/'
+  const patchURL = 'user/user-info/' + Cookies.get('id') + '/'
   const router = useRouter()
 
   
   // Fetch user info
   useEffect(() => {
       axiosInstance
-        .get(
-          `${baseURL}user/user-info/${user_pk}`,
-          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .get(`user/user-info/${user_pk}`)
         .then((res) => {
           delete res.data.id
           setInitialData(res.data);
           setProfileDetails(res.data);
           }
         )
-  }, [setProfileDetails, baseURL]);
+  }, [setProfileDetails]);
 
   console.log(profileDetails)
   
@@ -50,16 +49,11 @@ export const AccountProfileDetails = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      // if (initialData.password !== profileDetails.password) {
-      //   console.log('ulala')
-      // } else {
-      //   console.log('aas')
-      // }
       console.log(initialData)
       console.log(profileDetails)
       let updatedData = {...initialData, ...profileDetails}
       console.log(updatedData)
-      axiosInstance.patch(patchURL, updatedData, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+      axiosInstance.patch(patchURL, updatedData)
         .then((res) => {
           console.log(res);
           router.push("/");

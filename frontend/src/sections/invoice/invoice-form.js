@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { axiosInstance, baseURL } from 'src/utils/axios';
+import { axiosInstance } from 'src/utils/axios';
 import {useRouter} from 'next/router';
 import {
   Button,
@@ -34,12 +34,13 @@ export const InvoiceForm = () => {
   const router = useRouter();
   
   useEffect(() => {
-    axiosInstance.get(baseURL + 'suppliers/')
+    axiosInstance
+      .get('suppliers/')
       .then((res) => {
         const suppliers = res.data;
         setSuppliers(suppliers);
     });
-  }, [setSuppliers, baseURL]);
+  }, [setSuppliers]);
 
   const handleChange = useCallback(
     (event) => {
@@ -55,10 +56,9 @@ export const InvoiceForm = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = baseURL + 'invoices/';
       console.log(values);
       axiosInstance
-        .post(post_link, values, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .post('invoices/', values)
         .then((res) => {
           console.log(res);
           router.push("/");

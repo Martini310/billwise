@@ -16,7 +16,7 @@ import {
 
 export const AccountProfilePassword = () => {
 
-  const postURL = baseURL + 'user/change_password/'
+  const postURL = 'user/change_password/'
   const router = useRouter()
   const [passwords, setPasswords] = useState({'old_password': '', 'new_password': ''})
 
@@ -36,10 +36,8 @@ export const AccountProfilePassword = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      console.log(passwords)
       if (comparePasswords) {
-        console.log('lala')
-        axiosInstance.post(postURL, passwords, { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        axiosInstance.post(postURL, passwords)
         .then((res) => {
           console.log(res);
           router.push("/");

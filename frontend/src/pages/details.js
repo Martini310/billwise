@@ -1,10 +1,9 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
-import { Box, Container, Stack, Switch, Typography, ToggleButton, ToggleButtonGroup, Unstable_Grid2 as Grid } from '@mui/material';
+import { Box, Container, ToggleButton, ToggleButtonGroup, Unstable_Grid2 as Grid } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-chart';
-import { withComponentLoading } from 'src/utils/componentLoading';
-import { baseURL, axiosInstance } from 'src/utils/axios';
+import { axiosInstance } from 'src/utils/axios';
 import LinearProgress from '@mui/material/LinearProgress';
 
 

@@ -21,29 +21,27 @@ const Page = () => {
   // Fetch user accounts
   useEffect(() => {
       axiosInstance
-        .get(
-          baseURL + 'accounts/' + accountId,
-          { 'headers': { 'Authorization': 'JWT ' + localStorage.getItem('access_token'), }})
+        .get('accounts/' + accountId)
         .then((res) => {
           setAccount(res.data);
         })
         .catch((error) => {
           console.error(error);
         });
-  }, [setAccount, baseURL]);
+  }, [setAccount]);
 
   // Fetch Categories and create array with category names
   useEffect(() => {
-    axiosInstance.get(baseURL + 'category/')
+    axiosInstance.get('category/')
       .then((res) => {
         const categories = res.data;
-        let categoryNames = [];
-        categories.forEach((category) => 
-          categoryNames.push(category.name))
+        // let categoryNames = [];
+        // categories.forEach((category) => 
+        //   categoryNames.push(category.name))
         // setCategories(categoryNames);
         setCategories(categories);
     });
-  }, [setCategories, baseURL]);
+  }, [setCategories]);
 
   return (
   <>
