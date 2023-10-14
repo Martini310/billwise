@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import PropTypes from 'prop-types';
 import { Unstable_Grid2 as Grid } from '@mui/material';
+import Divider from '@mui/material/Divider';
 
 
 const style = {
@@ -80,21 +81,21 @@ export const BasicModal = (props) => {
 
               return (
                 <React.Fragment key={key}>
-                  <Grid
-                    xs={12}
-                    md={6}
-                  >
+                  <Grid xs={12} md={6}>
                     <Typography id="modal-modal-key" sx={{ mt: 2 }}>
                         {verboseName}
                     </Typography>
                   </Grid>
-                  <Grid
-                    xs={12}
-                    md={6}
-                  >
+                  <Grid xs={12} md={6}>
                     <Typography id="modal-modal-value" sx={{ mt: 2 }}>
                         {displayValue}
                     </Typography>
+                  </Grid>
+                  <Grid xs={12} md={6}>
+                    <Divider variant="middle" />
+                  </Grid>
+                  <Grid xs={12} md={6}>
+                    <Divider variant="middle" />
                   </Grid>
                 </React.Fragment>
               )
