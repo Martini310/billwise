@@ -47,3 +47,6 @@ class Invoice(models.Model):
     
     def __str__(self):
         return f"Faktura nr {self.number} za {self.supplier} dla {self.user.user_name}"
+
+    class Meta:
+        ordering = ['-date']
