@@ -34,17 +34,9 @@ const Page = () => {
   // Fetch invoices and sort them by date
   useEffect(() => {
       axiosInstance
-        .get(
-          'invoices/',
-          )
+        .get('invoices/')
         .then((res) => {
-          const allInvoices = res.data;
-          allInvoices.sort((a, b) => {
-            let da = new Date(a.date),
-                db = new Date(b.date);
-            return db - da;
-          });
-          setInvoices(allInvoices);
+          setInvoices(res.data);
           setAppState({...appState, loading:false})
           }
         )
@@ -61,18 +53,57 @@ const Page = () => {
       })
       .catch((err) => console.log(err));}
 
-  // Fetch Categories and create array with category names
+  // Fetch Categories and create an array with category names
   useEffect(() => {
     axiosInstance
       .get('category/')
       .then((res) => {
         const categories = res.data;
-        let categoryNames = [];
-        categories.forEach((category) => 
-          categoryNames.push(category.name))
+        const categoryNames = categories.map((category) => category.name);
         setCategories(categoryNames);
-    });
+      });
   }, [setCategories]);
+
+
+  const SumAndSortInvoices = (invoices, year) => {
+    let sortedInvoices = {}
+    invoices.forEach((invoice) => {
+      const month = invoice.date.slice(5, 7);
+      const amount = parseFloat((invoice.amount).toFixed(2))
+      if (invoice.date.startsWith(year)) {
+        sortedInvoices[month] = (sortedInvoices[month] || 0) + amount;
+      }})
+    const sortedValues = Object.keys(sortedInvoices)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .map((key) => sortedInvoices[key]);
+    return sortedValues
+  }
+
+  const SumAndSortInvoices3 = (invoices, year) => {
+    // Create an array to store the summed invoice amounts for each month
+    const monthlyAmounts = Array(12).fill(0);
+  
+    // Sum the invoice amounts for each month within the specified year
+    invoices.forEach((invoice) => {
+      const invoiceYear = new Date(invoice.date).getFullYear();
+      if (invoiceYear === year) {
+        const month = new Date(invoice.date).getMonth();
+        const amount = parseFloat(invoice.amount);
+        monthlyAmounts[month] += amount;
+      }
+    });
+  
+    // Sort the monthly amounts
+    const sortedValues = monthlyAmounts
+      .map((amount, monthIndex) => ({
+        month: monthIndex + 1, // Months are 0-indexed, so add 1 to make them 1-12
+        amount: amount,
+      }))
+      .sort((a, b) => a.month - b.month)
+      .map((item) => item.amount);
+  
+    return sortedValues;
+  };
 
   const lastYear = {};
   const thisYear = {};
@@ -98,6 +129,11 @@ const Page = () => {
   const sortedLastYear = Object.keys(lastYear)
     .sort((a, b) => parseInt(a) - parseInt(b))
     .map((key) => lastYear[key]);
+
+    const sortedThisYear2 = SumAndSortInvoices(invoices, year)
+    const sortedThisYear3 = SumAndSortInvoices3(invoices, year)
+    // const sortedLastYear = lastYear
+    console.log(sortedThisYear, sortedThisYear2, sortedThisYear3)
 
   const categoryTotalAmount = {};
   let totalAmount = 0;
