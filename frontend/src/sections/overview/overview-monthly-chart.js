@@ -97,7 +97,7 @@ const useChartOptions = () => {
     },
     yaxis: {
       labels: {
-        formatter: (value) => (value > 0 ? `${value}zł` : `${value}`),
+        formatter: (value) => (value > 0 ? `${+value.toFixed(2)}zł` : `${value}`),
         offsetX: -10,
         style: {
           colors: theme.palette.text.secondary
