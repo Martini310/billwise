@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
 import { withComponentLoading } from 'src/utils/componentLoading';
 import {useRouter} from 'next/router';
+import { SumAndSortInvoices as testsum } from 'src/utils/parse-invoices';
 
 
 const now = new Date();
@@ -65,129 +66,155 @@ const Page = () => {
   }, [setCategories]);
 
 
-  const SumAndSortInvoices = (invoices, year) => {
-    let sortedInvoices = {}
-    invoices.forEach((invoice) => {
-      const month = invoice.date.slice(5, 7);
-      const amount = parseFloat((invoice.amount).toFixed(2))
-      if (invoice.date.startsWith(year)) {
-        sortedInvoices[month] = (sortedInvoices[month] || 0) + amount;
-      }})
-    const sortedValues = Object.keys(sortedInvoices)
-    .sort((a, b) => parseInt(a) - parseInt(b))
-    .map((key) => sortedInvoices[key]);
-    return sortedValues
-  }
+  // const SumAndSortInvoices = (invoices, year) => {
+  //   let sortedInvoices = {}
+  //   invoices.forEach((invoice) => {
+  //     const month = invoice.date.slice(5, 7);
+  //     const amount = parseFloat((invoice.amount).toFixed(2))
+  //     if (invoice.date.startsWith(year)) {
+  //       sortedInvoices[month] = (sortedInvoices[month] || 0) + amount;
+  //     }})
+  //   const sortedValues = Object.keys(sortedInvoices)
+  //   .sort((a, b) => parseInt(a) - parseInt(b))
+  //   .map((key) => sortedInvoices[key]);
+  //   return sortedValues
+  // }
 
-  const SumAndSortInvoices3 = (invoices, year) => {
-    // Create an array to store the summed invoice amounts for each month
-    const monthlyAmounts = Array(12).fill(0);
+  // const SumAndSortInvoices3 = (invoices, year) => {
+  //   // Create an array to store the summed invoice amounts for each month
+  //   const monthlyAmounts = Array(12).fill(0);
   
-    // Sum the invoice amounts for each month within the specified year
-    invoices.forEach((invoice) => {
-      const invoiceYear = new Date(invoice.date).getFullYear();
-      if (invoiceYear === year) {
-        const month = new Date(invoice.date).getMonth();
-        const amount = parseFloat(invoice.amount);
-        monthlyAmounts[month] += amount;
-      }
-    });
+  //   // Sum the invoice amounts for each month within the specified year
+  //   invoices.forEach((invoice) => {
+  //     const invoiceYear = new Date(invoice.date).getFullYear();
+  //     if (invoiceYear === year) {
+  //       const month = new Date(invoice.date).getMonth();
+  //       const amount = parseFloat(invoice.amount);
+  //       monthlyAmounts[month] += amount;
+  //     }
+  //   });
   
-    // Sort the monthly amounts
-    const sortedValues = monthlyAmounts
-      .map((amount, monthIndex) => ({
-        month: monthIndex + 1, // Months are 0-indexed, so add 1 to make them 1-12
-        amount: amount,
-      }))
-      .sort((a, b) => a.month - b.month)
-      .map((item) => item.amount);
+  //   // Sort the monthly amounts
+  //   const sortedValues = monthlyAmounts
+  //     .map((amount, monthIndex) => ({
+  //       month: monthIndex + 1, // Months are 0-indexed, so add 1 to make them 1-12
+  //       amount: amount,
+  //     }))
+  //     .sort((a, b) => a.month - b.month)
+  //     .map((item) => item.amount);
   
-    return sortedValues;
-  };
+  //   return sortedValues;
+  // };
 
-  const lastYear = {};
-  const thisYear = {};
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = date.getMonth();
+  // const lastYear = {};
+  // const thisYear = {};
+  // const date = new Date();
+  // const year = date.getFullYear();
+  // const month = date.getMonth();
 
-  // Fill arrays with this year and previous year invoices
-  invoices.forEach((invoice) => {
-    const month = invoice.date.slice(5, 7);
-    if (invoice.date.startsWith(year)) {
-      thisYear[month] = (thisYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
-    } else if (invoice.date.startsWith(year - 1)) {
-      lastYear[month] = (lastYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
-    }
-  });
+  // // Fill arrays with this year and previous year invoices
+  // invoices.forEach((invoice) => {
+  //   const month = invoice.date.slice(5, 7);
+  //   if (invoice.date.startsWith(year)) {
+  //     thisYear[month] = (thisYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
+  //   } else if (invoice.date.startsWith(year - 1)) {
+  //     lastYear[month] = (lastYear[month] || 0) + parseFloat((invoice.amount).toFixed(2));
+  //   }
+  // });
 
   
-  const sortedThisYear = Object.keys(thisYear)
-    .sort((a, b) => parseInt(a) - parseInt(b))
-    .map((key) => thisYear[key]);
+  // const sortedThisYear = Object.keys(thisYear)
+  //   .sort((a, b) => parseInt(a) - parseInt(b))
+  //   .map((key) => thisYear[key]);
 
-  const sortedLastYear = Object.keys(lastYear)
-    .sort((a, b) => parseInt(a) - parseInt(b))
-    .map((key) => lastYear[key]);
+  // const sortedLastYear = Object.keys(lastYear)
+  //   .sort((a, b) => parseInt(a) - parseInt(b))
+  //   .map((key) => lastYear[key]);
 
-    const sortedThisYear2 = SumAndSortInvoices(invoices, year)
-    const sortedThisYear3 = SumAndSortInvoices3(invoices, year)
-    // const sortedLastYear = lastYear
-    console.log(sortedThisYear, sortedThisYear2, sortedThisYear3)
+  //   const sortedThisYear2 = SumAndSortInvoices(invoices, year)
+  //   const sortedThisYear3 = SumAndSortInvoices3(invoices, year)
+  //   // const sortedLastYear = lastYear
+  //   console.log(sortedThisYear, sortedThisYear2, sortedThisYear3)
 
-  const categoryTotalAmount = {};
-  let totalAmount = 0;
+  // const categoryTotalAmount = {};
+  // let totalAmount = 0;
 
-  categories.forEach(category => {
-    categoryTotalAmount[category] = 0;
-  });
+  // categories.forEach(category => {
+  //   categoryTotalAmount[category] = 0;
+  // });
 
-  let paidInvoices = 0;
+  // let paidInvoices = 0;
+  // let unPaidInvoices = []
+
+  // // Sum invoices amounts by categories and count paid an unpaid invoices
+  // invoices.forEach((invoice) => {
+  //   invoice.account && (categoryTotalAmount[invoice.account.category.name] += invoice.amount);
+  //   totalAmount += invoice.amount;
+  //   if (invoice.is_paid) {
+  //     paidInvoices += 1
+  //   } else {
+  //     unPaidInvoices.push(invoice)
+  //   }
+  // })
+  
+  // const categoryPercentageValues = {};
+  // // Count percentage of each category
+  // categories.forEach((category) => {
+  //   const categoryAmount = categoryTotalAmount[category];
+  //   const percentage = (categoryAmount / totalAmount) * 100;
+  //   categoryPercentageValues[category] = parseFloat(percentage.toFixed(2)); // Round the percentage to 2 decimal places
+  // });
+  
+  // // Conver month number to string in 01, 02, 03... format
+  // function formatDateToString(month) {
+  //   let MM = ((month + 1) < 10 ? '0' : '')
+  //       + (month + 1);
+  //   return MM;
+  // };
+
+  // const prevMonth = (month) => {
+  //   if (month === 1) {
+  //     return "12"
+  //   }
+  //   return formatDateToString(month - 2)
+  // };
+
+  // // Percentage difference Year-To-Year
+  // const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100 - 100;
+
+  // const newestInvoice = invoices[0];
+
+  // unPaidInvoices.sort((a, b) => {
+  //   let da = new Date(a.pay_deadline),
+  //       db = new Date(b.pay_deadline);
+  //   return da - db;
+  // });
+  
   let unPaidInvoices = []
+  let sortedLastYear = {}
+  let sortedThisYear = {}
+  let categoryPercentageValues = {}
+  let monthDiff = 0
+  let currentYearAmounts = {}
 
-  // Sum invoices amounts by categories and count paid an unpaid invoices
-  invoices.forEach((invoice) => {
-    invoice.account && (categoryTotalAmount[invoice.account.category.name] += invoice.amount);
-    totalAmount += invoice.amount;
-    if (invoice.is_paid) {
-      paidInvoices += 1
-    } else {
-      unPaidInvoices.push(invoice)
-    }
-  })
-  
-  const categoryPercentageValues = {};
-  // Count percentage of each category
-  categories.forEach((category) => {
-    const categoryAmount = categoryTotalAmount[category];
-    const percentage = (categoryAmount / totalAmount) * 100;
-    categoryPercentageValues[category] = parseFloat(percentage.toFixed(2)); // Round the percentage to 2 decimal places
-  });
-  
-  // Conver month number to string in 01, 02, 03... format
-  function formatDateToString(month) {
-    let MM = ((month + 1) < 10 ? '0' : '')
-        + (month + 1);
-    return MM;
-  };
+  useEffect(() => {
+    const test = testsum(invoices, categories)
+    const { currentYearAmounts, previousYearAmounts, totalAmount, totalAmountByCategory, percentageByCategory, paidInvoices, unpaidInvoices, monthDifference} = test
+    console.log(test)
 
-  const prevMonth = (month) => {
-    if (month === 1) {
-      return "12"
-    }
-    return formatDateToString(month - 2)
-  };
+    unPaidInvoices = unpaidInvoices
+    sortedLastYear = previousYearAmounts
+    sortedThisYear = currentYearAmounts
+    categoryPercentageValues = percentageByCategory
+    monthDiff = monthDifference || 1
 
-  // Percentage difference Year-To-Year
-  const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100 - 100;
+  }, [invoices, categories])
 
-  const newestInvoice = invoices[0];
 
-  unPaidInvoices.sort((a, b) => {
-    let da = new Date(a.pay_deadline),
-        db = new Date(b.pay_deadline);
-    return da - db;
-  });
+  const newestInvoice = invoices[0]
+
+
+
 
   return (
   <>
@@ -228,7 +255,8 @@ const Page = () => {
               difference={parseFloat(monthDiff.toFixed(2))}
               positive={monthDiff > 0}
               sx={{ height: '100%' }}
-              value={parseFloat(thisYear[formatDateToString(date.getMonth())]).toFixed(2)+"zł"}
+              // value={parseFloat(thisYear[formatDateToString(date.getMonth())]).toFixed(2)+"zł"}
+              value={currentYearAmounts[now.getMonth()].toFixed(2)+"zł"}
             />
           </Grid>
           <Grid

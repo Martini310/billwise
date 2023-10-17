@@ -4,7 +4,8 @@ export const SumAndSortInvoices = (invoices, categories) => {
 
   const currentYear = new Date().getFullYear();
   // Create an array to store the summed invoice amounts for each month
-  const monthlyAmounts = Array(12).fill(0);
+  const currentYearAmounts = Array(12).fill(0);
+  const previousYearAmounts = Array(12).fill(0);
   const totalAmountByCategory = {};
   const percentageByCategory = {};
   let totalAmount = 0;
@@ -24,7 +25,14 @@ export const SumAndSortInvoices = (invoices, categories) => {
     if (invoiceYear === currentYear) {
       const month = new Date(invoice.date).getMonth();
       const amount = parseFloat(invoice.amount);
-      monthlyAmounts[month] += amount;
+      currentYearAmounts[month] += amount;
+    }
+
+    // Sum the invoice amounts for each month within the specified year
+    if (invoiceYear === currentYear - 1) {
+      const month = new Date(invoice.date).getMonth();
+      const amount = parseFloat(invoice.amount);
+      previousYearAmounts[month] += amount;
     }
 
     // Sum amounts for each category
@@ -44,34 +52,17 @@ export const SumAndSortInvoices = (invoices, categories) => {
   });
 
 
-  // Sort the monthly amounts
-  const sortedValues = monthlyAmounts
-    .map((amount, monthIndex) => ({
-    month: monthIndex + 1, // Months are 0-indexed, so add 1 to make them 1-12
-    amount: amount,
-    }))
-    .sort((a, b) => a.month - b.month)
-    .map((item) => item.amount);
+  const currentMonth = new Date().getMonth()
+  const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1
 
-    
-  // Convert month number to string in 01, 02, 03... format
-  function formatDateToString(month) {
-    let MM = ((month + 1) < 10 ? '0' : '')
-        + (month + 1);
-    return MM;
-  };
-
-  const prevMonth = (month) => {
-    if (month === 1) {
-      return "12"
-    }
-    return formatDateToString(month - 2)
-  };
-
-  // Percentage difference Year-To-Year
-  const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100 - 100;
+  const currentValue = currentYearAmounts[currentMonth]
+  const previousValue = previousMonth === 11 ? previousYearAmounts[previousMonth] : currentYearAmounts[previousMonth]
+  const monthDifference = currentValue / previousValue * 100 - 100 || 1
+  
+  // // Percentage difference Year-To-Year
+  // const monthDiff = (thisYear[formatDateToString(month)] / thisYear[prevMonth(formatDateToString(month))]) * 100 - 100;
 
 
-  return [sortedValues, monthlyAmounts, totalAmount, totalAmountByCategory, paidInvoices, unpaidInvoices];
+  return [currentYearAmounts, previousYearAmounts, totalAmount, totalAmountByCategory, percentageByCategory, paidInvoices, unpaidInvoices, monthDifference];
 }
 
