@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { axiosInstance } from 'src/utils/axios';
 import {useRouter} from 'next/router';
 import {

@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { axiosInstance } from 'src/utils/axios';
 import {useRouter} from 'next/router';
 import {
@@ -12,31 +12,15 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
-import Cookies from 'js-cookie';
 
 
-export const AccountProfileDetails = () => {
+export const AccountProfileDetails = (props) => {
 
-  const user_pk = Cookies.get('id');
-  const [profileDetails, setProfileDetails] = useState();
-  const [initialData, setInitialData] = useState();
-  const patchURL = 'user/user-info/' + Cookies.get('id') + '/'
-  const router = useRouter()
-
+  const { user, id } = props 
   
-  // Fetch user info
-  useEffect(() => {
-      axiosInstance
-        .get(`user/user-info/${user_pk}`)
-        .then((res) => {
-          delete res.data.id
-          setInitialData(res.data);
-          setProfileDetails(res.data);
-          }
-        )
-  }, [setProfileDetails]);
-
-  console.log(profileDetails)
+  const [profileDetails, setProfileDetails] = useState(user);
+  const patchURL = `user/user-info/${id}/`
+  const router = useRouter()
   
   const handleChange = 
     (event) => {
@@ -49,18 +33,14 @@ export const AccountProfileDetails = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      console.log(initialData)
-      console.log(profileDetails)
-      let updatedData = {...initialData, ...profileDetails}
-      console.log(updatedData)
-      axiosInstance.patch(patchURL, updatedData)
+      axiosInstance.patch(patchURL, profileDetails)
         .then((res) => {
           console.log(res);
           router.push("/");
         })
         .catch((err) => console.log(err));
     },
-    [initialData, profileDetails]
+    [profileDetails]
   );
 
   return (
