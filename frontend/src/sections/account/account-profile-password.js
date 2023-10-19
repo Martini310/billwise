@@ -17,7 +17,14 @@ import {
 export const AccountProfilePassword = () => {
 
   const router = useRouter()
-  const [passwords, setPasswords] = useState({'old_password': '', 'new_password': ''})
+  const [passwords, setPasswords] = useState({
+    'old_password': '',
+    'new_password': '',
+    'confirm-password': '',
+  });
+
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [wrongOldPassword, setWrongOldPassword] = useState(false);
 
   const handleChange = 
     (event) => {
@@ -25,26 +32,39 @@ export const AccountProfilePassword = () => {
         ...prevState,
         [event.target.name]: event.target.value
       }));
+
+      // Reset error states
+      setPasswordsMatch(true);
+      setWrongOldPassword(false);
     };
 
-  const comparePasswords = (event) => {
-    console.log(event.target.value === passwords['new_password'])
-    return event.target.value === passwords['new_password']
-  }
+  const comparePasswords = () => {
+    const newPassword = passwords['new_password'];
+    const confirmPassword = passwords['confirm-password'];
+    return newPassword === confirmPassword;
+  };
 
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      if (comparePasswords) {
+      console.log(passwords)
+      console.log(comparePasswords())
+      if (comparePasswords()) {
         axiosInstance
           .post('user/change_password/', passwords)
           .then((res) => {
             console.log(res);
             router.push("/");
           })
-          .catch((err) => console.log(err));
+          .catch((err) => {
+            err.response.data.error === "Incorrect old password."
+              ? setWrongOldPassword(true)
+              : console.log(err);
+            })
+      } else {
+        setPasswordsMatch(false);
       }
-    });
+    }, [passwords]);
 
   return (
     <form
@@ -73,7 +93,9 @@ export const AccountProfilePassword = () => {
                   name="old_password"
                   onChange={handleChange}
                   required
-                  value={passwords['old_password']}
+                  error={wrongOldPassword}
+                  helperText={wrongOldPassword ? 'Niepoprawne hasło' : ''}
+                  type="password"
                 />
               </Grid>
               <Grid
@@ -86,7 +108,7 @@ export const AccountProfilePassword = () => {
                   name="new_password"
                   onChange={handleChange}
                   required
-                  value={passwords['new_password']}
+                  type='password'
                 />
               </Grid>
               <Grid
@@ -97,8 +119,11 @@ export const AccountProfilePassword = () => {
                   fullWidth
                   label="Potwierdź nowe hasło"
                   name="confirm-password"
-                  onChange={comparePasswords}
+                  onChange={handleChange}
                   required
+                  error={!passwordsMatch}
+                  helperText={!passwordsMatch ? 'Hasła nie pasują do siebie' : ''}
+                  type="password"
                 />
               </Grid>
             </Grid>
