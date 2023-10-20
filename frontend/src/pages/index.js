@@ -14,6 +14,7 @@ import { withComponentLoading } from 'src/utils/componentLoading';
 import {useRouter} from 'next/router';
 import { SumAndSortInvoices } from 'src/utils/parse-invoices';
 import axios from 'axios';
+import EnhancedTable from 'src/sections/overview/overview-latest-payments';
 
 
 const now = new Date();
@@ -209,9 +210,12 @@ const Page = () => {
             md={12}
             lg={12}
           >
-            <OverviewLatestPayments
+            {/* <OverviewLatestPayments
               orders={invoices}
               sx={{ height: '100%' }}
+            /> */}
+            <EnhancedTable
+              rows={invoices}
             />
           </Grid>
         </Grid>
