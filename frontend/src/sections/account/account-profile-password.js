@@ -9,9 +9,13 @@ import {
   CardContent,
   CardHeader,
   Divider,
+  IconButton,
+  InputAdornment,
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 
 export const AccountProfilePassword = () => {
@@ -25,6 +29,13 @@ export const AccountProfilePassword = () => {
 
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [wrongOldPassword, setWrongOldPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const handleChange = 
     (event) => {
@@ -95,7 +106,21 @@ export const AccountProfilePassword = () => {
                   required
                   error={wrongOldPassword}
                   helperText={wrongOldPassword ? 'Niepoprawne hasło' : ''}
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle old password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
               <Grid
@@ -108,7 +133,21 @@ export const AccountProfilePassword = () => {
                   name="new_password"
                   onChange={handleChange}
                   required
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle new password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
               <Grid
@@ -123,7 +162,21 @@ export const AccountProfilePassword = () => {
                   required
                   error={!passwordsMatch}
                   helperText={!passwordsMatch ? 'Hasła nie pasują do siebie' : ''}
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle confirm password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
             </Grid>
