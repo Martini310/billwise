@@ -51,7 +51,7 @@ export const BasicModal = (props) => {
           </Typography>
           <Grid
               container
-              spacing={3}
+              spacing={1}
           >
             {Object.entries(order).map(([key, value]) => {
               if (typeof value == 'object') {
