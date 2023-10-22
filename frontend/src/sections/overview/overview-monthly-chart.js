@@ -21,7 +21,6 @@ const useChartOptions = () => {
 
   return {
     chart: {
-      background: 'rgba(211, 211, 211, 0.25)',
       stacked: false,
       toolbar: {
         show: false
@@ -36,16 +35,17 @@ const useChartOptions = () => {
       type: 'solid'
     },
     grid: {
-      borderColor: theme.palette.divider,
-      strokeDashArray: 2,
+      borderColor: theme.palette.grey[300],
+      strokeDashArray: 5,
+      wid: 5,
       xaxis: {
         lines: {
-          show: false
+          show: true,
         }
       },
       yaxis: {
         lines: {
-          show: true
+          show: true,
         }
       }
     },
@@ -154,7 +154,7 @@ export const OverviewMonthlyChart = (props) => {
             )}
             size="small"
           >
-            Overview
+            Szczegóły
           </Button>
         )}
       </CardActions>
