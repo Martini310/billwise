@@ -80,7 +80,6 @@ export const AccountProfilePassword = () => {
   return (
     <form
       autoComplete="off"
-      noValidate
       onSubmit={handleSubmit}
     >
       <Card>

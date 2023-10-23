@@ -47,7 +47,6 @@ export const AccountProfileDetails = (props) => {
     profileDetails &&
     <form
       autoComplete="off"
-      noValidate
       onSubmit={handleSubmit}
     >
       <Card>

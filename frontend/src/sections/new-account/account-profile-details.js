@@ -8,21 +8,23 @@ import {
   CardContent,
   CardHeader,
   Divider,
+  IconButton,
+  InputAdornment,
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { axiosInstance } from 'src/utils/axios';
 import Cookies from 'js-cookie';
+import axios from 'axios';
 
 
 export const AccountProfileDetails = (props) => {
 
   const [categories, setCategories] = useState()
   const [suppliers, setSuppliers] = useState()
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter()
 
   const [post, setPost] = useState({
@@ -35,26 +37,20 @@ export const AccountProfileDetails = (props) => {
 
   // Fetch Categories and create array with category names
   useEffect(() => {
-    axiosInstance
-      .get('category/')
-      .then((res) => {
-        const categories = res.data;
-        setCategories(categories);
-    });
-  }, [setCategories]);
+    axios.all([
+      axiosInstance.get('category/'),
+      axiosInstance.get('suppliers/'),
+    ])
+    .then(axios.spread((categoryResponse, suppliersResponse) => {
+      setCategories(categoryResponse.data);
+      setSuppliers(suppliersResponse.data);
+    }))
+  }, [setCategories, setSuppliers]
+  )
 
-  useEffect(() => {
-    axiosInstance
-      .get('suppliers/')
-      .then((res) => {
-        const suppliers = res.data;
-        setSuppliers(suppliers);
-    });
-  }, [setSuppliers]);
-
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowPassword = () => {
+    setShowPassword((show) => !show);
+  };
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
@@ -62,13 +58,11 @@ export const AccountProfileDetails = (props) => {
 
   const handleSelect = (event) => {
     setPost({...post, 'supplier': event.target.value});
-    console.log(post);
   };
 
   const handleInput = (event) => {
     setPost({...post, [event.target.name]: event.target.value});
-    console.log(post);
-  }
+  };
 
   const handleSubmit = useCallback(
     (event) => {
@@ -86,8 +80,6 @@ export const AccountProfileDetails = (props) => {
   return (
     (suppliers && categories) &&
     <form
-      autoComplete="off"
-      noValidate
       onSubmit={handleSubmit}
     >
       <Card>
@@ -112,7 +104,7 @@ export const AccountProfileDetails = (props) => {
                   name="login"
                   onChange={handleInput}
                   required
-                  value={post.login || ''}
+                  value={post.login}
                 />
               </Grid>
               <Grid
@@ -126,7 +118,7 @@ export const AccountProfileDetails = (props) => {
                   type={showPassword ? 'text' : 'password'}
                   onChange={handleInput}
                   required
-                  value={post.password || ''}
+                  value={post.password}
                   InputProps={{
                     endAdornment: 
                       <InputAdornment position="end">
@@ -216,13 +208,9 @@ export const AccountProfileDetails = (props) => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'space-between' }}>
-          <Button variant="contained" color="error">
-            Usuń
-          </Button>
           <Button variant="contained" type='submit'>
             Zapisz zmiany
           </Button>
-
         </CardActions>
       </Card>
     </form>
