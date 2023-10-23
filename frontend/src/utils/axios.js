@@ -3,7 +3,9 @@ import Cookies from 'js-cookie';
 
 // export const baseURL = 'http://127.0.0.1:8000/api/';
 // export const baseURL = 'https://billwise-api.onrender.com/api/';
-export const baseURL = 'http://localhost:8000/api/';
+// export const baseURL = process.env.RENDER ? process.env.URL : 'http://localhost:8000/api/';
+export const baseURL = process.env.NEXT_PUBLIC_RENDER ? process.env.NEXT_PUBLIC_URL : 'http://localhost:8000/api/';
+
 
 export const axiosInstance = axios.create({
     baseURL: baseURL,
