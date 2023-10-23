@@ -1,0 +1,29 @@
+databases:
+  - name: billwise
+    databaseName: billwise
+    user: billwise
+
+services:
+  - type: web
+    name: billwise
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn billwise.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: billwise
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+        
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@admin.pl
+      - key: DJANGO_SUPERUSER_FIRST_NAME
+        value: admin
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: admin
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: admin

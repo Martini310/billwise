@@ -102,6 +102,13 @@ if os.environ.get('IN_DOCKER', False):
             'PORT': '5432',  # Default PostgreSQL port
         }
     }
+elif 'RENDER' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.config(                
+            default='postgresql://postgres:postgres@localhost:5432/billwise',
+            conn_max_age=600
+        )
+    }
 else:
     DATABASES = {
         'default': {
@@ -150,6 +157,11 @@ USE_TZ = True
 # This setting tells Django at which URL static files are going to be served to the user.
 # Here, they well be accessible at your-domain.onrender.com/static/...
 STATIC_URL = '/static/'
+
+if 'RENDER' in os.environ:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Following settings only make sense on production and may break development environments.
 if not DEBUG:    # Tell Django to copy statics to the `staticfiles` directory
     # in your application directory on Render.
