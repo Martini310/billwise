@@ -256,7 +256,8 @@ SIMPLE_JWT = {
 
 # Celery configuration
 if not DEBUG or 'RENDER' in os.environ:
-    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
+    # CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
+    CELERY_BROKER_URL = 'redis://red-ckrdap81hnes73ejt860:6379'
     CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
 
     # Include tasks from all installed apps
