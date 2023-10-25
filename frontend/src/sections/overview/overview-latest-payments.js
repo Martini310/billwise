@@ -236,9 +236,9 @@ export default function EnhancedTable(props) {
                       component="th"
                       scope="row"
                     >
-                      {row.supplier.name}</TableCell>
+                      {row.account?.supplier?.name ?? 'Inne'}</TableCell>
                     <TableCell>{row.number}</TableCell>
-                    <TableCell>{row.account.category.name}</TableCell>
+                    <TableCell>{row?.category?.name ?? 'Inne'}</TableCell>
                     <TableCell>{row.date}</TableCell>
                     <TableCell>{row.amount}</TableCell>
                     <TableCell>{row.pay_deadline}</TableCell>

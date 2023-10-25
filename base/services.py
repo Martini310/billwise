@@ -61,11 +61,12 @@ def get_pgnig(pk, login=None, password=None, account_pk=None):
                                          end_date=datetime.fromisoformat(invoice.get('EndDate')[:-1]),
                                          amount_to_pay=invoice.get('AmountToPay'),
                                          wear=invoice.get('WearKWH'),
-                                         supplier=sup,
+                                        #  supplier=sup,
                                          user=us,
                                          is_paid=invoice.get('IsPaid'),
                                          consumption_point='test',
-                                         account=account,)
+                                         account=account,
+                                         category=account.category)
                                  for invoice in faktury if
                                  not Invoice.objects.filter(user=us, number=invoice.get('Number')).exists()])
     
@@ -129,7 +130,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
             payment = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
             status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
             # print(payment_date.text.strip().split()[0])
-            supplier = Supplier.objects.get(pk=2)
+            # supplier = Supplier.objects.get(pk=2)
             user = NewUser.objects.get(pk=pk)
             account = Account.objects.get(pk=account_pk)
 
@@ -141,11 +142,12 @@ def get_enea(pk, login=None, password=None, account_pk=None):
                                         end_date=None,
                                         amount_to_pay=float(payment.text.strip().rstrip('\xa0 zł').replace(',', '.')),
                                         wear=None,
-                                        supplier=supplier,
+                                        # supplier=supplier,
                                         user=user,
                                         is_paid=True if 'Zapłacona' in status.text.strip() else False,
                                         consumption_point='test',
-                                        account=account))
+                                        account=account,
+                                        category=account.category))
 
                 
         Invoice.objects.bulk_create(
@@ -256,11 +258,12 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
                             end_date=datetime.strptime(end_date, "%d.%m.%Y"),
                             amount_to_pay=float(to_pay.replace(',', '.')),
                             wear=None,
-                            supplier=supplier,
+                            # supplier=supplier,
                             user=user,
                             is_paid=False,
                             consumption_point='Brak informacji',
-                            account=account))
+                            account=account,
+                            category=account.category))
 
         paid_invoices = []
         # For every page find all rows with invoices and append to list
@@ -313,11 +316,12 @@ def get_aquanet(pk, login=None, password=None, account_pk=None):
                                         end_date=datetime.strptime(end_date, "%d.%m.%Y"),
                                         amount_to_pay=0,
                                         wear=None,
-                                        supplier=supplier,
+                                        # supplier=supplier,
                                         user=user,
                                         is_paid=True,
                                         consumption_point='Brak informacji',
-                                        account=account))
+                                        account=account,
+                                        category=account.category))
 
                 
 

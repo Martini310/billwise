@@ -127,7 +127,7 @@ const Page = () => {
             lg={3}
           >
             <OverviewNewestPayment
-              supplier={newestInvoice ? newestInvoice.supplier.name : "Brak faktur"}
+              supplier={newestInvoice ? (newestInvoice?.account?.supplier?.name ?? 'Inne') : "Brak faktur"}
               sx={{ height: '100%' }}
               value={newestInvoice ? newestInvoice.amount + "zł" : "---"}
             />
@@ -165,7 +165,7 @@ const Page = () => {
             <OverviewNextPayment
               sx={{ height: '100%' }}
               value={unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : "Wszystkie faktury opłacone!"}
-              supplier={unpaidInvoices[0] ? unpaidInvoices[0].supplier.name : "---"}
+              supplier={unpaidInvoices[0] ? (unpaidInvoices[0]?.account?.supplier?.name ?? 'Inne') : "---"}
               date={unpaidInvoices[0] ? unpaidInvoices[0].pay_deadline : "---"}
             />
           </Grid>

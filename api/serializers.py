@@ -55,12 +55,12 @@ class PostAccountSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    supplier = SupplierSerializer(many=False)
     account = GetAccountSerializer(many=False)
+    category = CategorySerializer(many=False)
 
     class Meta:
         model = Invoice
-        fields = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 'end_date', 'amount_to_pay', 'wear', 'supplier', 'is_paid', 'consumption_point', 'account']
+        fields = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 'end_date', 'amount_to_pay', 'wear', 'is_paid', 'consumption_point', 'account', 'category']
 
 
 class PostInvoiceSerializer(serializers.ModelSerializer):
