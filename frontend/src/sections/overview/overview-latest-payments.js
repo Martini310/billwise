@@ -1,15 +1,22 @@
 import * as React from 'react';
+import {
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  Paper,
+  SvgIcon,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+} from '@mui/material'
 import PropTypes from 'prop-types';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Paper from '@mui/material/Paper';
+import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
 import { visuallyHidden } from '@mui/utils';
 import { SeverityPill } from 'src/components/severity-pill';
 import { BasicModal } from './overview-modal'
@@ -186,6 +193,23 @@ export default function EnhancedTable(props) {
 
   return (
     <Box sx={{ width: '100%' }}>
+      <Card sx={{ width: '100%' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <CardHeader title="Ostatnie faktury" />
+          <Button
+            href='invoice/'
+            sx={{ mr: 10 }}
+            startIcon={(
+              <SvgIcon fontSize="small">
+                <PlusIcon />
+              </SvgIcon>
+            )}
+            variant="contained"
+          >
+            Dodaj
+          </Button>
+        </Box>
+      </Card>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <TableContainer>
           <Table

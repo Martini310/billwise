@@ -96,9 +96,8 @@ const Page = () => {
       setPaidInvoices(paidInvoices);
       setUnpaidInvoices(unpaidInvoices);
       setMonthDifference(monthDifference);
-
-      setAppState({ ...appState, loading: false });
     }
+    setAppState({ ...appState, loading: false });
   }, [invoices, categories]);
 
   const newestInvoice = invoices[0]
