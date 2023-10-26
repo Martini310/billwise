@@ -21,28 +21,27 @@ export const InvoiceForm = () => {
     date: '',
     amount: 0,
     pay_deadline: '',
-    start_date: '',
-    end_date: '',
     amount_to_pay: 0,
     wear: 0,
-    supplier: '',
+    category: '',
     user: Cookies.get('id'),
     is_paid: false,
     consumption_point: '',
   });
 
-  const [suppliers, setSuppliers] = useState();
+  const [categories, setCategories] = useState();
 
   const router = useRouter();
   
   useEffect(() => {
     axiosInstance
-      .get('suppliers/')
+      .get('category/')
       .then((res) => {
-        const suppliers = res.data;
-        setSuppliers(suppliers);
+        const categories = res.data;
+        setCategories(categories);
     });
-  }, [setSuppliers]);
+  }, [setCategories]);
+
 
   const handleChange = useCallback(
     (event) => {
@@ -53,7 +52,6 @@ export const InvoiceForm = () => {
     },
     []
   );
-
 
   const handleSubmit = useCallback(
     (event) => {
@@ -69,7 +67,7 @@ export const InvoiceForm = () => {
     }, [values]
   );
 
-  return ( suppliers &&
+  return ( categories &&
     <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader
@@ -156,18 +154,18 @@ export const InvoiceForm = () => {
             <TextField
               fullWidth
               required
-              label="Dostawca"
-              name="supplier"
+              label="Kategoria"
+              name="category"
               onChange={handleChange}
               select
-              value={values.supplier}
+              value={values.category}
             >
-              {suppliers.map((supplier) => (
+              {categories.map((category) => (
                 <MenuItem
-                  key={supplier.name}
-                  value={parseInt(supplier.id)}
+                  key={category.name}
+                  value={parseInt(category.id)}
                 >
-                  {supplier.name}
+                  {category.name}
                 </MenuItem>
               ))}
             </TextField>
@@ -199,7 +197,7 @@ export const InvoiceForm = () => {
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
           <Button variant="contained" type='submit'>
-            Update
+            Dodaj
           </Button>
         </CardActions>
       </Card>

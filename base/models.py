@@ -27,7 +27,7 @@ class Account(models.Model):
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Konto {self.user.user_name} w kategorii {self.category.name}"
+        return f"Konto w {self.supplier.name} użytkownika {self.user.user_name}"
 
 
 class Invoice(models.Model):
@@ -39,7 +39,6 @@ class Invoice(models.Model):
     end_date = models.DateField(null=True, blank=True)
     amount_to_pay = models.FloatField(null=True, blank=True)
     wear = models.FloatField(null=True, blank=True)
-    # supplier = models.ForeignKey(to=Supplier, on_delete=models.CASCADE)
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     is_paid = models.BooleanField()
     consumption_point = models.CharField(max_length=100, null=True, blank=True)
@@ -47,7 +46,7 @@ class Invoice(models.Model):
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     
     def __str__(self):
-        return f"Faktura nr {self.number} za {self.category} dla {self.user.user_name}"
+        return f"Faktura nr {self.number} za {self.category} dla użytkownika {self.user.user_name}"
 
     class Meta:
         ordering = ['-date']

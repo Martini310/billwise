@@ -28,13 +28,59 @@ const statusMap = {
   delayed: 'error'
 };
 
+const headCells = [
+  {
+    id: 'supplier',
+    numeric: false,
+    disablePadding: true,
+    label: 'Wystawca',
+  },
+  {
+    id: 'number',
+    numeric: false,
+    disablePadding: false,
+    label: 'Numer faktury',
+  },
+  {
+    id: 'category',
+    numeric: false,
+    disablePadding: false,
+    label: 'Kategoria',
+  },
+  {
+    id: 'date',
+    numeric: false,
+    disablePadding: false,
+    label: 'Data',
+  },
+  {
+    id: 'amount',
+    numeric: true,
+    disablePadding: false,
+    label: 'Kwota',
+  },
+  {
+    id: 'pay_deadline',
+    numeric: false,
+    disablePadding: false,
+    label: 'Termin płatności',
+  },
+  {
+    id: 'is_paid',
+    numeric: false,
+    disablePadding: false,
+    label: 'Status',
+  },
+];
+
 function getComparator(order, orderBy) {
   return (a, b) => {
-    if (orderBy === 'category' || orderBy === 'supplier') {
+    if (orderBy === 'supplier') {
       // Handle sorting by 'category.name' attribute
       const other = orderBy
-      const nameA = a['account'][other]['name'].toLowerCase();
-      const nameB = b['account'][other]['name'].toLowerCase();
+      const nameA = a.account ? a['account']['supplier']['name'].toLowerCase() : 'Inne';
+      const nameB = b.account ? b['account']['supplier']['name'].toLowerCase() : 'Inne';
+      console.log(nameA, nameB)
       if (nameA < nameB) {
         return order === 'asc' ? -1 : 1;
       }
@@ -44,8 +90,22 @@ function getComparator(order, orderBy) {
       return 0;
     }
     // Handle sorting by other fields
-    return order === 'asc' ? a[orderBy] - b[orderBy] : b[orderBy] - a[orderBy];
-  };
+    console.log(orderBy)
+    if (headCells.find(x => x.id === orderBy)) {
+      return order === 'asc' ? a[orderBy] - b[orderBy] : b[orderBy] - a[orderBy];
+    }
+    
+    if (!headCells.find(x => x.id === orderBy)) {
+      if (a[orderBy] < b[orderBy]) {
+        return order === 'asc' ? -1 : 1;
+      }
+      if (a[orderBy] > b[orderBy]) {
+        return order === 'asc' ? 1 : -1;
+      }
+      return 0;
+    }
+
+    };
 }
 
 // Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
@@ -64,50 +124,6 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-const headCells = [
-  {
-    id: 'supplier',
-    numeric: false,
-    disablePadding: true,
-    label: 'Wystawca',
-  },
-  {
-    id: 'number',
-    numeric: true,
-    disablePadding: false,
-    label: 'Numer faktury',
-  },
-  {
-    id: 'category',
-    numeric: false,
-    disablePadding: false,
-    label: 'Kategoria',
-  },
-  {
-    id: 'date',
-    numeric: true,
-    disablePadding: false,
-    label: 'Data',
-  },
-  {
-    id: 'amount',
-    numeric: true,
-    disablePadding: false,
-    label: 'Kwota',
-  },
-  {
-    id: 'pay_deadline',
-    numeric: true,
-    disablePadding: false,
-    label: 'Termin płatności',
-  },
-  {
-    id: 'is_paid',
-    numeric: false,
-    disablePadding: false,
-    label: 'Status',
-  },
-];
 
 function EnhancedTableHead(props) {
   const { order, orderBy, onRequestSort } =

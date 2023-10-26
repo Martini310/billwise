@@ -27,8 +27,8 @@ function calculateMonthlyAmounts(invoices) {
   const monthlyAmounts = {'categories': {}, 'accounts': {}};
 
   invoices.forEach((invoice) => {
-    const account = invoice.account.supplier.name;
-    const category = invoice.account.category.name;
+    const account = invoice?.account?.supplier?.name ?? 'Inne';
+    const category = invoice.category.name;
     const invoiceDate = new Date(invoice.date);
     const invoiceYear = invoiceDate.getFullYear();
     const invoiceMonth = monthNames[invoiceDate.getMonth()];
