@@ -88,6 +88,7 @@ class CurrentUser(ViewSet):
 
 class SyncAccounts(APIView):
     def get(self, request):
+        print(self.request.user.pk)
         sync_accounts_task.delay(self.request.user.pk)
         time.sleep(2)
         return Response("Done")

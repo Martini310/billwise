@@ -59,6 +59,8 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
+      - IN_DOCKER=1
+
     ports: []
     command: celery -A billwise worker -l INFO
 
@@ -72,6 +74,8 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
+      - IN_DOCKER=1
+
     command: celery -A billwise beat -l info
 
   flower:

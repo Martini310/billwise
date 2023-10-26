@@ -345,6 +345,7 @@ funcs = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
 def sync_accounts(user_pk):
     accounts = Account.objects.filter(user__pk=user_pk)
     print('działam')
+    print(accounts)
     for account in accounts:
         fetch = funcs.get(account.supplier.name)
         fetch(user_pk, account.login, account.password, account.pk)

@@ -11,6 +11,7 @@ def add(x, y):
 
 @shared_task
 def sync_accounts_task(user_pk):
+    print('w sync accounts task')
     return sync_accounts(user_pk)
 
 @shared_task
@@ -66,6 +67,10 @@ def scheduled_get_data():
     with connection.cursor() as cursor:
         accounts = Account.objects.all()
         for account in accounts:
+            print(account)
+            print(account.login)
+            print(account.user.id)
+            print()
             fetch_data = funcs.get(account.supplier.name)
             fetch_data(account.user.id, account.login, account.password, account.pk)
         return "Data is synchronized"
