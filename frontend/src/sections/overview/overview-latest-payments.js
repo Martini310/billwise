@@ -32,79 +32,66 @@ const headCells = [
   {
     id: 'supplier',
     numeric: false,
-    disablePadding: true,
     label: 'Wystawca',
   },
   {
     id: 'number',
     numeric: false,
-    disablePadding: false,
     label: 'Numer faktury',
   },
   {
     id: 'category',
     numeric: false,
-    disablePadding: false,
     label: 'Kategoria',
   },
   {
     id: 'date',
     numeric: false,
-    disablePadding: false,
     label: 'Data',
   },
   {
     id: 'amount',
     numeric: true,
-    disablePadding: false,
     label: 'Kwota',
   },
   {
     id: 'pay_deadline',
     numeric: false,
-    disablePadding: false,
     label: 'Termin płatności',
   },
   {
     id: 'is_paid',
     numeric: false,
-    disablePadding: false,
     label: 'Status',
   },
 ];
 
 function getComparator(order, orderBy) {
   return (a, b) => {
-    if (orderBy === 'supplier') {
-      // Handle sorting by 'category.name' attribute
-      const other = orderBy
-      const nameA = a.account ? a['account']['supplier']['name'].toLowerCase() : 'Inne';
-      const nameB = b.account ? b['account']['supplier']['name'].toLowerCase() : 'Inne';
-      console.log(nameA, nameB)
-      if (nameA < nameB) {
-        return order === 'asc' ? -1 : 1;
-      }
-      if (nameA > nameB) {
-        return order === 'asc' ? 1 : -1;
-      }
-      return 0;
-    }
-    // Handle sorting by other fields
-    console.log(orderBy)
-    if (headCells.find(x => x.id === orderBy)) {
+    let nameA;
+    let nameB;
+    // Handle sorting by numeric fields
+    if (headCells.find(x => x.id === orderBy).numeric) {
       return order === 'asc' ? a[orderBy] - b[orderBy] : b[orderBy] - a[orderBy];
     }
     
-    if (!headCells.find(x => x.id === orderBy)) {
-      if (a[orderBy] < b[orderBy]) {
-        return order === 'asc' ? -1 : 1;
-      }
-      if (a[orderBy] > b[orderBy]) {
-        return order === 'asc' ? 1 : -1;
-      }
-      return 0;
+    if (orderBy === 'supplier') {
+      nameA = a.account ? a['account']['supplier']['name'] : 'inne';
+      nameB = b.account ? b['account']['supplier']['name'] : 'inne';
+    } else if (orderBy === 'category') {
+      nameA = a['category']['name'];
+      nameB = b['category']['name'];
+    } else {
+      nameA = a[orderBy]
+      nameB = b[orderBy]
     }
-
+    if (nameA < nameB) {
+      return order === 'asc' ? -1 : 1;
+    }
+    if (nameA > nameB) {
+      return order === 'asc' ? 1 : -1;
+    }
+    return 0;
     };
 }
 
