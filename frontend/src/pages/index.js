@@ -64,7 +64,9 @@ const Page = () => {
 
       // Response from invoices/
       setInvoices(invoicesResponse.data);
-
+      if (invoicesResponse.data.length === 0)
+        {setAppState({ ...appState, loading: false });};
+        
       // Response from category/
       const categories = categoriesResponse.data;
       const categoryNames = categories.map((category) => category.name);
@@ -96,8 +98,9 @@ const Page = () => {
       setPaidInvoices(paidInvoices);
       setUnpaidInvoices(unpaidInvoices);
       setMonthDifference(monthDifference);
+
+      setAppState({ ...appState, loading: false });
     }
-    setAppState({ ...appState, loading: false });
   }, [invoices, categories]);
 
   const newestInvoice = invoices[0]
