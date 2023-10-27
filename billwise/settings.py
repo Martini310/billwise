@@ -24,10 +24,8 @@ load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = 'RENDER' not in os.environ
 # DEBUG = 'IN_DOCKER' not in os.environ
 DEBUG = True
@@ -99,7 +97,7 @@ if 'IN_DOCKER' in os.environ:
             'USER': 'admin',
             'PASSWORD': 'admin',
             'HOST': 'db',   # Use the service name from Docker Compose
-            'PORT': '5432',  # Default PostgreSQL port
+            'PORT': '5432',
         }
     }
 elif 'RENDER' in os.environ:
@@ -152,23 +150,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# STATIC_URL = 'static/'
-
-# This setting tells Django at which URL static files are going to be served to the user.
-# Here, they well be accessible at your-domain.onrender.com/static/...
 STATIC_URL = '/static/'
 
 if 'RENDER' in os.environ:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Following settings only make sense on production and may break development environments.
-if not DEBUG:    # Tell Django to copy statics to the `staticfiles` directory
-    # in your application directory on Render.
+if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # Turn on WhiteNoise storage backend that takes care of compressing static files
-    # and creating unique names for each version so they can safely be cached forever.
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -176,11 +167,6 @@ if not DEBUG:    # Tell Django to copy statics to the `staticfiles` directory
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     # 'rest_framework.authentication.BasicAuthentication',
-    #     # 'rest_framework.authentication.SessionAuthentication',
-    #     'knox.auth.TokenAuthentication',
-    # ]
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -188,6 +174,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ],
 }
+
+# Custon user model
+AUTH_USER_MODEL = "users.NewUser"
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -202,9 +191,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-
-# Custon user model
-AUTH_USER_MODEL = "users.NewUser"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=50),
@@ -246,6 +232,29 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+
+# Celery configuration
+if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ:
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
+    # CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
+    # CELERY_RESULT_BACKEND = 'db+postgresql://admin:admin@localhost:5432/billwise_db'
+
+    # Include tasks from all installed apps
+    CELERY_IMPORTS = ('base.tasks',)
+
+    CELERY_DEFAULT_QUEUE = 'default'
+    CELERY_WORKER_CONCURRENCY = 4
+    CELERY_TASK_TIME_LIMIT = 300
+    CELERY_TASK_MAX_RETRIES = 3
+
+# Celery Beat (periodic task scheduler) configuration
+CELERY_BEAT_SCHEDULE = {
+    'scheduled_synchronizing_data': {
+        'task': 'base.tasks.scheduled_get_data',
+        'schedule': timedelta(minutes=10),
+    },
+}
+
 # CELERY_BEAT_SCHEDULE = {
 #     "scheduled_task": {
 #         "task": "base.tasks.add",
@@ -253,34 +262,3 @@ SIMPLE_JWT = {
 #         "args": (20,10),
 #     },
 # }
-
-# Celery configuration
-if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ:
-    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
-    # CELERY_BROKER_URL = 'rediss://red-ckrdap81hnes73ejt860:ePcDfoiJQAACPXylD4fqNpOTEpX8IO4p@frankfurt-redis.render.com:6379'
-    # CELERY_BROKER_URL = 'redis://red-ckrdap81hnes73ejt860:6379'
-    # CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
-    # CELERY_RESULT_BACKEND = 'db+postgresql://admin:admin@localhost:5432/billwise_db'
-
-    # Include tasks from all installed apps
-    CELERY_IMPORTS = ('base.tasks',)  # Replace 'yourapp' with the actual app name
-
-    # Optional: Set the default queue for your tasks (if not specified in tasks)
-    CELERY_DEFAULT_QUEUE = 'default'
-
-    # Optional: Configure concurrency (adjust as needed)
-    CELERY_WORKER_CONCURRENCY = 4  # Number of concurrent workers
-
-    # Optional: Configure other Celery settings as needed
-    # For example, task time limits, task retries, etc.
-    CELERY_TASK_TIME_LIMIT = 300  # Maximum task execution time in seconds
-    CELERY_TASK_MAX_RETRIES = 3   # Maximum number of times a task will be retried
-
-# Celery Beat (periodic task scheduler) configuration
-CELERY_BEAT_SCHEDULE = {
-    # Define your scheduled tasks here
-    'scheduled_synchronizing_data': {
-        'task': 'base.tasks.scheduled_get_data',  # Replace with your actual task
-        'schedule': timedelta(minutes=10),  # Adjust the schedule as needed
-    },
-}
