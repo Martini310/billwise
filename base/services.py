@@ -95,8 +95,8 @@ def get_enea(pk, login=None, password=None, account_pk=None):
 
         headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
-            'Accept': 'application/json',
-            'Accept-Encoding': 'gzip, deflate, br',
+            # 'Accept': 'application/json',
+            # 'Accept-Encoding': 'gzip, deflate, br',
             'Host': 'ebok.enea.pl',
             'Origin': 'https://ebok.enea.pl',
             'Referer': 'https://ebok.enea.pl/',
@@ -110,7 +110,18 @@ def get_enea(pk, login=None, password=None, account_pk=None):
         page = s.get('https://ebok.enea.pl/invoices/invoice-history')
         print(page.status_code)
         soup = BeautifulSoup(page.content, 'html.parser')
+        pp = {'limit':100,
+            'page':1,
+            'direction':'DESC',
+            'sort':'issueDate',
+            # 'issueDateFrom':'01.01.2010',
+            # 'issueDateTo':'27.10.2023'
+            }
+        inv = s.post('https://ebok.enea.pl/invoices/invoice-history', data=pp)
+        soup2 = BeautifulSoup(inv.content, 'html.parser')
+        invoices2 = soup2.find_all('div', class_='datagrid-row-content')
 
+        # print(invoices2)
         # Find username and account number.
         user = soup.find('span', class_='navbar-user-info-name')
 
@@ -118,7 +129,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
         invoices = soup.find_all('div', class_='datagrid-row-content')
 
         all_invoices = []
-        for invoice in invoices:
+        for invoice in invoices2:
             date = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-date')
             name = invoice.find('span', class_='font-semibold document-download-link link-dark-blue')
             address = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-address')
@@ -143,16 +154,16 @@ def get_enea(pk, login=None, password=None, account_pk=None):
                                         account=account,
                                         category=account.category))
 
-                
-        Invoice.objects.bulk_create(
-            [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()],
-        )
+        print(all_invoices)
+        # Invoice.objects.bulk_create(
+        #     [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()],
+        # )
 
-        for invoice in all_invoices:
-            db = Invoice.objects.filter(number=invoice.number).get()
-            if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
-                print(f'{invoice.number} - to samo')
-                Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
+        # for invoice in all_invoices:
+        #     db = Invoice.objects.filter(number=invoice.number).get()
+        #     if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
+        #         print(f'{invoice.number} - to samo')
+        #         Invoice.objects.filter(number=invoice.number).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
 
         # Get entry points
         # data = {'guid': '4218f3de-e608-e911-80de-005056b326a5', 'view': 'invoice'}
@@ -164,7 +175,7 @@ def get_enea(pk, login=None, password=None, account_pk=None):
         # for point in all:
         #     a = point.find('span')
         #     print(a.text)
-
+get_enea(2, 'paulajak@wp.pl', 'zaq12WSX', 10)
 
 def get_aquanet(pk, login=None, password=None, account_pk=None):
 
