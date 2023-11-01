@@ -5,9 +5,17 @@ The purpose of the app is to manage payments from different suppliers in one pla
 
 ## 🛠️ Tech stack
 
-<img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green">
 <img src="https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue">
-<img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white">
+<img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green">
+<img src="https://img.shields.io/badge/django%20rest-ff1709?style=for-the-badge&logo=django&logoColor=white">
+<img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E">
+<img src="https://img.shields.io/badge/next%20js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white">
+<img src="https://img.shields.io/badge/Material%20UI-007FFF?style=for-the-badge&logo=mui&logoColor=white">
+<img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white">
+<img src="https://img.shields.io/badge/rabbitmq-%23FF6600.svg?&style=for-the-badge&logo=rabbitmq&logoColor=white">
+<img src="https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white">
+<img src="https://img.shields.io/badge/axios-671ddf?&style=for-the-badge&logo=axios&logoColor=white">
+<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white">
 
 ## 📋 Table of Contents
 
@@ -26,7 +34,9 @@ The purpose of the app is to manage payments from different suppliers in one pla
 
 ### Live preview 🔍
 
-Billwise is deployed on [Render](https://render.com/). You can see the App in action [here](https://bill-wise.onrender.com).  
+#### Billwise is deployed on [Render](https://render.com/). You can see the App in action [here](https://bill-wise.onrender.com).  
+<br>
+
 ***IMPORTANT!***  
 This is only the free tier so it have some serious limitations:  
 
@@ -56,7 +66,7 @@ docker-compose up
 
 ---
 
-### Run locally :computer:
+### Run locally 💻
 
 If you want to run all the services manually it is also easy but require a little more work.
 
@@ -64,8 +74,9 @@ If you want to run all the services manually it is also easy but require a littl
 
 Before you get started, make sure you have the following installed:
 
-- [Python 3.x](https://www.python.org/downloads/)
-- [Node.js](https://nodejs.org/)
+- [Python](https://www.python.org/downloads/) (3.10.7)
+- [Node.js](https://nodejs.org/) (18.16.1)
+- RabbitMQ / Redis
 
 Firstly clone the repo
 
@@ -79,13 +90,26 @@ Then install required prerequisites
 pip install -r requirements.txt
 ```
 
-Migrate data into Database
-
+Migrate data into Database. Default Database is SQLite, if you want to configure another DB set it in settings.py:
+```bash
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+```
+and then:
 ```bash
 python manage.py migrate
 ```
 
-Now you can run all needed servers
+Locally I use RabbitMQ and Redis on Render. You can change it here:
+```bash
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
+```
+
+#### Now you can run all needed servers
 
 ```bash
 python manage.py runserver
