@@ -204,7 +204,6 @@ const Page = () => {
               labels={Object.keys(percentageByCategory)}
               sx={{ height: '100%' }}
               />
-              {console.log(percentageByCategory)}
           </Grid>
           
           <Grid

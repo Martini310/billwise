@@ -25,27 +25,27 @@ export const AccountProfileDetails = (props) => {
   const [post, setPost] = useState();
 
   useEffect(() => {
-    setPost(props.account);
-    }, [props.account])
-
+    setPost(account);
+  }, [account])
+  
   const [showPassword, setShowPassword] = useState(false);
-
+  
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-
+  
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
+  
   const handleChange = (event) => {
     setPost({...post, [event.target.name]: event.target.value});
   }
-
+  
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
       const post_link = `accounts/${post.id}/`;
-      delete post.supplier
-      console.log(post);
+      delete post.supplier;
+      if (typeof post.category === 'object') (delete post.category);
       axiosInstance.patch(post_link, post)
         .then((res) => {
           console.log(res);
@@ -153,7 +153,6 @@ export const AccountProfileDetails = (props) => {
                   select
                   SelectProps={{ native: true }}
                   value={post.category.id}
-                  // value={3}
                 >
                   {categories.map((category) => (
                     <option
