@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { Box, Container, Unstable_Grid2 as Grid } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { OverviewNewestPayment } from 'src/sections/overview/overview-newest-payment';
-import { OverviewLatestPayments } from 'src/sections/overview/overview-latest-payments';
 import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-chart';
 import { OverviewPaidPercentage } from 'src/sections/overview/overview-paid-percentage';
 import { OverviewCurrentMonth } from 'src/sections/overview/overview-current-month';
@@ -11,11 +10,28 @@ import { OverviewCategoriesChart } from 'src/sections/overview/overview-categori
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
 import { withComponentLoading } from 'src/utils/componentLoading';
-import {useRouter} from 'next/router';
+import { useRouter } from 'next/router';
 import { SumAndSortInvoices } from 'src/utils/parse-invoices';
 import axios from 'axios';
 import EnhancedTable from 'src/sections/overview/overview-latest-payments';
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
+const driverObj = driver({
+  showProgress: true,
+  nextBtnText: 'Następny',
+  prevBtnText: 'Poprzedni',
+  doneBtnText: 'Gotowe',
+  steps: [
+    { element: '.overview-newest-payment', popover: { title: 'Najnowsza faktura', description: 'Tutaj zobaczysz informacje o Twojej najnowszej fakturze.' } },
+    { element: '.overview-current-month', popover: { title: 'Podsumowanie aktualnego miesiąca', description: 'Podsumowanie wszystkich płatności w bierzącym miesiącu.' } },
+    { element: '.overview-paid-percentage', popover: { title: 'Procent zapłaconych faktur', description: 'Tu zobaczysz ile procent faktur masz już opłacone.' } },
+    { element: '.overview-next-payment', popover: { title: 'Dane najbliższej płatności', description: 'Informacje o fakturze z najbliższą datą płatności.' } },
+    { element: '.overview-monthly-chart', popover: { title: 'Podsumowanie roku', description: 'Wykres miesięcznych wydatków z porównaniem do poprzedniego roku.' } },
+    { element: '.overview-categories-chart', popover: { title: 'Wykres kategorii', description: 'Podział płatności według kategorii.' } },
+    { element: '.latest-invoices', popover: { title: 'Ostatnie faktury', description: 'Tu masz podgląd na 10 ostatnich faktur. Mozesz kliknąć na wybraną fakturę, żeby zobaczyć szczegóły.' } },
+  ]
+});
 
 const now = new Date();
 
@@ -31,17 +47,17 @@ const Page = () => {
   const [paidInvoices, setPaidInvoices] = useState(0);
   const [unpaidInvoices, setUnpaidInvoices] = useState([]);
   const [monthDifference, setMonthDifference] = useState(0);
-
+  
   const router = useRouter()
-
+  
   const MonthlyChartLoading = withComponentLoading(OverviewMonthlyChart);
   const [appState, setAppState] = useState({
     loading: true,
     chartSeries: null,
     sx: null
   });
-
-
+  
+  
   // Synchronize data from suppliers
   const sync = () => {
     setAppState({...appState, loading:true});
@@ -52,26 +68,27 @@ const Page = () => {
         router.reload()
       })
       .catch((err) => console.log(err));}
-
-
-  // Get data and update states
-  useEffect(() => {
-    axios.all([
-      axiosInstance.get('invoices/'),
-      axiosInstance.get('category/')
-    ])
-    .then(axios.spread((invoicesResponse, categoriesResponse) => {
-
-      // Response from invoices/
-      setInvoices(invoicesResponse.data);
-      if (invoicesResponse.data.length === 0)
-        {setAppState({ ...appState, loading: false });};
-        
-      // Response from category/
-      const categories = categoriesResponse.data;
-      const categoryNames = categories.map((category) => category.name);
-      setCategories(categoryNames);
-      }
+      
+      
+      // Get data and update states
+      useEffect(() => {
+        axios.all([
+          axiosInstance.get('invoices/'),
+          axiosInstance.get('category/')
+        ])
+        .then(axios.spread((invoicesResponse, categoriesResponse) => {
+          
+          // Response from invoices/
+          setInvoices(invoicesResponse.data);
+          if (invoicesResponse.data.length === 0)
+          {setAppState({ ...appState, loading: false });};
+          
+          // Response from category/
+          const categories = categoriesResponse.data;
+          const categoryNames = categories.map((category) => category.name);
+          setCategories(categoryNames);
+          driverObj.drive();
+        }
     ))
   }, [setInvoices, setCategories, setAppState]
   )
@@ -125,6 +142,7 @@ const Page = () => {
           spacing={3}
         >
           <Grid
+            className='overview-newest-payment'
             xs={12}
             sm={6}
             lg={3}
@@ -136,6 +154,7 @@ const Page = () => {
             />
           </Grid>
           <Grid
+            className='overview-current-month'
             xs={12}
             sm={6}
             lg={3}
@@ -151,6 +170,7 @@ const Page = () => {
             />
           </Grid>
           <Grid
+            className='overview-paid-percentage'
             xs={12}
             sm={6}
             lg={3}
@@ -161,6 +181,7 @@ const Page = () => {
             />
           </Grid>
           <Grid
+            className='overview-next-payment'
             xs={12}
             sm={6}
             lg={3}
@@ -173,6 +194,7 @@ const Page = () => {
             />
           </Grid>
           <Grid
+            className='overview-monthly-chart'
             xs={12}
             lg={8}
           >
@@ -195,6 +217,7 @@ const Page = () => {
 
           </Grid>
           <Grid
+            className='overview-categories-chart'
             xs={12}
             md={6}
             lg={4}
@@ -207,14 +230,11 @@ const Page = () => {
           </Grid>
           
           <Grid
+            className='latest-invoices'
             xs={12}
             md={12}
             lg={12}
           >
-            {/* <OverviewLatestPayments
-              orders={invoices}
-              sx={{ height: '100%' }}
-            /> */}
             <EnhancedTable
               rows={invoices}
             />

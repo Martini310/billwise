@@ -8,11 +8,11 @@ import {
   CardContent,
   CardHeader,
   Divider,
+  IconButton,
+  InputAdornment,
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { axiosInstance } from 'src/utils/axios';
@@ -45,7 +45,7 @@ export const AccountProfileDetails = (props) => {
       event.preventDefault();
       const post_link = `accounts/${post.id}/`;
       delete post.supplier;
-      if (typeof post.category === 'object') (delete post.category);
+      if (typeof post.category === 'object') (delete post.category); // if category not edited remove it from post request
       axiosInstance.patch(post_link, post)
         .then((res) => {
           console.log(res);
