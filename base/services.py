@@ -12,75 +12,212 @@ import logging
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-def get_pgnig(pk, login=None, password=None, account_pk=None):
-    # Log in into PGNiG ebok
-    token_post = requests.post( url="https://ebok.pgnig.pl/auth/login",
-                                data={'identificator': login,
-                                        'accessPin': password,
-                                        'rememberLogin': 'false',
-                                        'DeviceId': '824e02bc5b8ac6100b807f6fc6184abf',
-                                        'DeviceName': 'Firefox wersja: 102.0',
-                                        'DeviceType': 'Web'
-                                        },
-                                params={'api-version': 3.0},
-                                headers={'Accept': 'application/json',
-                                            'Accept-Encoding': 'gzip, deflate, br',
-                                            'Host': 'ebok.pgnig.pl',
-                                            'Origin': 'https://ebok.pgnig.pl',
-                                            'Referer': 'https://ebok.pgnig.pl/',
-                                            'Content-Type': 'application/x-www-form-urlencoded',
-                                            },
-                                verify=False,
-                                timeout=5000,
-                                )
+PGNIG_LOGIN_URL = "https://ebok.pgnig.pl/auth/login"
+PGNIG_INVOICES_URL = "https://ebok.pgnig.pl/crm/get-invoices-v2"
+API_VERSION = "3.0"
 
-    # Get the token to authorize requests
-    response_json = token_post.json()
-    token = response_json.get('Token')
+def setup_logging():
+    logging.basicConfig(
+        level=logging.DEBUG,
+        filename='get_pgnig.log',
+        filemode='a',
+        encoding='utf-8',
+        format='%(asctime)s %(levelname)s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    logger = logging.getLogger(__name__)
 
-    # GET all invoices on account (actually amount declared in 'pageSize' value
-    get_invoices = requests.get(url='https://ebok.pgnig.pl/crm/get-invoices-v2',
+    return logger
+
+
+logger = setup_logging()
+
+
+def login_to_pgnig(account):
+    logger.info("Starting login_to_pgnig()")
+    response = requests.post(
+        url=PGNIG_LOGIN_URL,
+        data={
+            'identificator': account.login,
+            'accessPin': account.password,
+            'DeviceId': '824e02bc5b8ac6100b807f6fc6184abf',
+            'DeviceType': 'Web'
+        },
+        params={'api-version': API_VERSION},
+        headers={'Accept': 'application/json',
+                 'Accept-Encoding': 'gzip, deflate, br',
+                 'Host': 'ebok.pgnig.pl',
+                 'Origin': 'https://ebok.pgnig.pl',
+                 'Referer': 'https://ebok.pgnig.pl/',
+                 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        verify=False,
+        timeout=5000,
+    )
+
+    response.raise_for_status()
+    logger.info("Fetched token")
+    return response.json().get('Token')
+
+
+def get_invoices(token):
+    logger.info("Staring get_invoices()")
+    # GET invoices on account - amount declared in 'pageSize'
+    get_invoices = requests.get(url=PGNIG_INVOICES_URL,
                                 params={'pageNumber': 1,
                                         'api-version': 3.0,
-                                        'pageSize': 30,
-                                        },
+                                        'pageSize': 100,
+                                },
                                 headers={'AuthToken': token},
                                 verify=False,
                                 timeout=5000
                                 )
-    print(get_invoices.status_code)
-    # Dict with all information about invoices.
-    invoices_json = get_invoices.json()
-    # List of all invoices as dicts.
-    faktury = invoices_json['InvoicesList']
+    logger.info("Finished get_invoices()")
+    return get_invoices.json()['InvoicesList']
+
+
+def create_invoice_objects(invoices, user, account):
+    logger.info("Staring create_invoice_objects()")
+    return [Invoice( number=invoice.get('Number'),
+                    date=datetime.fromisoformat(invoice.get('Date')[:-1]),
+                    amount=invoice.get('GrossAmount'),
+                    pay_deadline=datetime.fromisoformat(invoice.get('PayingDeadlineDate')[:-1]),
+                    start_date=datetime.fromisoformat(invoice.get('StartDate')[:-1]),
+                    end_date=datetime.fromisoformat(invoice.get('EndDate')[:-1]),
+                    amount_to_pay=invoice.get('AmountToPay'),
+                    wear=invoice.get('WearKWH'),
+                    user=user,
+                    is_paid=invoice.get('IsPaid'),
+                    consumption_point='test',
+                    account=account,
+                    category=account.category)
+        for invoice in invoices if
+        not Invoice.objects.filter(user=user, number=invoice.get('Number')).exists()]
+
+
+def update_invoice_objects(invoices, user):
+    logger.info("Staring update_invoice_objects()")
+    for invoice in invoices:
+        try:
+            db_invoice = Invoice.objects.filter(number=invoice.get('Number'), user=user).get() # get the invoice from the database
+            # check if the status or amount changed
+            if invoice.get('IsPaid') != db_invoice.is_paid or invoice.get('AmountToPay') != db_invoice.amount_to_pay or invoice.get('GrossAmount') != db_invoice.amount:
+                # if changes detected, update the invoice in the database
+                Invoice.objects.filter(number=invoice.get("Number"), user=user).update(is_paid=invoice.get('IsPaid'), amount_to_pay=invoice.get('AmountToPay'), amount=invoice.get('GrossAmount'))
+                logger.info(f"{invoice.get('Number')} - Updated")
+                print(f"{invoice.get('Number')} - Updated")
+            else:
+                print(f"{invoice.get('Number')} - No changes detected")
+        except Invoice.DoesNotExist:
+            logger.warning(f"Invoice {invoice.get('Number')} does not exist in the database.")
+            print(f"Invoice {invoice.get('Number')} does not exist in the database.")
+        except Exception as e:
+            logger.warning(f"An unexpected error occurred: {e}")
+            print(f"An unexpected error occurred: {e}")
+
+
+def get_pgnig(pk, account_pk):
 
     user = NewUser.objects.get(pk=pk)
     account = Account.objects.get(pk=account_pk)
-
-    Invoice.objects.bulk_create(
-        [Invoice(number=invoice.get('Number'),
-                date=datetime.fromisoformat(invoice.get('Date')[:-1]),
-                amount=invoice.get('GrossAmount'),
-                pay_deadline=datetime.fromisoformat(invoice.get('PayingDeadlineDate')[:-1]),
-                start_date=datetime.fromisoformat(invoice.get('StartDate')[:-1]),
-                end_date=datetime.fromisoformat(invoice.get('EndDate')[:-1]),
-                amount_to_pay=invoice.get('AmountToPay'),
-                wear=invoice.get('WearKWH'),
-                user=user,
-                is_paid=invoice.get('IsPaid'),
-                consumption_point='test',
-                account=account,
-                category=account.category)
-        for invoice in faktury if
-        not Invoice.objects.filter(user=user, number=invoice.get('Number')).exists()])
     
-    for invoice in faktury:
-        db = Invoice.objects.filter(number=invoice.get('Number'), user=user).get()
-        if invoice.get('IsPaid') != db.is_paid or invoice.get('AmountToPay') != db.amount_to_pay or invoice.get('GrossAmount') != db.amount:
-            Invoice.objects.filter(number=invoice.get("Number"), user=user).update(is_paid=invoice.get('IsPaid'), amount_to_pay=invoice.get('AmountToPay'), amount=invoice.get('GrossAmount'))
-    print("Pobrałem pgnig i zapisałem w db")
+    logger.info("Rozpoczynam pobieranie danych z PGNiG użytkownika %s", user.user_name)
+
+    try:
+        token = login_to_pgnig(account)
+        invoices = get_invoices(token)
+        invoice_instances = create_invoice_objects(invoices, user, account)
+        Invoice.objects.bulk_create(invoice_instances)
+        update_invoice_objects(invoice_instances, user)
+
+        logger.info("Zakończyłem pobieranie danych z PGNiG użytkownika %s", user.user_name)
+        print("Pobrałem PGNiG i zapisałem w DB..")
+
+    except Timeout as e:
+        logger.debug("Timeout: %s", e)
+    except ConnectionError as e:
+        logger.debug("ConnectionError: %s", e)
+    except RequestException as e:
+        logger.debug("RequestException: %s", e)
+    except Exception as e:
+        logger.debug("An unexpected error occurred: %s", e)
 
 
+
+
+
+
+# def get_pgnig2(pk, account_pk):
+#     user = NewUser.objects.get(pk=pk)
+#     account = Account.objects.get(pk=account_pk)
+#     # Log in into PGNiG ebok
+#     token_post = requests.post( 
+#         url="https://ebok.pgnig.pl/auth/login",
+#         data={'identificator': account.login,
+#                 'accessPin': account.password,
+#                 # 'rememberLogin': 'false',
+#                 'DeviceId': '824e02bc5b8ac6100b807f6fc6184abf',
+#                 # 'DeviceName': 'Firefox wersja: 102.0',
+#                 'DeviceType': 'Web'
+#                 },
+#         params={'api-version': 3.0},
+#         headers={'Accept': 'application/json',
+#                     'Accept-Encoding': 'gzip, deflate, br',
+#                     'Host': 'ebok.pgnig.pl',
+#                     'Origin': 'https://ebok.pgnig.pl',
+#                     'Referer': 'https://ebok.pgnig.pl/',
+#                     'Content-Type': 'application/x-www-form-urlencoded',
+#                     },
+#         verify=False,
+#         timeout=5000,
+#     )
+
+#     # Get the token to authorize requests
+#     response_json = token_post.json()
+#     print(response_json)
+#     token = response_json.get('Token')
+
+#     # GET invoices on account - amount declared in 'pageSize'
+#     get_invoices = requests.get(url='https://ebok.pgnig.pl/crm/get-invoices-v2',
+#                                 params={'pageNumber': 1,
+#                                         'api-version': 3.0,
+#                                         'pageSize': 100,
+#                                         },
+#                                 headers={'AuthToken': token},
+#                                 verify=False,
+#                                 timeout=5000
+#                                 )
+#     print(get_invoices.status_code)
+#     # Dict with all information about invoices.
+#     invoices_json = get_invoices.json()
+#     # List of all invoices as dicts.
+#     faktury = invoices_json['InvoicesList']
+
+#     print(faktury)
+#     Invoice.objects.bulk_create(
+#         [Invoice(number=invoice.get('Number'),
+#                 date=datetime.fromisoformat(invoice.get('Date')[:-1]),
+#                 amount=invoice.get('GrossAmount'),
+#                 pay_deadline=datetime.fromisoformat(invoice.get('PayingDeadlineDate')[:-1]),
+#                 start_date=datetime.fromisoformat(invoice.get('StartDate')[:-1]),
+#                 end_date=datetime.fromisoformat(invoice.get('EndDate')[:-1]),
+#                 amount_to_pay=invoice.get('AmountToPay'),
+#                 wear=invoice.get('WearKWH'),
+#                 user=user,
+#                 is_paid=invoice.get('IsPaid'),
+#                 consumption_point='test',
+#                 account=account,
+#                 category=account.category)
+#         for invoice in faktury if
+#         not Invoice.objects.filter(user=user, number=invoice.get('Number')).exists()])
+    
+#     for invoice in faktury:
+#         db = Invoice.objects.filter(number=invoice.get('Number'), user=user).get()
+#         if invoice.get('IsPaid') != db.is_paid or invoice.get('AmountToPay') != db.amount_to_pay or invoice.get('GrossAmount') != db.amount:
+#             Invoice.objects.filter(number=invoice.get("Number"), user=user).update(is_paid=invoice.get('IsPaid'), amount_to_pay=invoice.get('AmountToPay'), amount=invoice.get('GrossAmount'))
+#     print("Pobrałem pgnig i zapisałem w db")
+
+get_pgnig(2, 9)
 
 
 
