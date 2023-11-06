@@ -14,12 +14,20 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 PGNIG_LOGIN_URL = "https://ebok.pgnig.pl/auth/login"
 PGNIG_INVOICES_URL = "https://ebok.pgnig.pl/crm/get-invoices-v2"
-API_VERSION = "3.0"
+PGNIG_API_VERSION = "3.0"
+ENEA_LOGIN_URL = 'https://ebok.enea.pl/logowanie'
+ENEA_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
+    'Host': 'ebok.enea.pl',
+    'Origin': 'https://ebok.enea.pl',
+    'Referer': 'https://ebok.enea.pl/',
+    'Content-Type': 'application/x-www-form-urlencoded',
+}
 
 def setup_logging():
     logging.basicConfig(
         level=logging.DEBUG,
-        filename='get_pgnig.log',
+        filename='services.log',
         filemode='a',
         encoding='utf-8',
         format='%(asctime)s %(levelname)s %(message)s',
@@ -43,7 +51,7 @@ def login_to_pgnig(account):
             'DeviceId': '824e02bc5b8ac6100b807f6fc6184abf',
             'DeviceType': 'Web'
         },
-        params={'api-version': API_VERSION},
+        params={'api-version': PGNIG_API_VERSION},
         headers={'Accept': 'application/json',
                  'Accept-Encoding': 'gzip, deflate, br',
                  'Host': 'ebok.pgnig.pl',
@@ -143,91 +151,42 @@ def get_pgnig(pk, account_pk):
         logger.debug("An unexpected error occurred: %s", e)
 
 
+# get_pgnig(2, 9)
 
 
 
 
-# def get_pgnig2(pk, account_pk):
-#     user = NewUser.objects.get(pk=pk)
-#     account = Account.objects.get(pk=account_pk)
-#     # Log in into PGNiG ebok
-#     token_post = requests.post( 
-#         url="https://ebok.pgnig.pl/auth/login",
-#         data={'identificator': account.login,
-#                 'accessPin': account.password,
-#                 # 'rememberLogin': 'false',
-#                 'DeviceId': '824e02bc5b8ac6100b807f6fc6184abf',
-#                 # 'DeviceName': 'Firefox wersja: 102.0',
-#                 'DeviceType': 'Web'
-#                 },
-#         params={'api-version': 3.0},
-#         headers={'Accept': 'application/json',
-#                     'Accept-Encoding': 'gzip, deflate, br',
-#                     'Host': 'ebok.pgnig.pl',
-#                     'Origin': 'https://ebok.pgnig.pl',
-#                     'Referer': 'https://ebok.pgnig.pl/',
-#                     'Content-Type': 'application/x-www-form-urlencoded',
-#                     },
-#         verify=False,
-#         timeout=5000,
-#     )
 
-#     # Get the token to authorize requests
-#     response_json = token_post.json()
-#     print(response_json)
-#     token = response_json.get('Token')
 
-#     # GET invoices on account - amount declared in 'pageSize'
-#     get_invoices = requests.get(url='https://ebok.pgnig.pl/crm/get-invoices-v2',
-#                                 params={'pageNumber': 1,
-#                                         'api-version': 3.0,
-#                                         'pageSize': 100,
-#                                         },
-#                                 headers={'AuthToken': token},
-#                                 verify=False,
-#                                 timeout=5000
-#                                 )
-#     print(get_invoices.status_code)
-#     # Dict with all information about invoices.
-#     invoices_json = get_invoices.json()
-#     # List of all invoices as dicts.
-#     faktury = invoices_json['InvoicesList']
 
-#     print(faktury)
-#     Invoice.objects.bulk_create(
-#         [Invoice(number=invoice.get('Number'),
-#                 date=datetime.fromisoformat(invoice.get('Date')[:-1]),
-#                 amount=invoice.get('GrossAmount'),
-#                 pay_deadline=datetime.fromisoformat(invoice.get('PayingDeadlineDate')[:-1]),
-#                 start_date=datetime.fromisoformat(invoice.get('StartDate')[:-1]),
-#                 end_date=datetime.fromisoformat(invoice.get('EndDate')[:-1]),
-#                 amount_to_pay=invoice.get('AmountToPay'),
-#                 wear=invoice.get('WearKWH'),
-#                 user=user,
-#                 is_paid=invoice.get('IsPaid'),
-#                 consumption_point='test',
-#                 account=account,
-#                 category=account.category)
-#         for invoice in faktury if
-#         not Invoice.objects.filter(user=user, number=invoice.get('Number')).exists()])
+
+
+def login_to_enea(account, session, ):
+    logger.info("Starting login_to_enea()")
+
+    payload = {
+        'email': account.login,
+        'password': account.password,
+    }
+
+    # Get the login page
+    login_page = session.get(ENEA_LOGIN_URL, verify=False)
+
+    # Add hidden token to the payload.
+    token = BeautifulSoup(login_page._content, 'html.parser')
+    payload['token'] = token.find('input', type='hidden')['value']
+
+    # LOG IN
+    sign_in = session.post(ENEA_LOGIN_URL, data=payload, headers=ENEA_HEADERS)
+
+    # Handle Login error
+    if sign_in.url == ENEA_LOGIN_URL:
+        soup = BeautifulSoup(sign_in.content, 'html.parser')
+        login_msg = soup.find('div', class_='alert alert-danger alert-dismissible fade show alert-form')
+        logger.error('[get_enea] error msg: %s', login_msg.text.strip())
+        raise ValueError(login_msg.text.strip())
     
-#     for invoice in faktury:
-#         db = Invoice.objects.filter(number=invoice.get('Number'), user=user).get()
-#         if invoice.get('IsPaid') != db.is_paid or invoice.get('AmountToPay') != db.amount_to_pay or invoice.get('GrossAmount') != db.amount:
-#             Invoice.objects.filter(number=invoice.get("Number"), user=user).update(is_paid=invoice.get('IsPaid'), amount_to_pay=invoice.get('AmountToPay'), amount=invoice.get('GrossAmount'))
-#     print("Pobrałem pgnig i zapisałem w db")
-
-get_pgnig(2, 9)
-
-
-
-
-
-
-
-
-
-
+    logger.info(f'[get_enea] Succesfull login to Enea')
 
 
 def create_enea_invoice_objects(invoices: list, user: object, account: object) -> list:
@@ -257,88 +216,75 @@ def create_enea_invoice_objects(invoices: list, user: object, account: object) -
     return invoice_objects
 
 
-
-def get_enea(user_pk, account_pk):
-
-    user = NewUser.objects.get(pk=user_pk)
-    account = Account.objects.get(pk=account_pk)
-
-    payload = {
-        'email': account.login,
-        'password': account.password,
+def get_enea_invoices(session):
+    invoice_payload = {
+        'limit':200,
+        'page':1,
+        'direction':'DESC',
+        'sort':'issueDate',
     }
 
-    with requests.Session() as s:
+    invoices_page = session.post('https://ebok.enea.pl/invoices/invoice-history', data=invoice_payload)
+    soup = BeautifulSoup(invoices_page.content, 'html.parser')
 
-        # Get the login page to get a hidden token.
-        login_page = s.get('https://ebok.enea.pl/logowanie', verify=False)
-        token = BeautifulSoup(login_page._content, 'html.parser')
+    # Find div with all invoices.
+    invoices = soup.find_all('div', class_='datagrid-row-content')
 
-        # Add token to the payload.
-        payload['token'] = token.find('input', type='hidden')['value']
+    # Find username and account number.
+    # user_data = soup.find('span', class_='navbar-user-info-name')
+    return invoices
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
-            'Host': 'ebok.enea.pl',
-            'Origin': 'https://ebok.enea.pl',
-            'Referer': 'https://ebok.enea.pl/',
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
 
-        # LOG IN
-        sign_in = s.post('https://ebok.enea.pl/logowanie', data=payload, headers=headers)
-        print('Logowanie:', sign_in.status_code)
+def get_enea(user_pk, account_pk):
+    try:
+        user = NewUser.objects.get(pk=user_pk)
+        account = Account.objects.get(pk=account_pk)
 
-        # Handle Login error
-        if sign_in.url == 'https://ebok.enea.pl/logowanie':
-            soup = BeautifulSoup(sign_in.content, 'html.parser')
-            login_msg = soup.find('div', class_='alert alert-danger alert-dismissible fade show alert-form')
-            return print('error msg:', login_msg.text.strip())
+        logger.info("[get_enea] Rozpoczynam pobieranie danych z Enea użytkownika %s", user.user_name)
+        with requests.Session() as s:
+            login_to_enea(account, s)
+            invoices = get_enea_invoices(s)
+            invoice_objects = create_enea_invoice_objects(invoices, user, account)
 
-        invoice_payload = {
-            'limit':200,
-            'page':1,
-            'direction':'DESC',
-            'sort':'issueDate',
-        }
+            Invoice.objects.bulk_create(
+                [invoice for invoice
+                in invoice_objects
+                if not Invoice.objects.filter(number=invoice.number).exists()
+                ],
+            )
 
-        invoices_page = s.post('https://ebok.enea.pl/invoices/invoice-history', data=invoice_payload)
-        soup = BeautifulSoup(invoices_page.content, 'html.parser')
-
-        # Find username and account number.
-        user_data = soup.find('span', class_='navbar-user-info-name')
-
-        # Find div with all invoices.
-        invoices = soup.find_all('div', class_='datagrid-row-content')
-
-        all_invoices = create_enea_invoice_objects(invoices, user, account)
-
-        Invoice.objects.bulk_create(
-            [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()],
-        )
-
-        # Update existing invoices if status or amount change
-        for invoice in all_invoices:
-            db = Invoice.objects.filter(number=invoice.number, user=user).get()
-            if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
-                print(f'{invoice.number} - Aktualizuję')
-                Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
-
-        print("Succesfully fetched data from Enea")
-
-        # Get entry points
-        data = {'guid': '4218f3de-e608-e911-80de-005056b326a5', 'view': 'invoice'}
+            # Update existing invoices if status or amount change
+            for invoice in invoice_objects:
+                db = Invoice.objects.filter(number=invoice.number, user=user).get()
+                if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
+                    logger.info(f'[get_enea] {invoice.number} - Aktualizuję')
+                    Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
         
-        points = s.post('https://ebok.enea.pl/meter/readingHistoryPoints', data=data, headers=headers)
-        
-        points_soup = BeautifulSoup(points.content, 'html.parser')
-        all = points_soup.find_all('div', class_='datagrid-col datagrid-col-inovice-filter-points-addres')
-        for point in all:
-            a = point.find('span')
-            print(a.text)
+        logger.info("[get_enea] Zakończyłem pobieranie danych z Enea użytkownika %s", user.user_name)
 
-# get_enea(2, 13)
-# get_enea(2, 10)
+    except Timeout as e:
+        logger.debug("[get_enea] Timeout: %s", e)
+    except ConnectionError as e:
+        logger.debug("[get_enea] ConnectionError: %s", e)
+    except RequestException as e:
+        logger.debug("[get_enea] RequestException: %s", e)
+    except Exception as e:
+        logger.debug("[get_enea] An unexpected error occurred: %s", e)
+
+
+#         # Get entry points
+#         data = {'guid': '4218f3de-e608-e911-80de-005056b326a5', 'view': 'invoice'}
+        
+#         points = s.post('https://ebok.enea.pl/meter/readingHistoryPoints', data=data, headers=headers)
+        
+#         points_soup = BeautifulSoup(points.content, 'html.parser')
+#         all = points_soup.find_all('div', class_='datagrid-col datagrid-col-inovice-filter-points-addres')
+#         for point in all:
+#             a = point.find('span')
+#             print(a.text)
+
+# get_enea(2, 13) # nieistniejące konto
+# get_enea(2, 10) # zły login
 
 
 
