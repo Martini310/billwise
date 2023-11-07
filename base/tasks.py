@@ -17,7 +17,7 @@ def sync_accounts_task(user_pk):
         accounts = Account.objects.filter(user__pk=user_pk)
         for account in accounts:
             fetch = fetch_data_functions.get(account.supplier.name)
-            fetch(user_pk, account.login, account.password, account.pk)
+            fetch(user_pk, account.pk)
         return "User data synchronized"
         # return sync_accounts(user_pk)
 
@@ -27,6 +27,6 @@ def scheduled_get_data():
         accounts = Account.objects.all()
         for account in accounts:
             fetch_data = fetch_data_functions.get(account.supplier.name)
-            fetch_data(account.user.id, account.login, account.password, account.pk)
+            fetch_data(account.user.id, account.pk)
         return "Database synchronized"
     
