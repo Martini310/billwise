@@ -23,6 +23,7 @@ ENEA_HEADERS = {
     'Referer': 'https://ebok.enea.pl/',
     'Content-Type': 'application/x-www-form-urlencoded',
 }
+AQUANET_LOGIN_URL = 'https://ebok.aquanet.pl/user/login'
 
 def setup_logging():
     logging.basicConfig(
@@ -290,126 +291,119 @@ def get_enea(user_pk, account_pk):
 
 
 
+def login_to_aquanet(account, session):
+    payload = {
+        'user-login-email[email]': account.login,
+        'user-login-email[password]': account.password,
+        'user-login-email[submit]':	"Zaloguj"
+        }
+    
+    login_page = session.get(AQUANET_LOGIN_URL, verify=False)
+    login_soup = BeautifulSoup(login_page._content, 'html.parser')
+    token = login_soup.find('input', type='hidden')['value']
 
+    payload['csrfp_token'] = token
+    cookies = session.cookies.items()
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0',
+        'Referer': AQUANET_LOGIN_URL,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Origin': 'https://ebok.aquanet.pl',
+        'Connection': 'keep-alive',
+        'Cookie': f'{cookies[0][0]}={cookies[0][1]}; {cookies[1][0]}={cookies[1][1]}; cookielaw=true',
+    }
+
+    session.post(AQUANET_LOGIN_URL, headers=headers, data=payload)
+    return headers
+
+
+def get_aquanet_invoices(session, headers):
+    page = session.get('https://ebok.aquanet.pl/faktury', headers=headers, verify=False)
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    # Find all unpaid invoices
+    tables = soup.find_all('table', class_='table')
+
+    unpaid_table = [table.find_all('tr') for table in tables if table.find('caption').find('h3').text == 'Niezapłacone'][0]
+
+    unpaid_invoices = []
+    for row in unpaid_table:
+        invoice = [td.text for td in row.find_all('td') if td.text]
+        if invoice and invoice[0].strip() != 'Brak danych':
+            unpaid_invoices.append(invoice)
+
+    # Find all unpaid invoices
+    paid_invoices = []
+    # Number of table pages
+    table_pages = soup.find('li', class_='last').find('a')
+    table_pages = table_pages['href'].lstrip('?page=')
+    # For every table page find all rows with invoices and append to list
+    for table_page in range(int(table_pages) + 1):
+
+        table_payload = {
+            "state[_id]": "09534ea9a0668ab4b3f0c011e6c84c11",
+            "state[_page]": table_page,
+            "state[_count]": "-1",
+        }
+
+        invoice_table = session.post('https://ebok.aquanet.pl/such/table/view', headers=headers, data=table_payload, verify=False)
+
+        table_soup = BeautifulSoup(invoice_table.content, 'html.parser')
+
+        for tr in table_soup.find_all('tr')[1:11]:
+            paid_invoices.append([td.text for td in tr.find_all('td') if td.text])
+
+    return paid_invoices, unpaid_invoices
 
 
 def create_aquanet_invoice_objects(invoices: list, is_paid: bool, user: object, account: object) -> list:
     invoice_objects = []
     for invoice in invoices:
-        date_pattern = re.compile(r'(\d{2}\.\d{2}\.\d{4}|\d{2}/\d{2}/\d{4})')
+        if len(invoice) > 1:
+            date_pattern = re.compile(r'(\d{2}\.\d{2}\.\d{4}|\d{2}/\d{2}/\d{4})')
 
-        dates = date_pattern.findall(invoice[2])
-        if len(dates) == 2:
-            start_date = dates[0].replace('/', '.')
-            end_date = dates[1].replace('/', '.')
+            dates = date_pattern.findall(invoice[2])
+            if len(dates) == 2:
+                start_date = dates[0].replace('/', '.')
+                end_date = dates[1].replace('/', '.')
 
-        number = invoice[1]
-        date = invoice[3]
-        pay_deadline = invoice[4]
-        amount = invoice[5].rstrip(' zł')
-        to_pay = float(invoice[6].rstrip(' zł').replace(',', '.')) if not is_paid else 0
+            number = invoice[1]
+            date = invoice[3]
+            pay_deadline = invoice[4]
+            amount = invoice[5].rstrip(' zł')
+            to_pay = float(invoice[6].rstrip(' zł').replace(',', '.')) if not is_paid else 0
 
-        invoice_objects.append(Invoice(
-                                number=number,
-                                date=datetime.strptime(date, "%d.%m.%Y"),
-                                amount=float(amount.replace(',', '.')),
-                                pay_deadline=datetime.strptime(pay_deadline, "%d.%m.%Y"),
-                                start_date=datetime.strptime(start_date, "%d.%m.%Y") or '',
-                                end_date=datetime.strptime(end_date, "%d.%m.%Y") or '',
-                                amount_to_pay=to_pay,
-                                user=user,
-                                is_paid=is_paid,
-                                consumption_point='Brak informacji',
-                                account=account,
-                                category=account.category
-                                ))
+            invoice_objects.append(Invoice(
+                                    number=number,
+                                    date=datetime.strptime(date, "%d.%m.%Y"),
+                                    amount=float(amount.replace(',', '.')),
+                                    pay_deadline=datetime.strptime(pay_deadline, "%d.%m.%Y"),
+                                    start_date=datetime.strptime(start_date, "%d.%m.%Y") or '',
+                                    end_date=datetime.strptime(end_date, "%d.%m.%Y") or '',
+                                    amount_to_pay=to_pay,
+                                    user=user,
+                                    is_paid=is_paid,
+                                    consumption_point='Brak informacji',
+                                    account=account,
+                                    category=account.category
+                                    ))
     return invoice_objects
 
 
 
-
-
-
 def get_aquanet(user_pk: int, account_pk: int):
-    # Configure logging settings
-    logging.basicConfig(
-        level=logging.DEBUG,  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-        filename='get_aquanet.log',  # Log file name
-        filemode='a',  # Append to the log file
-        encoding='utf-8'
-    )
-
-    logger = logging.getLogger(__name__)
-
     try:
         user = NewUser.objects.get(pk=user_pk)
         account = Account.objects.get(pk=account_pk)
 
-        payload = {
-        'user-login-email[email]': account.login,
-        'user-login-email[password]': account.password,
-        'user-login-email[submit]':	"Zaloguj"
-        }
-
         with requests.Session() as s:
 
-            login_page = s.get('https://ebok.aquanet.pl/user/login', verify=False)
-            login_soup = BeautifulSoup(login_page._content, 'html.parser')
-            token = login_soup.find('input', type='hidden')['value']
-
-            payload['csrfp_token'] = token
-            cookies = s.cookies.items()
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0',
-                'Referer': 'https://ebok.aquanet.pl/user/login',
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Origin': 'https://ebok.aquanet.pl',
-                'Connection': 'keep-alive',
-                'Cookie': f'{cookies[0][0]}={cookies[0][1]}; {cookies[1][0]}={cookies[1][1]}; cookielaw=true',
-            }
-
-            s.post('https://ebok.aquanet.pl/user/login', headers=headers, data=payload)
-
-            page = s.get('https://ebok.aquanet.pl/faktury', headers=headers, verify=False)
-            soup = BeautifulSoup(page.content, 'html.parser')
-
-
-            # Find all unpaid invoices
-            tables = soup.find_all('table', class_='table')
-
-            unpaid_table = [table.find_all('tr') for table in tables if table.find('caption').find('h3').text == 'Niezapłacone'][0]
-
-            unpaid_invoices = []
-            for row in unpaid_table:
-                invoice = [td.text for td in row.find_all('td') if td.text]
-                if invoice and invoice[0].strip() != 'Brak danych':
-                    unpaid_invoices.append(invoice)
-
-            # Find all unpaid invoices
-            paid_invoices = []
-            # Number of table pages
-            table_pages = soup.find('li', class_='last').find('a')
-            table_pages = table_pages['href'].lstrip('?page=')
-            # For every table page find all rows with invoices and append to list
-            for table_page in range(int(table_pages) + 1):
-
-                table_payload = {
-                    "state[_id]": "09534ea9a0668ab4b3f0c011e6c84c11",
-                    "state[_page]": table_page,
-                    "state[_count]": "-1",
-                }
-
-                invoice_table = s.post('https://ebok.aquanet.pl/such/table/view', headers=headers, data=table_payload, verify=False)
-
-                table_soup = BeautifulSoup(invoice_table.content, 'html.parser')
-
-                for tr in table_soup.find_all('tr')[1:11]:
-                    paid_invoices.append([td.text for td in tr.find_all('td') if td.text])
-
+            headers = login_to_aquanet(account, s)
+            paid_invoices, unpaid_invoices = get_aquanet_invoices(s, headers)
 
         all_invoices = [
             *create_aquanet_invoice_objects(unpaid_invoices, False, user, account),
-            *create_aquanet_invoice_objects(paid_invoices[:-1:], True, user, account),
+            *create_aquanet_invoice_objects(paid_invoices, True, user, account),
         ]
 
         logger.info("Successfully fetched data from Aquanet")
@@ -426,8 +420,6 @@ def get_aquanet(user_pk: int, account_pk: int):
                 if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
                     logger.info('%s - Update', invoice.number)
                     Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
-                else:
-                    logger.info('%s - Już jest', invoice.number)
 
     except Timeout as e:
         logger.debug("Timeout: %s", e)
@@ -440,4 +432,4 @@ def get_aquanet(user_pk: int, account_pk: int):
 
 
 
-# get_aquanet(2, 11)
+get_aquanet(2, 11)
