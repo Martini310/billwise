@@ -42,6 +42,15 @@ def setup_logging():
 logger = setup_logging()
 
 
+def update_invoices_in_db(invoices: list, user: object, supplier: str):
+    # Update existing invoices if status or amount change
+    for invoice in invoices:
+        db = Invoice.objects.filter(number=invoice.number, user=user).get()
+        if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
+            logger.info(f'[get_{supplier}] {invoice.number} - Updating')
+            Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
+
+
 def login_to_pgnig(account):
     logger.info("Starting login_to_pgnig()")
     response = requests.post(
@@ -247,20 +256,15 @@ def get_enea(user_pk, account_pk):
             invoices = get_enea_invoices(s)
             invoice_objects = create_enea_invoice_objects(invoices, user, account)
 
-            Invoice.objects.bulk_create(
-                [invoice for invoice
-                in invoice_objects
-                if not Invoice.objects.filter(number=invoice.number).exists()
-                ],
-            )
+        Invoice.objects.bulk_create(
+            [invoice for invoice
+            in invoice_objects
+            if not Invoice.objects.filter(number=invoice.number).exists()
+            ],
+        )
 
-            # Update existing invoices if status or amount change
-            for invoice in invoice_objects:
-                db = Invoice.objects.filter(number=invoice.number, user=user).get()
-                if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
-                    logger.info(f'[get_enea] {invoice.number} - Aktualizuję')
-                    Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
-        
+        update_invoices_in_db(invoice_objects, user, 'enea')
+
         logger.info("[get_enea] Zakończyłem pobieranie danych z Enea użytkownika %s", user.user_name)
 
     except Timeout as e:
@@ -408,18 +412,15 @@ def get_aquanet(user_pk: int, account_pk: int):
 
         logger.info("Successfully fetched data from Aquanet")
 
-        with transaction.atomic():
+        Invoice.objects.bulk_create(
+            [invoice for invoice
+                in all_invoices
+                if not Invoice.objects.filter(number=invoice.number).exists()
+            ],
+        )
+        logger.info("Succesfully saved new data in Database")
 
-            Invoice.objects.bulk_create(
-                [invoice for invoice in all_invoices if not Invoice.objects.filter(number=invoice.number).exists()],
-            )
-            logger.info("Succesfully saved new data in Database")
-
-            for invoice in all_invoices:
-                db = Invoice.objects.filter(number=invoice.number, user=user).get()
-                if invoice.is_paid != db.is_paid or invoice.amount_to_pay != db.amount_to_pay or invoice.amount != db.amount:
-                    logger.info('%s - Update', invoice.number)
-                    Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
+        update_invoices_in_db(all_invoices, user, 'aquanet')
 
     except Timeout as e:
         logger.debug("Timeout: %s", e)
@@ -432,4 +433,5 @@ def get_aquanet(user_pk: int, account_pk: int):
 
 
 
-get_aquanet(2, 11)
+# get_aquanet(2, 11)
+# get_aquanet(2, 15)
