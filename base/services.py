@@ -317,12 +317,12 @@ def login_to_aquanet(account, session):
         'Cookie': f'{cookies[0][0]}={cookies[0][1]}; {cookies[1][0]}={cookies[1][1]}; cookielaw=true',
     }
 
-    session.post(AQUANET_LOGIN_URL, headers=headers, data=payload)
-    return headers
+    session.headers.update(headers)
+    session.post(AQUANET_LOGIN_URL, data=payload)
 
 
-def get_aquanet_invoices(session, headers):
-    page = session.get('https://ebok.aquanet.pl/faktury', headers=headers, verify=False)
+def get_aquanet_invoices(session):
+    page = session.get('https://ebok.aquanet.pl/faktury', verify=False)
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Find all unpaid invoices
@@ -350,17 +350,17 @@ def get_aquanet_invoices(session, headers):
             "state[_count]": "-1",
         }
 
-        invoice_table = session.post('https://ebok.aquanet.pl/such/table/view', headers=headers, data=table_payload, verify=False)
+        invoice_table = session.post('https://ebok.aquanet.pl/such/table/view', data=table_payload, verify=False)
 
         table_soup = BeautifulSoup(invoice_table.content, 'html.parser')
 
         for tr in table_soup.find_all('tr')[1:11]:
             paid_invoices.append([td.text for td in tr.find_all('td') if td.text])
 
-    return paid_invoices, unpaid_invoices
+    return [*paid_invoices, *unpaid_invoices]
 
 
-def create_aquanet_invoice_objects(invoices: list, is_paid: bool, user: object, account: object) -> list:
+def create_aquanet_invoice_objects(invoices: list, user: object, account: object) -> list:
     invoice_objects = []
     for invoice in invoices:
         if len(invoice) > 1:
@@ -375,7 +375,7 @@ def create_aquanet_invoice_objects(invoices: list, is_paid: bool, user: object, 
             date = invoice[3]
             pay_deadline = invoice[4]
             amount = invoice[5].rstrip(' zł')
-            to_pay = float(invoice[6].rstrip(' zł').replace(',', '.')) if not is_paid else 0
+            to_pay = float(invoice[6].rstrip(' zł').replace(',', '.')) if len(invoice) >= 7 else 0
 
             invoice_objects.append(Invoice(
                                     number=number,
@@ -386,11 +386,12 @@ def create_aquanet_invoice_objects(invoices: list, is_paid: bool, user: object, 
                                     end_date=datetime.strptime(end_date, "%d.%m.%Y") or '',
                                     amount_to_pay=to_pay,
                                     user=user,
-                                    is_paid=is_paid,
+                                    is_paid=len(invoice) == 6,
                                     consumption_point='Brak informacji',
                                     account=account,
                                     category=account.category
                                     ))
+            
     return invoice_objects
 
 
@@ -402,25 +403,22 @@ def get_aquanet(user_pk: int, account_pk: int):
 
         with requests.Session() as s:
 
-            headers = login_to_aquanet(account, s)
-            paid_invoices, unpaid_invoices = get_aquanet_invoices(s, headers)
+            login_to_aquanet(account, s)
+            invoices = get_aquanet_invoices(s)
 
-        all_invoices = [
-            *create_aquanet_invoice_objects(unpaid_invoices, False, user, account),
-            *create_aquanet_invoice_objects(paid_invoices, True, user, account),
-        ]
+        invoice_objects = create_aquanet_invoice_objects(invoices, user, account)
 
         logger.info("Successfully fetched data from Aquanet")
 
         Invoice.objects.bulk_create(
             [invoice for invoice
-                in all_invoices
+                in invoice_objects
                 if not Invoice.objects.filter(number=invoice.number).exists()
             ],
         )
         logger.info("Succesfully saved new data in Database")
 
-        update_invoices_in_db(all_invoices, user, 'aquanet')
+        update_invoices_in_db(invoice_objects, user, 'aquanet')
 
     except Timeout as e:
         logger.debug("Timeout: %s", e)
@@ -429,9 +427,41 @@ def get_aquanet(user_pk: int, account_pk: int):
     except RequestException as e:
         logger.debug("RequestException: %s", e)
     except Exception as e:
-        logger.debug("An unexpected error occurred: %s", e)
+        logger.debug("An unexpected error occurred: %s", e, stack_info=True, stacklevel=True)
 
 
 
-# get_aquanet(2, 11)
+get_aquanet(2, 11)
 # get_aquanet(2, 15)
+
+def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoice_func, supplier):
+    try:
+        user = NewUser.objects.get(pk=user_pk)
+        account = Account.objects.get(pk=account_pk)
+
+        logger.info(f"Starting to fetch data from {supplier} for user {user.user_name}")
+
+        with requests.Session() as s:
+            login_func(account, s)
+            invoices = get_invoices_func(s)
+            invoice_objects = create_invoice_func(invoices, user, account)
+
+        Invoice.objects.bulk_create(
+            [invoice for invoice
+                in invoice_objects
+                if not Invoice.objects.filter(number=invoice.number).exists()
+            ],
+        )
+
+        update_invoices_in_db(invoice_objects, user, supplier)
+
+        logger.info(f"Finished fetching data from {supplier} for user {user.user_name}")
+
+    except requests.exceptions.Timeout as e:
+        logger.debug(f"Timeout: {e}")
+    except requests.exceptions.ConnectionError as e:
+        logger.debug(f"ConnectionError: {e}")
+    except requests.exceptions.RequestException as e:
+        logger.debug(f"RequestException: {e}")
+    except Exception as e:
+        logger.debug(f"An unexpected error occurred: {e}")
