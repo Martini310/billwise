@@ -431,7 +431,7 @@ def get_aquanet(user_pk: int, account_pk: int):
 
 
 
-get_aquanet(2, 11)
+# get_aquanet(2, 11)
 # get_aquanet(2, 15)
 
 def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoice_func, supplier):
