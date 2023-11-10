@@ -9,6 +9,7 @@ from requests.exceptions import RequestException, Timeout, ConnectionError
 from django.db import transaction
 import logging
 
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -245,36 +246,36 @@ def get_enea_invoices(session):
     return invoices
 
 
-def get_enea(user_pk, account_pk):
-    try:
-        user = NewUser.objects.get(pk=user_pk)
-        account = Account.objects.get(pk=account_pk)
+# def get_enea2(user_pk, account_pk):
+#     try:
+#         user = NewUser.objects.get(pk=user_pk)
+#         account = Account.objects.get(pk=account_pk)
 
-        logger.info("[get_enea] Rozpoczynam pobieranie danych z Enea użytkownika %s", user.user_name)
-        with requests.Session() as s:
-            login_to_enea(account, s)
-            invoices = get_enea_invoices(s)
-            invoice_objects = create_enea_invoice_objects(invoices, user, account)
+#         logger.info("[get_enea] Rozpoczynam pobieranie danych z Enea użytkownika %s", user.user_name)
+#         with requests.Session() as s:
+#             login_to_enea(account, s)
+#             invoices = get_enea_invoices(s)
+#             invoice_objects = create_enea_invoice_objects(invoices, user, account)
 
-        Invoice.objects.bulk_create(
-            [invoice for invoice
-            in invoice_objects
-            if not Invoice.objects.filter(number=invoice.number).exists()
-            ],
-        )
+#         Invoice.objects.bulk_create(
+#             [invoice for invoice
+#             in invoice_objects
+#             if not Invoice.objects.filter(number=invoice.number).exists()
+#             ],
+#         )
 
-        update_invoices_in_db(invoice_objects, user, 'enea')
+#         update_invoices_in_db(invoice_objects, user, 'enea')
 
-        logger.info("[get_enea] Zakończyłem pobieranie danych z Enea użytkownika %s", user.user_name)
+#         logger.info("[get_enea] Zakończyłem pobieranie danych z Enea użytkownika %s", user.user_name)
 
-    except Timeout as e:
-        logger.debug("[get_enea] Timeout: %s", e)
-    except ConnectionError as e:
-        logger.debug("[get_enea] ConnectionError: %s", e)
-    except RequestException as e:
-        logger.debug("[get_enea] RequestException: %s", e)
-    except Exception as e:
-        logger.debug("[get_enea] An unexpected error occurred: %s", e)
+#     except Timeout as e:
+#         logger.debug("[get_enea] Timeout: %s", e)
+#     except ConnectionError as e:
+#         logger.debug("[get_enea] ConnectionError: %s", e)
+#     except RequestException as e:
+#         logger.debug("[get_enea] RequestException: %s", e)
+#     except Exception as e:
+#         logger.debug("[get_enea] An unexpected error occurred: %s", e)
 
 
 #         # Get entry points
@@ -396,38 +397,38 @@ def create_aquanet_invoice_objects(invoices: list, user: object, account: object
 
 
 
-def get_aquanet(user_pk: int, account_pk: int):
-    try:
-        user = NewUser.objects.get(pk=user_pk)
-        account = Account.objects.get(pk=account_pk)
+# def get_aquanet2(user_pk: int, account_pk: int):
+#     try:
+#         user = NewUser.objects.get(pk=user_pk)
+#         account = Account.objects.get(pk=account_pk)
 
-        with requests.Session() as s:
+#         with requests.Session() as s:
 
-            login_to_aquanet(account, s)
-            invoices = get_aquanet_invoices(s)
+#             login_to_aquanet(account, s)
+#             invoices = get_aquanet_invoices(s)
 
-        invoice_objects = create_aquanet_invoice_objects(invoices, user, account)
+#         invoice_objects = create_aquanet_invoice_objects(invoices, user, account)
 
-        logger.info("Successfully fetched data from Aquanet")
+#         logger.info("Successfully fetched data from Aquanet")
 
-        Invoice.objects.bulk_create(
-            [invoice for invoice
-                in invoice_objects
-                if not Invoice.objects.filter(number=invoice.number).exists()
-            ],
-        )
-        logger.info("Succesfully saved new data in Database")
+#         Invoice.objects.bulk_create(
+#             [invoice for invoice
+#                 in invoice_objects
+#                 if not Invoice.objects.filter(number=invoice.number).exists()
+#             ],
+#         )
+#         logger.info("Succesfully saved new data in Database")
 
-        update_invoices_in_db(invoice_objects, user, 'aquanet')
+#         update_invoices_in_db(invoice_objects, user, 'aquanet')
 
-    except Timeout as e:
-        logger.debug("Timeout: %s", e)
-    except ConnectionError as e:
-        logger.debug("ConnectionError: %s", e)
-    except RequestException as e:
-        logger.debug("RequestException: %s", e)
-    except Exception as e:
-        logger.debug("An unexpected error occurred: %s", e, stack_info=True, stacklevel=True)
+#     except Timeout as e:
+#         logger.debug("Timeout: %s", e)
+#     except ConnectionError as e:
+#         logger.debug("ConnectionError: %s", e)
+#     except RequestException as e:
+#         logger.debug("RequestException: %s", e)
+#     except Exception as e:
+#         logger.debug("An unexpected error occurred: %s", e, stack_info=True, stacklevel=True)
 
 
 
@@ -439,7 +440,7 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         user = NewUser.objects.get(pk=user_pk)
         account = Account.objects.get(pk=account_pk)
 
-        logger.info(f"Starting to fetch data from {supplier} for user {user.user_name}")
+        logger.info(f"[{supplier.upper()}] Starting fetching data for user {user.user_name}")
 
         with requests.Session() as s:
             login_func(account, s)
@@ -455,8 +456,12 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
 
         update_invoices_in_db(invoice_objects, user, supplier)
 
-        logger.info(f"Finished fetching data from {supplier} for user {user.user_name}")
+        logger.info(f"[{supplier.upper()}] Finished fetching data for user {user.user_name}")
 
+    except NewUser.DoesNotExist:
+        logger.debug(f"User with pk {user_pk} does not exist")
+    except Account.DoesNotExist:
+        logger.debug(f"Account with pk {account_pk} does not exist")
     except requests.exceptions.Timeout as e:
         logger.debug(f"Timeout: {e}")
     except requests.exceptions.ConnectionError as e:
@@ -465,3 +470,15 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         logger.debug(f"RequestException: {e}")
     except Exception as e:
         logger.debug(f"An unexpected error occurred: {e}")
+
+
+def get_aquanet(user_pk, account_pk):
+    fetch_data(user_pk, account_pk, login_to_aquanet, get_aquanet_invoices, create_aquanet_invoice_objects, 'aquanet')
+
+def get_enea(user_pk, account_pk):
+    fetch_data(user_pk, account_pk, login_to_enea, get_enea_invoices, create_enea_invoice_objects, 'enea')
+
+
+# get_aquanet(2, 11)
+# get_enea(2, 13) # nieistniejące konto
+# get_enea(2, 10) # zły login
