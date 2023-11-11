@@ -16,6 +16,15 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 PGNIG_LOGIN_URL = "https://ebok.pgnig.pl/auth/login"
 PGNIG_INVOICES_URL = "https://ebok.pgnig.pl/crm/get-invoices-v2"
 PGNIG_API_VERSION = "3.0"
+PGNIG_HEADERS = {
+    'Accept': 'application/json',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Host': 'ebok.pgnig.pl',
+    'Origin': 'https://ebok.pgnig.pl',
+    'Referer': 'https://ebok.pgnig.pl/',
+    'Content-Type': 'application/x-www-form-urlencoded',
+}
+
 ENEA_LOGIN_URL = 'https://ebok.enea.pl/logowanie'
 ENEA_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
@@ -52,9 +61,9 @@ def update_invoices_in_db(invoices: list, user: object, supplier: str):
             Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
 
 
-def login_to_pgnig(account):
+def login_to_pgnig(account, session):
     logger.info("Starting login_to_pgnig()")
-    response = requests.post(
+    response = session.post(
         url=PGNIG_LOGIN_URL,
         data={
             'identificator': account.login,
@@ -63,41 +72,36 @@ def login_to_pgnig(account):
             'DeviceType': 'Web'
         },
         params={'api-version': PGNIG_API_VERSION},
-        headers={'Accept': 'application/json',
-                 'Accept-Encoding': 'gzip, deflate, br',
-                 'Host': 'ebok.pgnig.pl',
-                 'Origin': 'https://ebok.pgnig.pl',
-                 'Referer': 'https://ebok.pgnig.pl/',
-                 'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers=PGNIG_HEADERS,
         verify=False,
         timeout=5000,
     )
 
     response.raise_for_status()
     logger.info("Fetched token")
-    return response.json().get('Token')
+    token = response.json().get('Token')
+    session.headers.update({'AuthToken': token})
 
 
-def get_invoices(token):
-    logger.info("Staring get_invoices()")
+def get_pgnig_invoices(session):
+    logger.info("Starting get_pgnig_invoices()")
     # GET invoices on account - amount declared in 'pageSize'
-    get_invoices = requests.get(url=PGNIG_INVOICES_URL,
-                                params={'pageNumber': 1,
-                                        'api-version': 3.0,
-                                        'pageSize': 100,
-                                },
-                                headers={'AuthToken': token},
-                                verify=False,
-                                timeout=5000
-                                )
+    get_invoices = session.get(
+        url=PGNIG_INVOICES_URL,
+        params={
+            'pageNumber': 1,
+            'api-version': PGNIG_API_VERSION,
+            'pageSize': 100,
+        }
+    )
     logger.info("Finished get_invoices()")
+    logger.info(get_invoices.json()['InvoicesList'])
     return get_invoices.json()['InvoicesList']
 
 
-def create_invoice_objects(invoices, user, account):
-    logger.info("Staring create_invoice_objects()")
-    return [Invoice( number=invoice.get('Number'),
+def create_pgnig_invoice_objects(invoices, user, account):
+    logger.info("Starting create_pgnig_invoice_objects()")
+    return [Invoice(number=invoice.get('Number'),
                     date=datetime.fromisoformat(invoice.get('Date')[:-1]),
                     amount=invoice.get('GrossAmount'),
                     pay_deadline=datetime.fromisoformat(invoice.get('PayingDeadlineDate')[:-1]),
@@ -110,60 +114,7 @@ def create_invoice_objects(invoices, user, account):
                     consumption_point='test',
                     account=account,
                     category=account.category)
-        for invoice in invoices if
-        not Invoice.objects.filter(user=user, number=invoice.get('Number')).exists()]
-
-
-def update_invoice_objects(invoices, user):
-    logger.info("Staring update_invoice_objects()")
-    for invoice in invoices:
-        try:
-            db_invoice = Invoice.objects.filter(number=invoice.get('Number'), user=user).get() # get the invoice from the database
-            # check if the status or amount changed
-            if invoice.get('IsPaid') != db_invoice.is_paid or invoice.get('AmountToPay') != db_invoice.amount_to_pay or invoice.get('GrossAmount') != db_invoice.amount:
-                # if changes detected, update the invoice in the database
-                Invoice.objects.filter(number=invoice.get("Number"), user=user).update(is_paid=invoice.get('IsPaid'), amount_to_pay=invoice.get('AmountToPay'), amount=invoice.get('GrossAmount'))
-                logger.info(f"{invoice.get('Number')} - Updated")
-                print(f"{invoice.get('Number')} - Updated")
-            else:
-                print(f"{invoice.get('Number')} - No changes detected")
-        except Invoice.DoesNotExist:
-            logger.warning(f"Invoice {invoice.get('Number')} does not exist in the database.")
-            print(f"Invoice {invoice.get('Number')} does not exist in the database.")
-        except Exception as e:
-            logger.warning(f"An unexpected error occurred: {e}")
-            print(f"An unexpected error occurred: {e}")
-
-
-def get_pgnig(pk, account_pk):
-
-    user = NewUser.objects.get(pk=pk)
-    account = Account.objects.get(pk=account_pk)
-    
-    logger.info("Rozpoczynam pobieranie danych z PGNiG użytkownika %s", user.user_name)
-
-    try:
-        token = login_to_pgnig(account)
-        invoices = get_invoices(token)
-        invoice_instances = create_invoice_objects(invoices, user, account)
-        Invoice.objects.bulk_create(invoice_instances)
-        update_invoice_objects(invoice_instances, user)
-
-        logger.info("Zakończyłem pobieranie danych z PGNiG użytkownika %s", user.user_name)
-        print("Pobrałem PGNiG i zapisałem w DB..")
-
-    except Timeout as e:
-        logger.debug("Timeout: %s", e)
-    except ConnectionError as e:
-        logger.debug("ConnectionError: %s", e)
-    except RequestException as e:
-        logger.debug("RequestException: %s", e)
-    except Exception as e:
-        logger.debug("An unexpected error occurred: %s", e)
-
-
-# get_pgnig(2, 9)
-
+        for invoice in invoices]
 
 
 
@@ -220,7 +171,7 @@ def create_enea_invoice_objects(invoices: list, user: object, account: object) -
                         amount_to_pay=float(amount_to_pay.text.strip().rstrip('\xa0 zł').replace(',', '.')),
                         user=user,
                         is_paid=True if 'Zapłacona' in status.text.strip() else False,
-                        consumption_point='test',
+                        consumption_point=address.text.strip(),
                         account=account,
                         category=account.category))
         
@@ -241,56 +192,22 @@ def get_enea_invoices(session):
     # Find div with all invoices.
     invoices = soup.find_all('div', class_='datagrid-row-content')
 
-    # Find username and account number.
-    # user_data = soup.find('span', class_='navbar-user-info-name')
+    # Find transfer title and account number.
+    drop_down = soup.find('div', class_='dropdown-menu dropdown-menu-clear dropdown-content-account-details')
+    user_data = drop_down.find_all('p')
+
+    for p in user_data:
+        if 'Tytuł przelewu' in p.find('strong', class_='display-block').text:
+            transfer_title =  p.text.replace('Tytuł przelewu:', '').strip()
+        if 'Numer konta' in p.find('strong', class_='display-block').text:
+            account_number = p.text.replace('Numer konta:', '').strip()
+    print(transfer_title)
+    print(account_number)
     return invoices
 
 
-# def get_enea2(user_pk, account_pk):
-#     try:
-#         user = NewUser.objects.get(pk=user_pk)
-#         account = Account.objects.get(pk=account_pk)
-
-#         logger.info("[get_enea] Rozpoczynam pobieranie danych z Enea użytkownika %s", user.user_name)
-#         with requests.Session() as s:
-#             login_to_enea(account, s)
-#             invoices = get_enea_invoices(s)
-#             invoice_objects = create_enea_invoice_objects(invoices, user, account)
-
-#         Invoice.objects.bulk_create(
-#             [invoice for invoice
-#             in invoice_objects
-#             if not Invoice.objects.filter(number=invoice.number).exists()
-#             ],
-#         )
-
-#         update_invoices_in_db(invoice_objects, user, 'enea')
-
-#         logger.info("[get_enea] Zakończyłem pobieranie danych z Enea użytkownika %s", user.user_name)
-
-#     except Timeout as e:
-#         logger.debug("[get_enea] Timeout: %s", e)
-#     except ConnectionError as e:
-#         logger.debug("[get_enea] ConnectionError: %s", e)
-#     except RequestException as e:
-#         logger.debug("[get_enea] RequestException: %s", e)
-#     except Exception as e:
-#         logger.debug("[get_enea] An unexpected error occurred: %s", e)
 
 
-#         # Get entry points
-#         data = {'guid': '4218f3de-e608-e911-80de-005056b326a5', 'view': 'invoice'}
-        
-#         points = s.post('https://ebok.enea.pl/meter/readingHistoryPoints', data=data, headers=headers)
-        
-#         points_soup = BeautifulSoup(points.content, 'html.parser')
-#         all = points_soup.find_all('div', class_='datagrid-col datagrid-col-inovice-filter-points-addres')
-#         for point in all:
-#             a = point.find('span')
-#             print(a.text)
-
-# get_enea(2, 13) # nieistniejące konto
-# get_enea(2, 10) # zły login
 
 
 
@@ -337,11 +254,12 @@ def get_aquanet_invoices(session):
         if invoice and invoice[0].strip() != 'Brak danych':
             unpaid_invoices.append(invoice)
 
-    # Find all unpaid invoices
+    # Find all paid invoices
     paid_invoices = []
-    # Number of table pages
+    
     table_pages = soup.find('li', class_='last').find('a')
-    table_pages = table_pages['href'].lstrip('?page=')
+    table_pages = table_pages['href'].lstrip('?page=') # Number of table pages
+
     # For every table page find all rows with invoices and append to list
     for table_page in range(int(table_pages) + 1):
 
@@ -357,6 +275,14 @@ def get_aquanet_invoices(session):
 
         for tr in table_soup.find_all('tr')[1:11]:
             paid_invoices.append([td.text for td in tr.find_all('td') if td.text])
+
+    # Find bank account number
+    divs = soup.find_all('div', class_='form-field col-xs-6')
+    for div in divs:
+        if 'Numer konta' in div.find('span', class_='form-label').text:
+            account_number = div.find('strong').text.strip()
+            break
+    print(account_number)
 
     return [*paid_invoices, *unpaid_invoices]
 
@@ -397,44 +323,6 @@ def create_aquanet_invoice_objects(invoices: list, user: object, account: object
 
 
 
-# def get_aquanet2(user_pk: int, account_pk: int):
-#     try:
-#         user = NewUser.objects.get(pk=user_pk)
-#         account = Account.objects.get(pk=account_pk)
-
-#         with requests.Session() as s:
-
-#             login_to_aquanet(account, s)
-#             invoices = get_aquanet_invoices(s)
-
-#         invoice_objects = create_aquanet_invoice_objects(invoices, user, account)
-
-#         logger.info("Successfully fetched data from Aquanet")
-
-#         Invoice.objects.bulk_create(
-#             [invoice for invoice
-#                 in invoice_objects
-#                 if not Invoice.objects.filter(number=invoice.number).exists()
-#             ],
-#         )
-#         logger.info("Succesfully saved new data in Database")
-
-#         update_invoices_in_db(invoice_objects, user, 'aquanet')
-
-#     except Timeout as e:
-#         logger.debug("Timeout: %s", e)
-#     except ConnectionError as e:
-#         logger.debug("ConnectionError: %s", e)
-#     except RequestException as e:
-#         logger.debug("RequestException: %s", e)
-#     except Exception as e:
-#         logger.debug("An unexpected error occurred: %s", e, stack_info=True, stacklevel=True)
-
-
-
-# get_aquanet(2, 11)
-# get_aquanet(2, 15)
-
 def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoice_func, supplier):
     try:
         user = NewUser.objects.get(pk=user_pk)
@@ -450,7 +338,7 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         Invoice.objects.bulk_create(
             [invoice for invoice
                 in invoice_objects
-                if not Invoice.objects.filter(number=invoice.number).exists()
+                if not Invoice.objects.filter(number=invoice.number, user=user_pk).exists()
             ],
         )
 
@@ -472,13 +360,17 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         logger.debug(f"An unexpected error occurred: {e}")
 
 
-def get_aquanet(user_pk, account_pk):
+
+def get_aquanet(user_pk: int, account_pk: int):
     fetch_data(user_pk, account_pk, login_to_aquanet, get_aquanet_invoices, create_aquanet_invoice_objects, 'aquanet')
 
-def get_enea(user_pk, account_pk):
+def get_enea(user_pk: int, account_pk: int):
     fetch_data(user_pk, account_pk, login_to_enea, get_enea_invoices, create_enea_invoice_objects, 'enea')
 
+def get_pgnig(user_pk: int, account_pk: int):
+    fetch_data(user_pk, account_pk, login_to_pgnig, get_pgnig_invoices, create_pgnig_invoice_objects, 'pgnig')
 
-# get_aquanet(2, 11)
+get_aquanet(2, 11)
 # get_enea(2, 13) # nieistniejące konto
-# get_enea(2, 10) # zły login
+get_enea(2, 10) # zły login
+# get_pgnig(2, 9)
