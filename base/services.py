@@ -168,33 +168,6 @@ def login_to_enea(account, session, ):
     logger.info(f'[get_enea] Succesfull login to Enea')
 
 
-def create_enea_invoice_objects(invoices: list, user: object, account: object) -> list:
-    invoice_objects = []
-
-    for invoice in invoices:
-        date = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-date')
-        name = invoice.find('span', class_='font-semibold document-download-link link-dark-blue')
-        address = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-address')
-        payment_date = invoice.find('div',class_='datagrid-col datagrid-col-invoice-real-with-address-payment-date')
-        amount = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-value')
-        amount_to_pay = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
-        status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
-
-        invoice_objects.append(Invoice(
-                        number=name.text.strip(),
-                        date=datetime.strptime(date.text.strip(), "%d.%m.%Y"),
-                        amount=float(amount.text.strip().rstrip('\xa0 zł').replace(',', '.')),
-                        pay_deadline=datetime.strptime(payment_date.text.strip().split()[0], "%d.%m.%Y"),
-                        amount_to_pay=float(amount_to_pay.text.strip().rstrip('\xa0 zł').replace(',', '.')),
-                        user=user,
-                        is_paid=True if 'Zapłacona' in status.text.strip() else False,
-                        consumption_point=address.text.strip(),
-                        account=account,
-                        category=account.category))
-        
-    return invoice_objects
-
-
 def get_enea_invoices(session):
     invoice_payload = {
         'limit':200,
@@ -220,7 +193,43 @@ def get_enea_invoices(session):
             account_number = p.text.replace('Numer konta:', '').strip()
     print(transfer_title)
     print(account_number)
-    return invoices
+
+    return {'invoices': invoices,
+            'bank_account_number': account_number,
+            'transfer_title': transfer_title}
+
+
+def create_enea_invoice_objects(invoices: dict, user: object, account: object) -> list:
+    invoice_objects = []
+    bank_account_number = invoices.get('bank_account_number')
+    transfer_title = invoices.get('transfer_title')
+
+    for invoice in invoices.get('invoices'):
+        date = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-date')
+        name = invoice.find('span', class_='font-semibold document-download-link link-dark-blue')
+        address = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-address')
+        payment_date = invoice.find('div',class_='datagrid-col datagrid-col-invoice-real-with-address-payment-date')
+        amount = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-value')
+        amount_to_pay = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
+        status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
+
+        invoice_objects.append(Invoice(
+                        number=name.text.strip(),
+                        date=datetime.strptime(date.text.strip(), "%d.%m.%Y"),
+                        amount=float(amount.text.strip().rstrip('\xa0 zł').replace(',', '.')),
+                        pay_deadline=datetime.strptime(payment_date.text.strip().split()[0], "%d.%m.%Y"),
+                        amount_to_pay=float(amount_to_pay.text.strip().rstrip('\xa0 zł').replace(',', '.')),
+                        user=user,
+                        is_paid=True if 'Zapłacona' in status.text.strip() else False,
+                        consumption_point=address.text.strip(),
+                        account=account,
+                        category=account.category,
+                        bank_account_number=bank_account_number,
+                        transfer_title=transfer_title.replace('XX/XXX/XXXX', name.text.strip())))
+        
+    return invoice_objects
+
+
 
 
 
@@ -301,13 +310,13 @@ def get_aquanet_invoices(session):
             break
     print(account_number)
 
-    return [*paid_invoices, *unpaid_invoices]
+    return {'invoices': [*paid_invoices, *unpaid_invoices], 'bank_account_number': account_number}
 
 
-def create_aquanet_invoice_objects(invoices: list, user: object, account: object) -> list:
+def create_aquanet_invoice_objects(invoices: dict, user: object, account: object) -> list:
     invoice_objects = []
-    for invoice in invoices:
-        if len(invoice) > 1:
+    for invoice in invoices.get('invoices'):
+        if len(invoice) > 1: # skip empty rows
             date_pattern = re.compile(r'(\d{2}\.\d{2}\.\d{4}|\d{2}/\d{2}/\d{4})')
 
             dates = date_pattern.findall(invoice[2])
@@ -333,7 +342,9 @@ def create_aquanet_invoice_objects(invoices: list, user: object, account: object
                                     is_paid=len(invoice) == 6,
                                     consumption_point='Brak informacji',
                                     account=account,
-                                    category=account.category
+                                    category=account.category,
+                                    bank_account_number=invoices.get('bank_account_number'),
+                                    transfer_title=number
                                     ))
             
     return invoice_objects
