@@ -95,7 +95,15 @@ def get_pgnig_invoices(session):
         }
     )
     logger.info("Finished get_invoices()")
-    logger.info(get_invoices.json()['InvoicesList'])
+
+    get_entry_points = session.get('https://ebok.pgnig.pl/crm/get-ppg-list?api-version=3.0')
+    ppg_list = get_entry_points.json().get('PpgList')
+    addresses = dict()
+    for ppg in ppg_list:
+        ppg_number = ppg.get('IdLocal')
+        address = ppg.get('Address')
+        addresses[ppg_number] = f"{address.get('Ulica')} {address.get('NrBudynku')}/{address.get('NrLokalu')}, {address.get('KodPocztowy')} {address.get('Miejscowosc')}"
+    print(addresses)
     return get_invoices.json()['InvoicesList']
 
 
@@ -370,7 +378,7 @@ def get_enea(user_pk: int, account_pk: int):
 def get_pgnig(user_pk: int, account_pk: int):
     fetch_data(user_pk, account_pk, login_to_pgnig, get_pgnig_invoices, create_pgnig_invoice_objects, 'pgnig')
 
-get_aquanet(2, 11)
+# get_aquanet(2, 11)
 # get_enea(2, 13) # nieistniejące konto
-get_enea(2, 10) # zły login
+# get_enea(2, 10) # zły login
 # get_pgnig(2, 9)
