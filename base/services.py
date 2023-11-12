@@ -83,6 +83,18 @@ def login_to_pgnig(account, session):
     session.headers.update({'AuthToken': token})
 
 
+def get_pgnig_addresses(session):
+    get_entry_points = session.get('https://ebok.pgnig.pl/crm/get-ppg-list?api-version=3.0')
+    ppg_list = get_entry_points.json().get('PpgList')
+    addresses = dict()
+    for ppg in ppg_list:
+        ppg_number = ppg.get('IdLocal')
+        address = ppg.get('Address')
+        addresses[ppg_number] = f"{address.get('Ulica')} {address.get('NrBudynku')}/{address.get('NrLokalu')}, {address.get('KodPocztowy')} {address.get('Miejscowosc')}"
+    logger.info("Finished get_pgnig_adresses()")
+    return addresses
+
+
 def get_pgnig_invoices(session):
     logger.info("Starting get_pgnig_invoices()")
     # GET invoices on account - amount declared in 'pageSize'
@@ -94,17 +106,12 @@ def get_pgnig_invoices(session):
             'pageSize': 100,
         }
     )
-    logger.info("Finished get_invoices()")
 
-    get_entry_points = session.get('https://ebok.pgnig.pl/crm/get-ppg-list?api-version=3.0')
-    ppg_list = get_entry_points.json().get('PpgList')
-    addresses = dict()
-    for ppg in ppg_list:
-        ppg_number = ppg.get('IdLocal')
-        address = ppg.get('Address')
-        addresses[ppg_number] = f"{address.get('Ulica')} {address.get('NrBudynku')}/{address.get('NrLokalu')}, {address.get('KodPocztowy')} {address.get('Miejscowosc')}"
-    print(addresses)
-    return get_invoices.json()['InvoicesList']
+    invoices = get_invoices.json()['InvoicesList']
+    addresses = get_pgnig_addresses(session)
+    logger.info("Finished get_pgnig_invoices()")
+
+    return {'invoices': invoices, 'addresses': addresses}
 
 
 def create_pgnig_invoice_objects(invoices, user, account):
@@ -119,10 +126,12 @@ def create_pgnig_invoice_objects(invoices, user, account):
                     wear=invoice.get('WearKWH'),
                     user=user,
                     is_paid=invoice.get('IsPaid'),
-                    consumption_point='test',
+                    consumption_point=invoices.get('addresses').get(invoice.get('IdPP')),
                     account=account,
-                    category=account.category)
-        for invoice in invoices]
+                    category=account.category,
+                    bank_account_number=invoice.get('Iban'),
+                    transfer_title=invoice.get('Number'),)
+        for invoice in invoices.get('invoices')]
 
 
 

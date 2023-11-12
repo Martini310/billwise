@@ -44,7 +44,9 @@ class Invoice(models.Model):
     consumption_point = models.CharField(max_length=100, null=True, blank=True)
     account = models.ForeignKey(to=Account, on_delete=models.CASCADE, null=True, blank=True)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
-    
+    bank_account_number = models.CharField(max_length=32, null=True, blank=True)
+    transfer_title = models.CharField(max_length=100, null=True, blank=True)
+
     def __str__(self):
         return f"[id:{self.pk}] Faktura nr {self.number} za {self.category} dla użytkownika {self.user.user_name}"
 
