@@ -4,7 +4,7 @@ from base.models import Account, Category, Invoice, Supplier
 
 User = get_user_model()
 
-# Register Serializer
+
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -54,7 +54,12 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 'end_date', 'amount_to_pay', 'wear', 'is_paid', 'consumption_point', 'account', 'category']
+        fields = ['number', 'date', 'amount', 
+                  'pay_deadline', 'start_date', 
+                  'end_date', 'amount_to_pay', 
+                  'wear', 'is_paid', 'consumption_point', 
+                  'account', 'category', 'bank_account_number', 
+                  'transfer_title']
 
 
 class PostInvoiceSerializer(serializers.ModelSerializer):

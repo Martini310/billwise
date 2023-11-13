@@ -1,9 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import PropTypes from 'prop-types';
 import { Unstable_Grid2 as Grid } from '@mui/material';
 import Divider from '@mui/material/Divider';
 
@@ -31,7 +29,9 @@ const verboseNames = {
   amount_to_pay: 'Do zapłaty',
   wear: 'Zużycie',
   is_paid: 'Status',
-  consumption_point: 'Miejsce poboru'
+  consumption_point: 'Miejsce poboru',
+  bank_account_number: 'Numer konta',
+  transfer_title: 'Tytuł przelewu'
   // Add more key-verboseName pairs here
 };
 
