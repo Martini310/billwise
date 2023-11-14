@@ -29,5 +29,6 @@ def scheduled_get_data():
         for account in accounts:
             fetch_data = fetch_data_functions.get(account.supplier.name)
             fetch_data(account.user.id, account.pk)
+            account.save()
         return "Database synchronized"
     

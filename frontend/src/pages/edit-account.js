@@ -6,6 +6,7 @@ import { AccountProfileDetails } from 'src/sections/edit-account/account-profile
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
+import axios from 'axios';
 
 
 const Page = () => {
@@ -19,28 +20,17 @@ const Page = () => {
 
   // Fetch user accounts
   useEffect(() => {
-      axiosInstance
-        .get('accounts/' + accountId)
-        .then((res) => {
-          setAccount(res.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-  }, [setAccount]);
+    axios.all([
+      axiosInstance.get('accounts/' + accountId),
+      axiosInstance.get('category/')
+    ])
+    .then(axios.spread((accountsResponse, categoriesResponse) => {
+      setAccount(accountsResponse.data);
+      setCategories(categoriesResponse.data);
+    }, [setAccount, setCategories]
+    ))
+  })
 
-  // Fetch Categories and create array with category names
-  useEffect(() => {
-    axiosInstance.get('category/')
-      .then((res) => {
-        const categories = res.data;
-        // let categoryNames = [];
-        // categories.forEach((category) => 
-        //   categoryNames.push(category.name))
-        // setCategories(categoryNames);
-        setCategories(categories);
-    });
-  }, [setCategories]);
 
   return (
   <>
