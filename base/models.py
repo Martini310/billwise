@@ -25,7 +25,8 @@ class Account(models.Model):
     password = models.CharField(max_length=100)
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
-
+    last_sync = models.DateTimeField("Ostatnia aktualizacja", auto_now=True)
+    
     def __str__(self):
         return f"[id:{self.pk}] Konto w {self.supplier.name} użytkownika {self.user.user_name}"
 

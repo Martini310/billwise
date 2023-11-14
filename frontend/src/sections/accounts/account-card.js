@@ -45,7 +45,14 @@ export const AccountCard = (props) => {
           align="center"
           variant="body1"
         >
-          {account.supplier['url']}
+          {account.supplier['url']}  
+        </Typography>
+        <Typography
+          color="text.secondary"
+          variant="body2"
+          align="center"
+        >
+          {account.last_sync}
         </Typography>
       </CardContent></CardActionArea></Link>
       <Box sx={{ flexGrow: 1 }} />

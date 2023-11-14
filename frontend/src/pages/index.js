@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { Box, Container, Unstable_Grid2 as Grid } from '@mui/material';
+import { Box, Container, Unstable_Grid2 as Grid, Typography } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { OverviewNewestPayment } from 'src/sections/overview/overview-newest-payment';
 import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-chart';
@@ -40,6 +40,7 @@ const Page = () => {
 
   const [invoices, setInvoices] = useState([])
   const [categories, setCategories] = useState([])
+  const [lastSync, setLastSync] = useState()
 
   const [currentYearAmounts, setCurrentYearAmounts] = useState([]);
   const [previousYearAmounts, setPreviousYearAmounts] = useState([]);
@@ -74,9 +75,10 @@ const Page = () => {
       useEffect(() => {
         axios.all([
           axiosInstance.get('invoices/'),
-          axiosInstance.get('category/')
+          axiosInstance.get('category/'),
+          axiosInstance.get('accounts/')
         ])
-        .then(axios.spread((invoicesResponse, categoriesResponse) => {
+        .then(axios.spread((invoicesResponse, categoriesResponse, accountsResponse) => {
           
           // Response from invoices/
           setInvoices(invoicesResponse.data);
@@ -87,6 +89,23 @@ const Page = () => {
           const categories = categoriesResponse.data;
           const categoryNames = categories.map((category) => category.name);
           setCategories(categoryNames);
+
+          const date = new Date(accountsResponse.data[0].last_sync);
+
+          let year = date.getFullYear();
+          let month = date.getMonth() + 1;
+          let day = date.getDate();
+          let hours = date.getHours();
+          let minutes = date.getMinutes();
+          let seconds = date.getSeconds();
+
+          month = month.toString().padStart(2, '0');
+          day = day.toString().padStart(2, '0');
+          hours = hours.toString().padStart(2, '0');
+          minutes = minutes.toString().padStart(2, '0');
+          seconds = seconds.toString().padStart(2, '0');
+
+          setLastSync(`${year}-${month}-${day} ${hours}:${minutes}:${seconds}`)
           driverObj.drive();
         }
     ))
@@ -198,6 +217,13 @@ const Page = () => {
             xs={12}
             lg={8}
           >
+            <Typography
+              color="text.secondary"
+              variant="body2"
+            >
+              Ostatnia synchronizacja: {lastSync}
+            </Typography>
+
             <MonthlyChartLoading isLoading={appState.loading} 
               chartSeries={[
                 {

@@ -18,6 +18,7 @@ def sync_accounts_task(user_pk):
         for account in accounts:
             fetch = fetch_data_functions.get(account.supplier.name)
             fetch(user_pk, account.pk)
+            account.save()
         return "User data synchronized"
         # return sync_accounts(user_pk)
 
