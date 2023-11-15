@@ -4,6 +4,7 @@ import TagIcon from '@heroicons/react/24/solid/TagIcon';
 import { Avatar, Box, Card, CardContent, Divider, Stack, SvgIcon, Typography } from '@mui/material';
 import { CardActionArea } from '@mui/material';
 import Link from 'next/link';
+import { formatDatetime } from 'src/utils/format-datetime';
 
 
 export const AccountCard = (props) => {
@@ -52,7 +53,7 @@ export const AccountCard = (props) => {
           variant="body2"
           align="center"
         >
-          {account.last_sync}
+          {formatDatetime(new Date(account.last_sync))}
         </Typography>
       </CardContent></CardActionArea></Link>
       <Box sx={{ flexGrow: 1 }} />

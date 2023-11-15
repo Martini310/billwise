@@ -7,15 +7,17 @@ import { OverviewPaidPercentage } from 'src/sections/overview/overview-paid-perc
 import { OverviewCurrentMonth } from 'src/sections/overview/overview-current-month';
 import { OverviewNextPayment } from 'src/sections/overview/overview-next-payment';
 import { OverviewCategoriesChart } from 'src/sections/overview/overview-categories-chart';
+import EnhancedTable from 'src/sections/overview/overview-latest-payments';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { axiosInstance } from 'src/utils/axios';
 import { withComponentLoading } from 'src/utils/componentLoading';
-import { useRouter } from 'next/router';
 import { SumAndSortInvoices } from 'src/utils/parse-invoices';
 import axios from 'axios';
-import EnhancedTable from 'src/sections/overview/overview-latest-payments';
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import { formatDatetime } from 'src/utils/format-datetime';
+
 
 const driverObj = driver({
   showProgress: true,
@@ -82,7 +84,7 @@ const Page = () => {
           
           // Response from invoices/
           setInvoices(invoicesResponse.data);
-          if (invoicesResponse.data.length === 0)
+          if (invoicesResponse.data.length === 0) // Disble loading if no data
           {setAppState({ ...appState, loading: false });};
           
           // Response from category/
@@ -91,24 +93,12 @@ const Page = () => {
           setCategories(categoryNames);
 
           const date = new Date(accountsResponse.data[0].last_sync);
+          const formatedDate = formatDatetime(date);
+          setLastSync(formatedDate)
 
-          let year = date.getFullYear();
-          let month = date.getMonth() + 1;
-          let day = date.getDate();
-          let hours = date.getHours();
-          let minutes = date.getMinutes();
-          let seconds = date.getSeconds();
-
-          month = month.toString().padStart(2, '0');
-          day = day.toString().padStart(2, '0');
-          hours = hours.toString().padStart(2, '0');
-          minutes = minutes.toString().padStart(2, '0');
-          seconds = seconds.toString().padStart(2, '0');
-
-          setLastSync(`${year}-${month}-${day} ${hours}:${minutes}:${seconds}`)
           driverObj.drive();
-        }
-    ))
+        }))
+        .catch((err) => console.log(err))
   }, [setInvoices, setCategories, setAppState]
   )
 
@@ -125,7 +115,7 @@ const Page = () => {
         paidInvoices,
         unpaidInvoices,
         monthDifference,
-       ] = SumAndSortInvoices(invoices, categories);
+      ] = SumAndSortInvoices(invoices, categories);
 
       // Update the state variables with the calculated data
       setCurrentYearAmounts(currentYearAmounts);
