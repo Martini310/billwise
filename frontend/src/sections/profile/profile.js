@@ -20,7 +20,7 @@ const avatar = '/assets/avatars/avatar-anika-visser.png'
 //   timezone: 'GTM-7'
 // };
 
-export const AccountProfile = (props) => {
+export const Profile = (props) => {
   const { user } = props;
   
   return (

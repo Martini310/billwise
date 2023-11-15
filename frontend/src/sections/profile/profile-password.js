@@ -18,7 +18,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 
-export const AccountProfilePassword = () => {
+export const ProfilePassword = () => {
 
   const router = useRouter()
   const [passwords, setPasswords] = useState({

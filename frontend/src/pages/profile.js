@@ -1,9 +1,9 @@
 import Head from 'next/head';
 import { Box, Container, Stack, Typography, Unstable_Grid2 as Grid } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
-import { AccountProfile } from 'src/sections/account/account-profile';
-import { AccountProfileDetails } from 'src/sections/account/account-profile-details';
-import { AccountProfilePassword } from 'src/sections/account/account-profile-password';
+import { Profile } from 'src/sections/profile/profile';
+import { ProfileDetails } from 'src/sections/profile/profile-details';
+import { ProfilePassword } from 'src/sections/profile/profile-password';
 import { useState, useEffect } from 'react';
 import { withComponentLoading } from 'src/utils/componentLoading';
 import { axiosInstance } from 'src/utils/axios';
@@ -13,8 +13,8 @@ const Page = () => {
 
   const user_pk = Cookies.get('id');
   
-  const AccountProfileLoading = withComponentLoading(AccountProfile);
-  const AccountProfileDetailsLoading = withComponentLoading(AccountProfileDetails);
+  const ProfileLoading = withComponentLoading(Profile);
+  const ProfileDetailsLoading = withComponentLoading(ProfileDetails);
   
   const [profileDetails, setProfileDetails] = useState();
   const [appState, setAppState] = useState({loading: true});
@@ -62,7 +62,7 @@ const Page = () => {
                   md={6}
                   lg={4}
                 >
-                  <AccountProfileLoading 
+                  <ProfileLoading 
                     isLoading={appState.loading}
                     user={profileDetails}
                     />
@@ -72,7 +72,7 @@ const Page = () => {
                   md={6}
                   lg={8}
                 >
-                  <AccountProfileDetailsLoading 
+                  <ProfileDetailsLoading 
                     isLoading={appState.loading}
                     user={profileDetails}
                     id={user_pk}
@@ -83,7 +83,7 @@ const Page = () => {
                   md={6}
                   lg={12}
                 >
-                  <AccountProfilePassword />
+                  <ProfilePassword />
                 </Grid>
               </Grid>
             </div>

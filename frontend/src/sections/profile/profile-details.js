@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 
 
-export const AccountProfileDetails = (props) => {
+export const ProfileDetails = (props) => {
 
   const { user, id } = props 
   
