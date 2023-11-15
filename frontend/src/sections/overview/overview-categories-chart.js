@@ -4,7 +4,7 @@ import DeviceTabletIcon from '@heroicons/react/24/solid/DeviceTabletIcon';
 import PhoneIcon from '@heroicons/react/24/solid/PhoneIcon';
 import BoltIcon from '@heroicons/react/24/solid/BoltIcon';
 import FireIcon from '@heroicons/react/24/solid/FireIcon';
-import CloudIcon from '@heroicons/react/24/solid/CloudIcon';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import {
   Box,
   Card,
@@ -74,7 +74,7 @@ const iconMap = {
   ),
   Woda: (
     <SvgIcon>
-      <CloudIcon />
+      <WaterDropIcon />
     </SvgIcon>
   ),
   Prąd: (
