@@ -53,7 +53,7 @@ export const AccountCard = (props) => {
           variant="body2"
           align="center"
         >
-          {formatDatetime(new Date(account.last_sync))}
+          zaktualizowano {formatDatetime(new Date(account.last_sync))}
         </Typography>
       </CardContent></CardActionArea></Link>
       <Box sx={{ flexGrow: 1 }} />
