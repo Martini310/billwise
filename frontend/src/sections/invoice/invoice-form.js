@@ -27,6 +27,8 @@ export const InvoiceForm = () => {
     user: Cookies.get('id'),
     is_paid: false,
     consumption_point: '',
+    bank_account_number: '',
+    transfer_title: ''
   });
 
   const [categories, setCategories] = useState();
@@ -71,8 +73,8 @@ export const InvoiceForm = () => {
     <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader
-          subheader="i zatwierdź"
           title="Wypełnij pola"
+          subheader="i zatwierdź"
         />
         <Divider />
         <CardContent>
@@ -191,6 +193,20 @@ export const InvoiceForm = () => {
               name="consumption_point"
               onChange={handleChange}
               value={values.consumption_point}
+            />
+            <TextField
+              fullWidth
+              label="Numer konta"
+              name="bank_account_number"
+              onChange={handleChange}
+              value={values.bank_account_number}
+            />
+            <TextField
+              fullWidth
+              label="Tytuł przelewu"
+              name="transfer_title"
+              onChange={handleChange}
+              value={values.transfer_title}
             />
           </Stack>
         </CardContent>
