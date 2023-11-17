@@ -71,6 +71,17 @@ export const createTypography = () => {
       fontWeight: 700,
       fontSize: '1.125rem',
       lineHeight: 1.2
-    }
+    },
+    modalkey: {
+      fontSize: '0.875rem',
+      fontWeight: 700,
+      lineHeight: 1.3
+    },
+    modalvalue: {
+      fontSize: '0.75rem',
+      fontWeight: 600,
+      letterSpacing: '0.5px',
+      lineHeight: 1.3,
+    },
   };
 };

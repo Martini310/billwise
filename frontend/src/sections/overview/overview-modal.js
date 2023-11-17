@@ -11,7 +11,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 500,
+  width: 400,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -46,7 +46,7 @@ export const BasicModal = (props) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ mb: 3 }}>
             Szczegóły faktury
           </Typography>
           <Grid
@@ -82,20 +82,20 @@ export const BasicModal = (props) => {
               return (
                 <React.Fragment key={key}>
                   <Grid xs={12} md={6}>
-                    <Typography id="modal-modal-key" sx={{ mt: 2 }}>
+                    <Typography variant='modalkey' id="modal-modal-key" sx={{ mt: 2 }}>
                         {verboseName}
                     </Typography>
                   </Grid>
                   <Grid xs={12} md={6}>
-                    <Typography id="modal-modal-value" sx={{ mt: 2 }}>
+                    <Typography variant='modalvalue' id="modal-modal-value" sx={{ mt: 2 }}>
                         {displayValue}
                     </Typography>
                   </Grid>
                   <Grid xs={12} md={6}>
-                    <Divider variant="middle" />
+                    <Divider variant="fullWidth" sx={{ borderBottom: '1px solid lightgrey' }}/>
                   </Grid>
                   <Grid xs={12} md={6}>
-                    <Divider variant="middle" />
+                    <Divider variant="fullWidth" sx={{ borderBottom: '1px solid lightgrey' }}/>
                   </Grid>
                 </React.Fragment>
               )
