@@ -11,11 +11,11 @@ import axios from 'axios';
 
 const Page = () => {
 
-  const router = useRouter(); // Use the useRouter hook
+  const router = useRouter();
   const { accountId } = router.query; // Get the accountId query parameter
 
   const [account, setAccount] = useState(null)
-  
+
   const [categories, setCategories] = useState([])
 
   // Fetch user accounts
@@ -27,16 +27,16 @@ const Page = () => {
     .then(axios.spread((accountsResponse, categoriesResponse) => {
       setAccount(accountsResponse.data);
       setCategories(categoriesResponse.data);
-    }, [setAccount, setCategories]
-    ))
-  })
+    }))
+  }, []
+  )
 
 
   return (
   <>
     <Head>
       <title>
-        Account | Devias Kit
+        Edycja konta | Billwise
       </title>
     </Head>
     <Box
@@ -79,7 +79,7 @@ const Page = () => {
     </Box>
   </>
   )
-}  ;
+};
 
 Page.getLayout = (page) => (
   <DashboardLayout>

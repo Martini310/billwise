@@ -43,10 +43,11 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      const post_link = `accounts/${post.id}/`;
       delete post.supplier;
-      if (typeof post.category === 'object') (delete post.category); // if category not edited remove it from post request
-      axiosInstance.patch(post_link, post)
+      delete post.last_sync;
+      if (typeof post.category === 'object') 
+        (delete post.category); // if category not edited remove it from post request
+      axiosInstance.patch(`accounts/${post.id}/`, post)
         .then((res) => {
           console.log(res);
           router.push("/accounts/");
@@ -58,8 +59,7 @@ export const AccountProfileDetails = (props) => {
   const handleDelete = useCallback(
     (event) => {
       event.preventDefault();
-      const link = `accounts/${account.id}/`;
-      axiosInstance.delete(link)
+      axiosInstance.delete(`accounts/${account.id}/`)
         .then((res) => {
           console.log(res);
           router.push("/accounts/");
@@ -92,7 +92,7 @@ export const AccountProfileDetails = (props) => {
               >
                 <TextField
                   fullWidth
-                  helperText="Please specify your login"
+                  helperText="Podaj swój login"
                   label="Login"
                   name="login"
                   onChange={handleChange}
@@ -106,7 +106,7 @@ export const AccountProfileDetails = (props) => {
               >
                 <TextField
                   fullWidth
-                  label="Password"
+                  label="Hasło"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   onChange={handleChange}
