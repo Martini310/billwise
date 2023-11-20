@@ -9,14 +9,14 @@ export function createPalette() {
       disabled: alpha(neutral[900], 0.38),
       disabledBackground: alpha(neutral[900], 0.12),
       focus: alpha(neutral[900], 0.16),
-      hover: alpha(neutral[900], 0.04),
+      hover: alpha(neutral[900], 0.08),
       selected: alpha(neutral[900], 0.12)
     },
     background: {
-      default: common.white,
+      default: '#f7f4e9',
       paper: common.white
     },
-    divider: '#F2F4F7',
+    divider: '#e6e7e8',
     error,
     info,
     mode: 'light',
