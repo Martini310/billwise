@@ -207,7 +207,6 @@ const Page = () => {
             />
           </Grid>
           <Grid
-            className='overview-monthly-chart'
             xs={12}
             lg={12}
             sx={{ py: 0 }}

@@ -213,8 +213,8 @@ export default function EnhancedTable(props) {
           </Button>
         </Box>
       </Card>
-      <Paper sx={{ width: '100%', mb: 2 }}>
-        <TableContainer>
+      <Paper sx={{ width: '100%', mb: 2, borderRadius: '30px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.15)' }}>
+        <TableContainer sx={{ width: '100%', mb: 2, borderRadius: '20px'}}>
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
@@ -265,12 +265,12 @@ export default function EnhancedTable(props) {
                 );
               })}
               {selectedOrder && (
-                 <BasicModal
+                <BasicModal
                    open={true} // Pass an open prop to control the modal's visibility
                    order={selectedOrder} // Pass the selected order as a prop
                    onClose={() => setSelectedOrder(null)} // Close the modal when needed
-                 />
-               )}
+                />
+              )}
               {emptyRows > 0 && (
                 <TableRow                >
                   <TableCell colSpan={6} />

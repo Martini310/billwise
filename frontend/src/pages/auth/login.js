@@ -7,7 +7,6 @@ import {
   Alert,
   Box,
   Button,
-  FormHelperText,
   Link,
   Stack,
   Tab,
@@ -42,11 +41,11 @@ const Page = () => {
     }),
 
     onSubmit: async (values, helpers) => {
-      let error; // Declare the error variable here
+      let error;
     
       try {
-        error = await auth.signIn(values.email, values.password); // Assign the value within the try block
-        console.log('Error from signIn:', error); // Check the error here
+        error = await auth.signIn(values.email, values.password);
+        console.log('Error from signIn:', error);
         if (error) {
           helpers.setStatus({ success: false });
           helpers.setErrors({ submit: error });
@@ -98,13 +97,13 @@ const Page = () => {
               sx={{ mb: 3 }}
             >
               <Typography variant="h4">
-                Login
+                Logowanie
               </Typography>
               <Typography
                 color="text.secondary"
                 variant="body2"
               >
-                Don&apos;t have an account?
+                Nie masz jeszcze konta?
                 &nbsp;
                 <Link
                   component={NextLink}
@@ -112,7 +111,7 @@ const Page = () => {
                   underline="hover"
                   variant="subtitle2"
                 >
-                  Register
+                  Zarejestruj się
                 </Link>
               </Typography>
             </Stack>
@@ -126,7 +125,7 @@ const Page = () => {
                 value="email"
               />
               <Tab
-                label="Phone Number"
+                label="Numer telefonu"
                 value="phoneNumber"
               />
             </Tabs>
@@ -140,7 +139,7 @@ const Page = () => {
                     error={!!(formik.touched.email && formik.errors.email)}
                     fullWidth
                     helperText={formik.touched.email && formik.errors.email}
-                    label="Email Address"
+                    label="Email"
                     name="email"
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange}
@@ -151,7 +150,7 @@ const Page = () => {
                     error={!!(formik.touched.password && formik.errors.password)}
                     fullWidth
                     helperText={formik.touched.password && formik.errors.password}
-                    label="Password"
+                    label="Hasło"
                     name="password"
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange}
@@ -175,7 +174,7 @@ const Page = () => {
                   type="submit"
                   variant="contained"
                 >
-                  Continue
+                  Zaloguj
                 </Button>
                 <Alert
                   color="primary"
@@ -194,10 +193,10 @@ const Page = () => {
                   sx={{ mb: 1 }}
                   variant="h6"
                 >
-                  Not available in the demo
+                  Ta usługa nie jest jeszcze dostępna
                 </Typography>
                 <Typography color="text.secondary">
-                  To prevent unnecessary costs we disabled this feature in the demo.
+                  Pracujemy nad tym, aby uruchomić ją jak najszybciej
                 </Typography>
               </div>
             )}
