@@ -28,7 +28,7 @@ class Account(models.Model):
     last_sync = models.DateTimeField("Ostatnia aktualizacja", auto_now=True)
     
     def __str__(self):
-        return f"[id:{self.pk}] Konto w {self.supplier.name} użytkownika {self.user.user_name}"
+        return f"[id:{self.pk}] Konto w {self.supplier.name} użytkownika {self.user.username}"
 
 
 class Invoice(models.Model):
@@ -49,7 +49,7 @@ class Invoice(models.Model):
     transfer_title = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        return f"[id:{self.pk}] Faktura nr {self.number} za {self.category} dla użytkownika {self.user.user_name}"
+        return f"[id:{self.pk}] Faktura nr {self.number} za {self.category} dla użytkownika {self.user.username}"
 
     class Meta:
         ordering = ['-date']

@@ -356,7 +356,7 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         user = NewUser.objects.get(pk=user_pk)
         account = Account.objects.get(pk=account_pk)
 
-        logger.info(f"[{supplier.upper()}] Starting fetching data for user {user.user_name}")
+        logger.info(f"[{supplier.upper()}] Starting fetching data for user {user.username}")
 
         with requests.Session() as s:
             login_func(account, s)
@@ -372,7 +372,7 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
 
         update_invoices_in_db(invoice_objects, user, supplier)
 
-        logger.info(f"[{supplier.upper()}] Finished fetching data for user {user.user_name}")
+        logger.info(f"[{supplier.upper()}] Finished fetching data for user {user.username}")
 
     except NewUser.DoesNotExist:
         logger.debug(f"User with pk {user_pk} does not exist")

@@ -9,7 +9,7 @@ client = APIClient()
 def test_register_user():
     payload = {
         'first_name': 'testuser',
-        'user_name': 'testusername',
+        'username': 'testusername',
         'email': 'test@user.com',
         'password': 'password'
     }
@@ -19,6 +19,6 @@ def test_register_user():
 
     assert response.status_code == status.HTTP_201_CREATED
     assert data['first_name'] == payload['first_name']
-    assert data['user_name'] == payload['user_name']
+    assert data['username'] == payload['username']
     assert data['email'] == payload['email']
     assert 'password' not in data

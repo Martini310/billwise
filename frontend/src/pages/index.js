@@ -92,10 +92,14 @@ const Page = () => {
           const categoryNames = categories.map((category) => category.name);
           setCategories(categoryNames);
 
-          const date = new Date(accountsResponse.data[0].last_sync);
-          const formatedDate = formatDatetime(date);
-          setLastSync(formatedDate)
+          // Set Last Sync Date
+          const date = new Date(accountsResponse.data[0]?.last_sync);
+          const formatedDate = Number.isNaN(date.getTime())
+            ? 'Dodaj konto, aby zsynchronizować dane.'
+            : formatDatetime(date);
+          setLastSync(formatedDate);
 
+          // Animated tour
           driverObj.drive();
         }))
         .catch((err) => console.log(err))
@@ -205,7 +209,8 @@ const Page = () => {
           <Grid
             className='overview-monthly-chart'
             xs={12}
-            lg={8}
+            lg={12}
+            sx={{ py: 0 }}
           >
             <Typography
               color="text.secondary"
@@ -213,7 +218,12 @@ const Page = () => {
             >
               Ostatnia synchronizacja: {lastSync}
             </Typography>
-
+          </Grid>
+          <Grid
+            className='overview-monthly-chart'
+            xs={12}
+            lg={8}
+          >
             <MonthlyChartLoading isLoading={appState.loading} 
               chartSeries={[
                 {

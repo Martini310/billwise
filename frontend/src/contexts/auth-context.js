@@ -165,18 +165,44 @@ export const AuthProvider = (props) => {
 
   const signUp = async (email, username, name, password) => {
 
-    axiosInstance
-      .post(`user/register/`, {
-        email: email,
-        user_name: username,
-        first_name: name,
-        password: password,
-      })
-      .then((res) => {
-        console.log(res);
-        console.log(res.data);
-      });
-  };
+  //   axiosInstance
+  //     .post(`user/register/`, {
+  //       email: email,
+  //       username: username,
+  //       first_name: name,
+  //       password: password,
+  //     })
+  //     .then((res) => {
+  //       console.log(res);
+  //       console.log(res.data);
+  //     });
+  // };
+  try {
+    const response = await axiosInstance.post(`user/register/`, {
+      email: email,
+      username: username,
+      first_name: name,
+      password: password,
+    });
+    console.log(response)
+    // Check if the response contains the access token
+    if (response.status === 201) {
+
+      console.log(response.data)
+
+      // Redirect the user or perform other actions as needed
+      router.push('/auth/login');
+
+    } else {
+      // Handle error: Unable to retrieve access token
+      console.error('Some error');
+    }
+  } catch (error) {
+    // Handle authentication error
+    console.error('Registration failed:', error);
+    return error.response.data
+  }
+};
 
   const signOut = () => {
         axiosInstance.post('user/logout/blacklist/', {

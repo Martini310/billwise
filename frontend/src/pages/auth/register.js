@@ -37,13 +37,33 @@ const Page = () => {
         .max(255)
         .required('Password is required')
     }),
+    // onSubmit: async (values, helpers) => {
+    //   try {
+    //     await auth.signUp(values.email, values.username, values.name, values.password);
+    //     router.push('/');
+    //   } catch (err) {
+    //     helpers.setStatus({ success: false });
+    //     helpers.setErrors({ submit: err.message });
+    //     helpers.setSubmitting(false);
+    //   }
+    // }
+  // });
+
     onSubmit: async (values, helpers) => {
+      let error; // Declare the error variable here
+    
       try {
-        await auth.signUp(values.email, values.username, values.name, values.password);
-        router.push('/');
+        error = await auth.signUp(values.email, values.username, values.name, values.password);
+        console.log('Error from signUp:', error); // Check the error here
+        if (error) {
+          helpers.setStatus({ success: false });
+          helpers.setErrors(error);
+          helpers.setSubmitting(false);
+        }
       } catch (err) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
+        helpers.setErrors({ submit: err });
         helpers.setSubmitting(false);
       }
     }
