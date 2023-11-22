@@ -22,3 +22,30 @@ def test_register_user():
     assert data['username'] == payload['username']
     assert data['email'] == payload['email']
     assert 'password' not in data
+
+@pytest.mark.django_db
+def test_login_user():
+    payload = {
+        'first_name': 'testuser',
+        'username': 'testusername',
+        'email': 'test@user.com',
+        'password': 'password'
+    }
+
+    client.post('/api/user/register/', payload)
+
+    response = client.post('/api/token/', data={'email': 'test@user.com', 'password': 'password'})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert 'access' in response.data
+    assert 'refresh' in response.data
+    assert response.data['username'] == 'testusername'
+    assert response.data['id'] == 1
+
+@pytest.mark.django_db
+def test_login_user_fail():
+
+    response = client.post('/api/token/', data={'email': 'test@user.com', 'password': 'password'})
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.data['detail'] == 'No active account found with the given credentials'
