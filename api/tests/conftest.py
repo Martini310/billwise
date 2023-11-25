@@ -17,6 +17,18 @@ def user():
 
 
 @pytest.fixture
+def user2():
+    payload = {
+        "first_name": "testname2",
+        "username": "testuser2",
+        "email": "user@test.pl2",
+        "password": "userpassword2"
+    }
+    user = NewUser.objects.create_user(**payload)
+    return user
+
+
+@pytest.fixture
 def client():
     return APIClient()
 
@@ -24,6 +36,15 @@ def client():
 @pytest.fixture
 def auth_client(user, client):
     response = client.post('/api/token/', dict(email='user@test.pl', password='userpassword'))
+    access_token = response.data.get('access', '')
+    
+    client.credentials(HTTP_AUTHORIZATION=f'JWT {access_token}')
+    return client
+
+
+@pytest.fixture
+def auth_client2(user2, client):
+    response = client.post('/api/token/', dict(email='user@test.pl2', password='userpassword2'))
     access_token = response.data.get('access', '')
     
     client.credentials(HTTP_AUTHORIZATION=f'JWT {access_token}')

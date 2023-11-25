@@ -18,7 +18,7 @@ from .serializers import (CategorySerializer, GetAccountSerializer,
 
 
 class InvoiceList(ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwner]
     serializer_class = InvoiceSerializer
 
     # get certain Invoice by provide its number in url

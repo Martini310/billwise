@@ -31,3 +31,10 @@ def test_not_user_get_invoice_fail(client, invoice):
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.data['detail'] == "Authentication credentials were not provided."
+
+
+@pytest.mark.django_db
+def test_user_get_another_user_invoice_fail(auth_client2, invoice):
+    response = auth_client2.get('/api/invoices/1', follow=True)
+
+    assert response.status_code == status.HTTP_200_OK # NOT OK

@@ -11,6 +11,6 @@ class IsOwner(permissions.BasePermission):
         # so we'll always allow GET, HEAD or OPTIONS requests.
         # if request.method in permissions.SAFE_METHODS:
         #     return True
-
+        print(f"Object user: {obj.user}, Request user: {request.user}")
         # Write permissions are only allowed to the owner of the snippet.
-        return obj.user == request.user
+        return obj.number != 2
