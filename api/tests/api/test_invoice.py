@@ -4,8 +4,8 @@ from rest_framework import status
 
 
 @pytest.mark.django_db
-def test_get_invoice(auth_client, invoice, category):
-    response = auth_client.get('/api/invoices/1', follow=True)
+def test_get_invoice(invoice, category, auth_client):
+    response = auth_client.get('/api/invoices/1/')
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data['number'] == 'test/123'
@@ -27,7 +27,7 @@ def test_get_invoice(auth_client, invoice, category):
 
 @pytest.mark.django_db
 def test_not_user_get_invoice_fail(client, invoice):
-    response = client.get('/api/invoices/1', follow=True)
+    response = client.get('/api/invoices/1/', follow=True)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.data['detail'] == "Authentication credentials were not provided."
@@ -35,6 +35,6 @@ def test_not_user_get_invoice_fail(client, invoice):
 
 @pytest.mark.django_db
 def test_user_get_another_user_invoice_fail(auth_client2, invoice):
-    response = auth_client2.get('/api/invoices/1', follow=True)
+    response = auth_client2.get('/api/invoices/1/', follow=True)
 
-    assert response.status_code == status.HTTP_200_OK # NOT OK
+    assert response.status_code == status.HTTP_403_FORBIDDEN # NOT OK

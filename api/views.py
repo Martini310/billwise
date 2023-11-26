@@ -18,7 +18,7 @@ from .serializers import (CategorySerializer, GetAccountSerializer,
 
 
 class InvoiceList(ModelViewSet):
-    permission_classes = [IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
     serializer_class = InvoiceSerializer
 
     # get certain Invoice by provide its number in url
@@ -29,8 +29,6 @@ class InvoiceList(ModelViewSet):
         return get_object_or_404(Invoice, pk=item)
 
     def get_queryset(self):
-        if isinstance(self.request.user, AnonymousUser):
-            return []
         time.sleep(2) # Only to demonstrate loading circle
         return Invoice.objects.filter(user=self.request.user)
 
@@ -38,7 +36,16 @@ class InvoiceList(ModelViewSet):
         if self.request.method in ['POST', 'PATCH']:
             return PostInvoiceSerializer
         return InvoiceSerializer
+    
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.check_object_permissions(request, instance)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
 
 class AccountList(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
