@@ -43,7 +43,8 @@ def test_login_user_fail(client):
 
 @pytest.mark.django_db
 def test_logout_user(user, client):
-    login_response = client.post('/api/token/', dict(email=data['email'], password=data['password']))
+    payload = dict(email=data['email'], password=data['password'])
+    login_response = client.post('/api/token/', payload)
     assert login_response.status_code == status.HTTP_200_OK
 
     refresh_token = login_response.data.get('refresh')
@@ -53,3 +54,17 @@ def test_logout_user(user, client):
 
     invalid_refresh_response = client.post('/api/token/refresh/', dict(refresh=refresh_token))
     assert invalid_refresh_response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_change_password(auth_client):
+    payload = dict(old_password='userpassword', new_password='newpassword')
+    response = auth_client.post('/api/user/change_password/', payload)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data['message'] == 'Password changed successfully.'
+
+    reauth_response = auth_client.post('/api/token/', dict(email='user@test.pl', password='newpassword'))
+    assert reauth_response.status_code == status.HTTP_200_OK
+    assert 'access' in reauth_response.data
+    assert 'refresh' in reauth_response.data
