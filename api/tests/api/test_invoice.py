@@ -41,15 +41,16 @@ def test_user_get_another_user_invoice_fail(auth_client2, invoice):
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.data['detail'] == "You are not allowed to see this content"
 
+
 @pytest.mark.django_db
 def test_user_creates_new_invoice(auth_client, category):
     payload = {
         'number': 'test/123',
-        'date': datetime.today().date().strftime("%Y-%m-%d"),
+        'date': '2023-10-12',
         'amount': 123,
-        'pay_deadline': datetime.today().date().strftime("%Y-%m-%d"),
-        'start_date': datetime.today().date().strftime("%Y-%m-%d"),
-        'end_date': datetime.today().date().strftime("%Y-%m-%d"),
+        'pay_deadline': '2023-10-22',
+        'start_date': '2023-10-02',
+        'end_date': '2023-10-08',
         'amount_to_pay': 123,
         'wear': 100,
         'user': 1,
@@ -60,5 +61,25 @@ def test_user_creates_new_invoice(auth_client, category):
         'transfer_title': 'test title',
     }
     response = auth_client.post('/api/invoices/', payload)
-    print(response.data)
     assert response.status_code == status.HTTP_201_CREATED
+
+    get_response = auth_client.get('/api/invoices/1/')
+    assert get_response.data['number'] == 'test/123'
+    assert get_response.data['date'] == '2023-10-12'
+    assert get_response.data['amount'] == 123
+    assert get_response.data['pay_deadline']== '2023-10-22'
+    assert get_response.data['start_date'] == '2023-10-02'
+    assert get_response.data['end_date'] == '2023-10-08'
+    assert get_response.data['amount_to_pay'] == 123
+    assert get_response.data['wear'] == 100
+    assert not get_response.data['is_paid']
+    assert get_response.data['consumption_point'] == 'Test point'
+    assert get_response.data['account'] is None
+    assert get_response.data['category']['id'] == 1
+    assert get_response.data['category']['name'] == 'Gaz'
+    assert get_response.data['bank_account_number'] == '12 1234 5678 9012 3456 7890 1234'
+    assert get_response.data['transfer_title'] == 'test title'
+
+    all_invoices = auth_client.get('/api/invoices/')
+    assert len(all_invoices.data) == 1
+    
