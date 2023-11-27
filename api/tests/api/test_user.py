@@ -1,5 +1,6 @@
 import pytest
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
 
 
 data = dict(
@@ -65,6 +66,34 @@ def test_change_password(auth_client):
     assert response.data['message'] == 'Password changed successfully.'
 
     reauth_response = auth_client.post('/api/token/', dict(email='user@test.pl', password='newpassword'))
+    assert reauth_response.status_code == status.HTTP_200_OK
+    assert 'access' in reauth_response.data
+    assert 'refresh' in reauth_response.data
+
+
+@pytest.mark.django_db
+def test_change_password_fail(auth_client):
+    payload = dict(old_password='wrong_password', new_password='newpassword')
+    response = auth_client.post('/api/user/change_password/', payload)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data['error'] == 'Incorrect old password.'
+
+    reauth_response = auth_client.post('/api/token/', dict(email='user@test.pl', password='userpassword'))
+    assert reauth_response.status_code == status.HTTP_200_OK
+    assert 'access' in reauth_response.data
+    assert 'refresh' in reauth_response.data
+
+
+@pytest.mark.django_db
+def test_change_password_wrong_payload_fail(auth_client):
+    payload = dict(wrong_field='userpassword', new_password='newpassword')
+    response = auth_client.post('/api/user/change_password/', payload)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {'old_password': [ErrorDetail(string='This field is required.', code='required')]}
+
+    reauth_response = auth_client.post('/api/token/', dict(email='user@test.pl', password='userpassword'))
     assert reauth_response.status_code == status.HTTP_200_OK
     assert 'access' in reauth_response.data
     assert 'refresh' in reauth_response.data
