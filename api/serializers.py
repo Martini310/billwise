@@ -54,15 +54,15 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = ['number', 'date', 'amount', 
-                  'pay_deadline', 'start_date', 
-                  'end_date', 'amount_to_pay', 
-                  'wear', 'is_paid', 'consumption_point', 
-                  'account', 'category', 'bank_account_number', 
-                  'transfer_title']
+        fields = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 
+                    'end_date', 'amount_to_pay', 'wear', 'is_paid', 'consumption_point', 
+                    'account', 'category', 'bank_account_number', 'transfer_title']
 
 
 class PostInvoiceSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
 
     class Meta:
         model = Invoice
