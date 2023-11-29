@@ -58,6 +58,22 @@ def test_user_get_another_user_invoice_fail(auth_client2, invoice):
     assert response.data['detail'] == "You are not allowed to see or edit this content"
 
 
+@pytest.mark.django_db
+def test_user_get_all_his_invoices(auth_client, invoice, invoice2):
+    response = auth_client.get('/api/invoices/', follow=True)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]['number'] == 'test/123'
+
+
+@pytest.mark.django_db
+def test_not_user_get_all_invoices_fail(client, invoice):
+    response = client.get('/api/invoices/', follow=True)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.data['detail'] == "Authentication credentials were not provided."
+
 ################# POST ######################
 @pytest.mark.django_db
 def test_user_creates_new_invoice(auth_client, category):
@@ -128,6 +144,62 @@ def test_user_edit_another_user_invoice_fail(auth_client2, invoice):
 def test_not_user_edit_user_invoice_fail(client, invoice):
 
     response = client.patch('/api/invoices/1/', dict(number='edited', amount=222.44))
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.data['detail'] == 'Authentication credentials were not provided.'
+
+
+############# PUT #######################
+@pytest.mark.django_db
+def test_user_send_put_request_fail(auth_client, invoice):
+    edited_payload = payload.copy()
+    edited_payload['number'] = 'edited number'
+    response = auth_client.put('/api/invoices/1/', edited_payload)
+
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+    assert response.data['detail'] == 'Method "PUT" not allowed.'
+
+
+@pytest.mark.django_db
+def test_user_send_put_request_to_another_user_invoice_fail(auth_client2, invoice):
+    edited_payload = payload.copy()
+    edited_payload['number'] = 'edited number'
+    response = auth_client2.put('/api/invoices/1/', edited_payload)
+
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+    assert response.data['detail'] == 'Method "PUT" not allowed.'
+
+
+@pytest.mark.django_db
+def test_not_user_send_put_request_fail(client, invoice):
+    edited_payload = payload.copy()
+    edited_payload['number'] = 'edited number'
+    response = client.put('/api/invoices/1/', edited_payload)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.data['detail'] == 'Authentication credentials were not provided.'
+
+
+################ DELETE ###############
+@pytest.mark.django_db
+def test_user_send_delete_request_fail(auth_client, invoice):
+    response = auth_client.delete('/api/invoices/1/')
+
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+    assert response.data['detail'] == 'Method "DELETE" not allowed.'
+
+
+@pytest.mark.django_db
+def test_user_send_delete_request_to_another_user_invoice_fail(auth_client2, invoice):
+    response = auth_client2.delete('/api/invoices/1/')
+
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+    assert response.data['detail'] == 'Method "DELETE" not allowed.'
+
+
+@pytest.mark.django_db
+def test_not_user_send_delete_request_fail(client, invoice):
+    response = client.delete('/api/invoices/1/')
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.data['detail'] == 'Authentication credentials were not provided.'

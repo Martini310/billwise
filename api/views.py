@@ -2,7 +2,7 @@ import time
 
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status
+from rest_framework import permissions, status, exceptions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ViewSet
@@ -36,7 +36,7 @@ class InvoiceList(ModelViewSet):
         if self.request.method in ['POST', 'PATCH']:
             return PostInvoiceSerializer
         return InvoiceSerializer
-    
+
     def check_object_permissions(self, request, obj):
         super().check_object_permissions(request, obj)
 
@@ -45,10 +45,11 @@ class InvoiceList(ModelViewSet):
         self.check_object_permissions(request, instance)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    
+
     def create(self, request, *args, **kwargs):
         if 'user' in request.data:
-            return Response({'detail': 'You cannot set the user field explicitly.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'You cannot set the user field explicitly.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         return super().create(request, *args, **kwargs)
 
@@ -62,6 +63,12 @@ class InvoiceList(ModelViewSet):
 
         return Response(serializer.data)
 
+    def update(self, request, *args, **kwargs):
+        raise exceptions.MethodNotAllowed("PUT")
+
+    def destroy(self, request, *args, **kwargs):
+        raise exceptions.MethodNotAllowed("DELETE")
+    
 class AccountList(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
