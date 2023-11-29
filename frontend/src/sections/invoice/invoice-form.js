@@ -12,7 +12,6 @@ import {
   TextField,
   MenuItem
 } from '@mui/material';
-import Cookies from 'js-cookie';
 
 
 export const InvoiceForm = () => {
@@ -24,7 +23,6 @@ export const InvoiceForm = () => {
     amount_to_pay: 0,
     wear: 0,
     category: '',
-    user: Cookies.get('id'),
     is_paid: false,
     consumption_point: '',
     bank_account_number: '',
