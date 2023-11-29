@@ -21,7 +21,7 @@ payload = {
 
 ############  GET  ################
 @pytest.mark.django_db
-def test_get_invoice(invoice, category, auth_client):
+def test_get_invoice(invoice, auth_client):
     response = auth_client.get('/api/invoices/1/')
 
     assert response.status_code == status.HTTP_200_OK
@@ -36,8 +36,8 @@ def test_get_invoice(invoice, category, auth_client):
     assert not response.data['is_paid']
     assert response.data['consumption_point'] == 'Test point'
     assert response.data['account'] is None
-    assert response.data['category']['id'] == category.id
-    assert response.data['category']['name'] == category.name
+    assert response.data['category']['id'] == 1
+    assert response.data['category']['name'] == 'Gaz'
     assert response.data['bank_account_number'] == '12 1234 5678 9012 3456 7890 1234'
     assert response.data['transfer_title'] == 'test title'
 
@@ -76,7 +76,7 @@ def test_not_user_get_all_invoices_fail(client, invoice):
 
 ################# POST ######################
 @pytest.mark.django_db
-def test_user_creates_new_invoice(auth_client, category):
+def test_user_creates_new_invoice(auth_client):
 
     response = auth_client.post('/api/invoices/', payload)
     assert response.status_code == status.HTTP_201_CREATED
@@ -103,7 +103,7 @@ def test_user_creates_new_invoice(auth_client, category):
 
 
 @pytest.mark.django_db
-def test_not_user_creates_new_invoice_fail(client, category):
+def test_not_user_creates_new_invoice_fail(client):
 
     response = client.post('/api/invoices/', payload)
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -111,7 +111,7 @@ def test_not_user_creates_new_invoice_fail(client, category):
 
 
 @pytest.mark.django_db
-def test_user_creates_new_invoice_for_another_user_fail(auth_client, user2, category):
+def test_user_creates_new_invoice_for_another_user_fail(auth_client, user2):
     edited_payload = payload.copy()
     edited_payload['user'] = user2.id
     response = auth_client.post('/api/invoices/', edited_payload)

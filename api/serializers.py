@@ -42,7 +42,10 @@ class GetAccountSerializer(serializers.ModelSerializer):
 
 
 class PostAccountSerializer(serializers.ModelSerializer):
-
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    
     class Meta:
         model = Account
         fields = "__all__"
