@@ -1,9 +1,30 @@
 import pytest
-from datetime import datetime
 from rest_framework.test import APIClient
 from users.models import NewUser
 from base.models import Invoice, Category, Supplier, Account
 
+invoice_payload = {
+    'number': 'test/123',
+    'date': '2023-10-12',
+    'amount': 123,
+    'pay_deadline': '2023-10-22',
+    'start_date': '2023-10-02',
+    'end_date': '2023-10-08',
+    'amount_to_pay': 123,
+    'wear': 100,
+    'is_paid': False,
+    'consumption_point': 'Test point',
+    'category': 1,
+    'bank_account_number': '12 1234 5678 9012 3456 7890 1234',
+    'transfer_title': 'test title',
+}
+
+account_payload = {
+    'supplier': 1,
+    'login': 'test login',
+    'password': 'test password',
+    'category': 1,
+}
 
 @pytest.fixture
 def user():
@@ -91,11 +112,11 @@ def invoice(user):
     category = Category.objects.get(pk=1)
     payload = {
         'number': 'test/123',
-        'date': datetime.today(),
+        'date': '2023-05-12',
         'amount': 123,
-        'pay_deadline': datetime.today(),
-        'start_date': datetime.today(),
-        'end_date': datetime.today(),
+        'pay_deadline': '2023-05-22',
+        'start_date': '2023-05-02',
+        'end_date': '2023-05-10',
         'amount_to_pay': 123,
         'wear': 100,
         'user': user,
@@ -115,9 +136,9 @@ def invoice2(user2):
     category = Category.objects.get(pk=1)
     payload = {
         'number': 'test/user2',
-        'date': datetime.today(),
+        'date': '2023-06-01',
         'amount': 999,
-        'pay_deadline': datetime.today(),
+        'pay_deadline': '2023-06-11',
         'amount_to_pay': 999,
         'user': user2,
         'is_paid': False,

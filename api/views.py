@@ -93,13 +93,32 @@ class AccountList(ModelViewSet):
         self.check_object_permissions(request, instance)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    
+
     def create(self, request, *args, **kwargs):
         if 'user' in request.data:
             return Response({'detail': 'You cannot set the user field explicitly.'},
                             status=status.HTTP_400_BAD_REQUEST)
-
         return super().create(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.check_object_permissions(request, instance)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        raise exceptions.MethodNotAllowed("PUT")
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.check_object_permissions(request, instance)
+        self.perform_destroy(instance)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SupplierList(ModelViewSet):
