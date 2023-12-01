@@ -2,14 +2,14 @@ import time
 
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, exceptions
+from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from api.permissions import IsOwner
 from base.models import Account, Category, Invoice, Supplier
 from base.tasks import sync_accounts_task
-from users.models import NewUser
 
 from .serializers import (CategorySerializer, GetAccountSerializer,
                         InvoiceSerializer, PostAccountSerializer,
@@ -28,7 +28,7 @@ class InvoiceList(ModelViewSet):
         return get_object_or_404(Invoice, pk=item)
 
     def get_queryset(self):
-        time.sleep(2) # Only to demonstrate loading circle
+        time.sleep(1) # Only to demonstrate loading circle
         return Invoice.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):
@@ -120,23 +120,16 @@ class AccountList(ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SupplierList(ModelViewSet):
+class SupplierList(GenericViewSet, ListModelMixin):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
 
 
-class CategoryList(ModelViewSet):
+class CategoryList(GenericViewSet, ListModelMixin):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
-
-
-class CurrentUser(ViewSet):
-    queryset = NewUser.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
-
-    def list(self, request):
-        user = self.request.user
-        return Response({'id': user.id})
 
 
 class SyncAccounts(APIView):
