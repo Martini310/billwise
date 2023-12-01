@@ -16,7 +16,6 @@ import {
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { axiosInstance } from 'src/utils/axios';
-import Cookies from 'js-cookie';
 import axios from 'axios';
 
 
@@ -32,7 +31,6 @@ export const AccountProfileDetails = (props) => {
     password: '',
     supplier: '',
     category: '',
-    user: Cookies.get('id')
   });
 
   // Fetch Categories and create array with category names

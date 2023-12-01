@@ -7,30 +7,27 @@ import { ProfilePassword } from 'src/sections/profile/profile-password';
 import { useState, useEffect } from 'react';
 import { withComponentLoading } from 'src/utils/componentLoading';
 import { axiosInstance } from 'src/utils/axios';
-import Cookies from 'js-cookie';
 
 const Page = () => {
-
-  const user_pk = Cookies.get('id');
   
   const ProfileLoading = withComponentLoading(Profile);
   const ProfileDetailsLoading = withComponentLoading(ProfileDetails);
   
   const [profileDetails, setProfileDetails] = useState();
   const [appState, setAppState] = useState({loading: true});
-
+  
   // Fetch user info
   useEffect(() => {
       axiosInstance
-        .get(`user/user-info/${user_pk}`)
+        .get(`user/user-info`)
         .then((res) => {
           setProfileDetails(res.data);
           setAppState({ ...appState, loading: false });
           }
         )
   }, [setProfileDetails]);
-  
-  
+
+
   return (
     <>
       <Head>
@@ -75,7 +72,6 @@ const Page = () => {
                   <ProfileDetailsLoading 
                     isLoading={appState.loading}
                     user={profileDetails}
-                    id={user_pk}
                   />
                 </Grid>
                 <Grid

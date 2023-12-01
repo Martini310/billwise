@@ -12,14 +12,15 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
+import Cookies from 'js-cookie';
 
 
 export const ProfileDetails = (props) => {
 
-  const { user, id } = props 
+  const { user } = props 
   
   const [profileDetails, setProfileDetails] = useState(user);
-  const patchURL = `user/user-info/${id}/`
+  const patchURL = `user/user-info/${user.id}/`
   const router = useRouter()
   
   const handleChange = 
@@ -36,6 +37,8 @@ export const ProfileDetails = (props) => {
       axiosInstance.patch(patchURL, profileDetails)
         .then((res) => {
           console.log(res);
+          Cookies.set('username', res.data.username, {sameSite: 'Lax'});
+          Cookies.set('id', res.data.id, {sameSite: 'Lax'});
           router.push("/");
         })
         .catch((err) => console.log(err));

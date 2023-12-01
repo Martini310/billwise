@@ -1,6 +1,5 @@
 import time
 
-from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, exceptions
 from rest_framework.response import Response
@@ -76,7 +75,7 @@ class AccountList(ModelViewSet):
     def get_object(self, queryset=None, **kwargs):
         item = self.kwargs.get('pk')
         return get_object_or_404(Account, pk=item)
-    
+
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
             return PostAccountSerializer
