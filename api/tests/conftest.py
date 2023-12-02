@@ -74,14 +74,9 @@ def auth_client2(user2, client):
 
 
 @pytest.fixture
-def supplier():
-    supplier_instance = Supplier.objects.create(name='PGNiG')
-    return supplier_instance
-
-
-@pytest.fixture
-def account(supplier, user):
+def account(user):
     category = Category.objects.get(pk=1)
+    supplier = Supplier.objects.get(pk=1)
     payload = {
         'supplier': supplier,
         'login': 'test login',
@@ -94,8 +89,10 @@ def account(supplier, user):
 
 
 @pytest.fixture
-def account2(supplier, user2):
+def account2(user2):
     category = Category.objects.get(pk=1)
+    supplier = Supplier.objects.get(pk=1)
+
     payload = {
         'supplier': supplier,
         'login': 'test login2',
