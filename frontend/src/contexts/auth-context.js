@@ -113,49 +113,62 @@ export const AuthProvider = (props) => {
     []
   );
 
-  const signIn = async (email, password) => {
+  const signIn = async (provider, email, password) => {
 
     try {
-      const response = await axiosInstance.post(`token/`, {
-        email: email,
-        password: password,
-      });
-      console.log(response)
-      // Check if the response contains the access token
-      if (response.data.access) {
-        // Store the access token in Cookies
-        const token = response.data.access;
-        Cookies.set('access_token', token, {sameSite: 'Lax'});
-        Cookies.set('refresh_token', response.data.refresh, {sameSite: 'Lax'});
-        Cookies.set('username', response.data.username, {sameSite: 'Lax'});
-        Cookies.set('id', response.data.id, {sameSite: 'Lax'});
 
-        window.sessionStorage.setItem('authenticated', 'true');
 
-        // Set the authorization header for future requests
-        axiosInstance.defaults.headers['Authorization'] =
-          'JWT ' + token;
-
-        console.log(response.data)
-  
-        // Dispatch the SIGN_IN action with the user data
-        dispatch({
-          type: HANDLERS.SIGN_IN,
-          payload: {
-            id: response.data.id,
-            avatar: '/assets/avatars/avatar-fran-perez.png',
-            name: response.data.username,
-            email: email
-          }
-        });
-  
-        // Redirect the user or perform other actions as needed
-        router.push('/');
-
+      if (provider === 'google') {
+        // Redirect the user to the Google sign-in page
+        window.location.href = 'http://127.0.0.1:8000/accounts/google/login/';
       } else {
-        // Handle error: Unable to retrieve access token
-        console.error('Access token not found in response');
+
+
+        const response = await axiosInstance.post(`token/`, {
+          email: email,
+          password: password,
+        });
+        console.log(response)
+        // Check if the response contains the access token
+        if (response.data.access) {
+          // Store the access token in Cookies
+          const token = response.data.access;
+          Cookies.set('access_token', token, {sameSite: 'Lax'});
+          Cookies.set('refresh_token', response.data.refresh, {sameSite: 'Lax'});
+          Cookies.set('username', response.data.username, {sameSite: 'Lax'});
+          Cookies.set('id', response.data.id, {sameSite: 'Lax'});
+
+          window.sessionStorage.setItem('authenticated', 'true');
+
+          // Set the authorization header for future requests
+          axiosInstance.defaults.headers['Authorization'] =
+            'JWT ' + token;
+
+          console.log(response.data)
+    
+          // Dispatch the SIGN_IN action with the user data
+          dispatch({
+            type: HANDLERS.SIGN_IN,
+            payload: {
+              id: response.data.id,
+              avatar: '/assets/avatars/avatar-fran-perez.png',
+              name: response.data.username,
+              email: email
+            }
+          });
+    
+          // Redirect the user or perform other actions as needed
+          router.push('/');
+
+        } else {
+          // Handle error: Unable to retrieve access token
+          console.error('Access token not found in response');
+        }
+
+        
       }
+
+
     } catch (error) {
       // Handle authentication error
       console.error('Authentication failed:', error);

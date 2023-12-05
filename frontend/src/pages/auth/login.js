@@ -121,6 +121,15 @@ const Page = () => {
                 >
                   Google
                 </Link>
+                <Link
+                  component={NextLink}
+                  href="#"
+                  underline="hover"
+                  variant="subtitle2"
+                  onClick={() => auth.signIn({ provider: 'google' })}
+                >
+                  Googleeeeee
+                </Link>
               </Typography>
             </Stack>
             <Tabs
