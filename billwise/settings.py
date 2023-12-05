@@ -275,14 +275,24 @@ CELERY_BEAT_SCHEDULE = {
 # }
 
 SITE_ID = 1
-LOGIN_REDIRECT_URL = '/'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_STORE_TOKENS = True
+LOGIN_REDIRECT_URL = 'http://localhost:3000/'
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'APP': {
-#             'client_id': '123',
-#             'secret': '456',
-#             'key': ''
-#         }
-#     }
-# }
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+            # 'https://www.googleapis.com/auth/gmail.readonly',
+            ],
+        'AUTH_PARAMS': {
+            'access_type': 'offline'
+        },
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT'),
+            'secret': os.environ.get('GOOGLE_SECRET'),
+            'key': ''
+        }
+    }
+}
