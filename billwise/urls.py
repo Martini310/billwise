@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import (TokenRefreshView)
-from .views import CustomTokenObtainPairView, GoogleSignupView
+from .views import CustomTokenObtainPairView, GoogleSignupView, obtain_access_token
 
 urlpatterns = [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('accounts/', include('allauth.urls')),
     path('api/google/', GoogleSignupView.as_view(), name='google_signup'),
+    path('api/get-access-token/', obtain_access_token, name='get_access_token'),
 ]

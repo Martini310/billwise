@@ -116,11 +116,13 @@ export const AuthProvider = (props) => {
   const signIn = async (provider, email, password) => {
 
     try {
-
-
-      if (provider === 'google') {
+      
+      console.log('before')
+      if (provider.provider === 'google') {
+        console.log('in')
         // Redirect the user to the Google sign-in page
         window.location.href = 'http://127.0.0.1:8000/accounts/google/login/';
+        console.log('after')
       } else {
 
 
