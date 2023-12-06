@@ -120,7 +120,7 @@ export const AuthProvider = (props) => {
         email: email,
         password: password,
       });
-      console.log(response)
+
       // Check if the response contains the access token
       if (response.data.access) {
         // Store the access token in Cookies
@@ -135,8 +135,6 @@ export const AuthProvider = (props) => {
         // Set the authorization header for future requests
         axiosInstance.defaults.headers['Authorization'] =
           'JWT ' + token;
-
-        console.log(response.data)
   
         // Dispatch the SIGN_IN action with the user data
         dispatch({
