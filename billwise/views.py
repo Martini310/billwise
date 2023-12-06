@@ -11,22 +11,33 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     # Replace the serializer with your custom
     serializer_class = CustomTokenObtainPairSerializer
 
+
 class GoogleSignupView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-        print(response.data)
+        print('before if -------------------')
         if response.status_code == 200:
-            return redirect('http://localhost:3000/auth/google/callback')
+            print('in if -------------------')
+            refresh = RefreshToken.for_user(self.user)
+            access_token = str(refresh.access_token)
+            return Response({'access_token': access_token})
 
         return response
-    
-@api_view(['GET'])
+
+
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+
+@api_view(['POST'])
 @authentication_classes([])
-@permission_classes([IsAuthenticated])
-def obtain_access_token(request):
-    user = request.user
+@permission_classes([])
+def google_login(request):
+    adapter = GoogleOAuth2Adapter()
+    client = OAuth2Client(request, adapter)
+    token = request.data.get('access_token')
+    user = adapter.complete_login(request, client, token)
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
     return Response({'access_token': access_token})

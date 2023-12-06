@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useAuth } from 'src/hooks/use-auth';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
+// import { signIn } from 'src/contexts/auth-context'
 
 
 const Page = () => {
@@ -66,7 +67,9 @@ const Page = () => {
     },
     []
   );
-
+  const handleGoogleLogin = async () => {
+    await auth.signIn({ provider: 'google' });
+  };
   return (
     <>
       <Head>
@@ -130,6 +133,7 @@ const Page = () => {
                 >
                   Googleeeeee
                 </Link>
+                <button onClick={handleGoogleLogin}>Google</button>
               </Typography>
             </Stack>
             <Tabs

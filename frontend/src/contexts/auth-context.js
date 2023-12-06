@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { axiosInstance } from 'src/utils/axios';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { signIn as nextAuthSignIn } from 'next-auth/react';
 
 
 const HANDLERS = {
@@ -121,7 +122,11 @@ export const AuthProvider = (props) => {
       if (provider.provider === 'google') {
         console.log('in')
         // Redirect the user to the Google sign-in page
-        window.location.href = 'http://127.0.0.1:8000/accounts/google/login/';
+        // window.location.href = 'http://127.0.0.1:8000/accounts/google/login/';
+        const result = await nextAuthSignIn('google');
+            if (result?.error) {
+                console.error('Google login failed:', result.error);
+            }
         console.log('after')
       } else {
 
