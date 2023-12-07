@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { axiosInstance } from 'src/utils/axios';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { signIn as nextAuthSignIn } from 'next-auth/react';
+import { signIn as nextAuthSignIn, getSession } from 'next-auth/react';
 
 
 const HANDLERS = {
@@ -121,13 +121,58 @@ export const AuthProvider = (props) => {
       console.log('before')
       if (provider.provider === 'google') {
         console.log('in')
-        // Redirect the user to the Google sign-in page
-        // window.location.href = 'http://127.0.0.1:8000/accounts/google/login/';
-        const result = await nextAuthSignIn('google');
-            if (result?.error) {
-                console.error('Google login failed:', result.error);
-            }
-        console.log('after')
+
+        // Check if the user is authenticated
+        const session = await getSession();
+
+
+          // If not authenticated, trigger Google login
+          const result = await nextAuthSignIn('google', {scopes: ['openid', 'profile', 'email', 'id_token'],});
+          if (result?.error) {
+            console.error('Google login failed:', result.error);
+          }
+
+          
+        // Access the session again to get the Google token
+        const updatedSession = await getSession();
+        const googleToken = updatedSession?.access_token;
+        const idToken = updatedSession?.id_token;
+        console.log(updatedSession)
+        console.log(googleToken)
+
+        if (!idToken) {
+          console.error('Google login failed: No valid ID token');
+        } else {
+          console.log('ID token:', idToken);
+          // Further processing with the ID token
+        }
+
+        if (googleToken) {
+          // Send the Google token to your Django backend
+          const response = await fetch('http://localhost:8000/api/google/login/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              access_token: googleToken,
+              id_token: idToken,
+            }),
+          });}
+  
+        //   if (response.ok) {
+        //     const accessTokenData = await response.json();
+        //     // Store the received access token as needed
+        //     console.log('Received access token:', accessTokenData.idToken);
+        //   } else {
+        //     console.error('Failed to exchange Google token:', response.statusText);
+        //   }
+        // }
+  
+        console.log('after');
+
+
+
       } else {
 
 

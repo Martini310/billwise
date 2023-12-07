@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from users.models import NewUser
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -29,15 +30,46 @@ class GoogleSignupView(TokenObtainPairView):
 
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+import os
+
+consumer_key = ''
+client_id = os.environ.get('GOOGLE_CLIENT')
+consumer_secret = os.environ.get('GOOGLE_SECRET')
+access_token_method = 'POST'
+access_token_url = 'https://www.googleapis.com/oauth2/v4/token'
+callback_url = 'http://localhost:3000/api/auth/callback/google'
+scope = ['openid', 'profile', 'email']
 
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
 def google_login(request):
-    adapter = GoogleOAuth2Adapter()
-    client = OAuth2Client(request, adapter)
-    token = request.data.get('access_token')
-    user = adapter.complete_login(request, client, token)
+    print('view in')
+
+    adapter = GoogleOAuth2Adapter(request)
+    client = OAuth2Client(adapter, client_id, consumer_secret, access_token_method, access_token_url, callback_url, scope)
+    client.client_id = client_id
+    token = request.data.get('id_token')
+    # print('client_id:', client_id)
+    # print('consumer_secret:', consumer_secret)
+    # print('token:', token)
+    print(request.data)
+
+    # Decode the ID token to get a dictionary
+    # decoded_token = adapter.verify_and_decode(token)
+
+    # Access the 'sub' field from the decoded token
+    # google_user_id = decoded_token.get("sub")
+    google_user_id = "112564696803489595108"
+    # user = NewUser.objects.get(google_user_id=google_user_id)
+
+    # Further processing with the user ID, for example, you can look up the user in your database
+    user = NewUser.objects.get(id=google_user_id)
+
+
+    # user = adapter.complete_login(request, client, token, {'id_token': token})
+
+
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
     return Response({'access_token': access_token})

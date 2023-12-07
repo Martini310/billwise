@@ -29,8 +29,8 @@ import NextAuth from 'next-auth'
 export default NextAuth({
     providers: [
     GoogleProvider({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET
+        clientId: '1096856738165-rcblrfimcffglaihiems0smhgh9kkheb.apps.googleusercontent.com',
+        clientSecret: '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'
     })
     ],
     callbacks: {
@@ -38,5 +38,19 @@ export default NextAuth({
             console.error('Authentication error:', error);
             return res.redirect('/auth/error'); // Redirect to an error page
         },
-    },
+        async jwt({token, account}) {
+            if (account) {
+                token = Object.assign({}, token, { access_token: account.access_token });
+                token.id_token = account.id_token;
+            }
+            return token
+        },
+        async session({session, token}) {
+        if(session) {
+            session = Object.assign({}, session, {access_token: token.access_token})
+            session.id_token = token.id_token;
+            }
+            return session
+        }
+    }
 })
