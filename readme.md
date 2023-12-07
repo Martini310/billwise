@@ -191,4 +191,4 @@ This project is licensed under the [MIT License](LICENSE). See the [LICENSE](LIC
 
 ## 📨Support & Contact
 
-If you encounter any issues or have questions, please write me an  [email](mailto:maritn.brzezinski@wp.eu)
+If you encounter any issues or have questions, please send me an  [email](mailto:maritn.brzezinski@wp.eu)
