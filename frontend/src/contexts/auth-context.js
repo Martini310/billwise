@@ -158,16 +158,27 @@ export const AuthProvider = (props) => {
               access_token: googleToken,
               id_token: idToken,
             }),
-          });}
-  
-        //   if (response.ok) {
-        //     const accessTokenData = await response.json();
-        //     // Store the received access token as needed
-        //     console.log('Received access token:', accessTokenData.idToken);
-        //   } else {
-        //     console.error('Failed to exchange Google token:', response.statusText);
-        //   }
-        // }
+          });
+
+          if (response.ok) {
+            const accessTokenData = await response.json();
+            // Store the received access token as needed
+            Cookies.set('access_token', accessTokenData.access_token)
+            Cookies.set('id', accessTokenData.id)
+            Cookies.set('username', accessTokenData.username)
+            window.sessionStorage.setItem('authenticated', 'true');
+
+            axiosInstance.defaults.headers['Authorization'] = 'JWT ' + accessTokenData.access_token;
+
+            if (accessTokenData) 
+              {router.push('/')};
+
+            
+          } else {
+            console.error('Failed to exchange Google token:', response.statusText);
+          }
+
+        }
   
         console.log('after');
 

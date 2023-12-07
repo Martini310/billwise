@@ -45,7 +45,7 @@ const Page = () => {
       let error;
     
       try {
-        error = await auth.signIn(values.email, values.password);
+        error = await auth.signIn('', values.email, values.password);
         console.log('Error from signIn:', error);
         if (error) {
           helpers.setStatus({ success: false });

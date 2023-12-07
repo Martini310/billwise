@@ -31,6 +31,8 @@ class GoogleSignupView(TokenObtainPairView):
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 import os
+from allauth.socialaccount.models import SocialAccount
+from rest_framework_simplejwt.tokens import AccessToken
 
 consumer_key = ''
 client_id = os.environ.get('GOOGLE_CLIENT')
@@ -50,9 +52,7 @@ def google_login(request):
     client = OAuth2Client(adapter, client_id, consumer_secret, access_token_method, access_token_url, callback_url, scope)
     client.client_id = client_id
     token = request.data.get('id_token')
-    # print('client_id:', client_id)
-    # print('consumer_secret:', consumer_secret)
-    # print('token:', token)
+
     print(request.data)
 
     # Decode the ID token to get a dictionary
@@ -61,15 +61,12 @@ def google_login(request):
     # Access the 'sub' field from the decoded token
     # google_user_id = decoded_token.get("sub")
     google_user_id = "112564696803489595108"
-    # user = NewUser.objects.get(google_user_id=google_user_id)
 
-    # Further processing with the user ID, for example, you can look up the user in your database
-    user = NewUser.objects.get(id=google_user_id)
-
-
-    # user = adapter.complete_login(request, client, token, {'id_token': token})
-
+    social_account = SocialAccount.objects.get(uid=google_user_id)
+    user = social_account.user
 
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
-    return Response({'access_token': access_token})
+    print(refresh)
+    # print(refresh.refresh_token)
+    return Response({'access_token': access_token, 'id': user.id, 'username': user.username})
