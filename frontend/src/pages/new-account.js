@@ -8,7 +8,7 @@ const Page = () => (
   <>
     <Head>
       <title>
-        Account | Devias Kit
+        Dodaj konto | Billwise
       </title>
     </Head>
     <Box
