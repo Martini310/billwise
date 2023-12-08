@@ -125,25 +125,24 @@ export const AuthProvider = (props) => {
         // Check if the user is authenticated
         const session = await getSession();
 
+        // If not authenticated, trigger Google login
+        const result = await nextAuthSignIn('google', {scopes: ['openid', 'profile', 'email', 'id_token'], callbackUrl: 'http://localhost:3000/' });
+        if (result?.error) {
+          console.error('Google login failed:', result.error);
+        }
 
-          // If not authenticated, trigger Google login
-          const result = await nextAuthSignIn('google', {scopes: ['openid', 'profile', 'email', 'id_token'],});
-          if (result?.error) {
-            console.error('Google login failed:', result.error);
-          }
 
-          
         // Access the session again to get the Google token
         const updatedSession = await getSession();
         const googleToken = updatedSession?.access_token;
         const idToken = updatedSession?.id_token;
-        console.log(updatedSession)
-        console.log(googleToken)
+        // console.log(updatedSession)
+        // console.log(googleToken)
 
         if (!idToken) {
           console.error('Google login failed: No valid ID token');
         } else {
-          console.log('ID token:', idToken);
+          console.log('ID token available');
           // Further processing with the ID token
         }
 
@@ -164,18 +163,18 @@ export const AuthProvider = (props) => {
             const accessTokenData = await response.json();
             // Store the received access token as needed
             Cookies.set('access_token', accessTokenData.access_token)
+            Cookies.set('refresh_token', accessTokenData.refresh_token)
             Cookies.set('id', accessTokenData.id)
             Cookies.set('username', accessTokenData.username)
             window.sessionStorage.setItem('authenticated', 'true');
 
             axiosInstance.defaults.headers['Authorization'] = 'JWT ' + accessTokenData.access_token;
+            console.log('Cookies and header set')
 
-            if (accessTokenData) 
-              {router.push('/')};
 
-            
           } else {
             console.error('Failed to exchange Google token:', response.statusText);
+            console.log(response)
           }
 
         }
