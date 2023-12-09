@@ -124,7 +124,6 @@ export const AuthProvider = (props) => {
 
         // Check if the user is authenticated
         const session = await getSession();
-
         // If not authenticated, trigger Google login
         const result = await nextAuthSignIn('google', {scopes: ['openid', 'profile', 'email', 'id_token'], callbackUrl: 'http://localhost:3000/' });
         if (result?.error) {
@@ -147,9 +146,14 @@ export const AuthProvider = (props) => {
         }
 
         if (googleToken) {
+          // var csrftoken = getCookie('csrftoken');
+          // var headers = new Headers();
+          // headers.append('X-CSRFToken', csrftoken);
           // Send the Google token to your Django backend
           const response = await fetch('http://localhost:8000/api/google/login/', {
+          // const response = await fetch('http://localhost:8000/accounts/google/login/', {
             method: 'POST',
+            // headers: headers,
             headers: {
               'Content-Type': 'application/json',
             },
@@ -170,6 +174,7 @@ export const AuthProvider = (props) => {
 
             axiosInstance.defaults.headers['Authorization'] = 'JWT ' + accessTokenData.access_token;
             console.log('Cookies and header set')
+            console.log(accessTokenData)
 
 
           } else {
