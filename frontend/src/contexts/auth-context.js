@@ -124,20 +124,21 @@ export const AuthProvider = (props) => {
 
         // Check if the user is authenticated
         const session = await getSession();
+        console.log(session)
         // If not authenticated, trigger Google login
-        const result = await nextAuthSignIn('google', {scopes: ['openid', 'profile', 'email', 'id_token'], callbackUrl: 'http://localhost:3000/' });
+        const result = await nextAuthSignIn('google', {scopes: ['openid', 'profile', 'email', 'id_token'], callbackUrl: 'http://localhost:3000/', force: true });
         if (result?.error) {
           console.error('Google login failed:', result.error);
         }
 
-
+        console.log(result)
         // Access the session again to get the Google token
         const updatedSession = await getSession();
+        console.log(updatedSession)
         const googleToken = updatedSession?.access_token;
         const idToken = updatedSession?.id_token;
-        // console.log(updatedSession)
         // console.log(googleToken)
-
+        
         if (!idToken) {
           console.error('Google login failed: No valid ID token');
         } else {
@@ -146,14 +147,8 @@ export const AuthProvider = (props) => {
         }
 
         if (googleToken) {
-          // var csrftoken = getCookie('csrftoken');
-          // var headers = new Headers();
-          // headers.append('X-CSRFToken', csrftoken);
-          // Send the Google token to your Django backend
           const response = await fetch('http://localhost:8000/api/google/login/', {
-          // const response = await fetch('http://localhost:8000/accounts/google/login/', {
             method: 'POST',
-            // headers: headers,
             headers: {
               'Content-Type': 'application/json',
             },
@@ -165,7 +160,6 @@ export const AuthProvider = (props) => {
 
           if (response.ok) {
             const accessTokenData = await response.json();
-            // Store the received access token as needed
             Cookies.set('access_token', accessTokenData.access_token)
             Cookies.set('refresh_token', accessTokenData.refresh_token)
             Cookies.set('id', accessTokenData.id)

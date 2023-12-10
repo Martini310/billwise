@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'base',
     'users',
     'rest_framework_simplejwt.token_blacklist',
+    # 'rest-framework-simplejwt',
     'django_celery_beat',
     'allauth',
     'allauth.account',
@@ -70,6 +71,19 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
+
+    # 'django.middleware.common.CommonMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.contrib.messages.middleware.MessageMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',
+    # 'rest-framework-simplejwt.middleware.JWTRefreshTokenMiddleware',  # Include the JWT refresh token middleware
+    
 ]
 
 ROOT_URLCONF = 'billwise.urls'
