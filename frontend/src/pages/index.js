@@ -201,7 +201,7 @@ const Page = () => {
           >
             <OverviewNextPayment
               sx={{ height: '100%' }}
-              value={unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : "Wszystkie faktury opłacone!"}
+              value={unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : "Wszystko opłacone!"}
               supplier={unpaidInvoices[0] ? (unpaidInvoices[0]?.account?.supplier?.name ?? 'Inne') : "---"}
               date={unpaidInvoices[0] ? unpaidInvoices[0].pay_deadline : "---"}
             />
