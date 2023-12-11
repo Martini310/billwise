@@ -14,7 +14,7 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
 import os
 from django.db import transaction
-import jwt
+# import jwt
 from django.contrib.auth import get_user_model
 
 class CustomTokenObtainPairView(TokenObtainPairView):
