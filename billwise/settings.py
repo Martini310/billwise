@@ -291,14 +291,14 @@ CELERY_BEAT_SCHEDULE = {
 SITE_ID = 1
 SOCIALACCOUNT_STORE_TOKENS = True
 # SOCIALACCOUNT_LOGIN_ON_GET = True
-# LOGIN_REDIRECT_URL = '/'
-LOGIN_REDIRECT_URL = 'http://localhost:3000/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:3000/'
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 ACCOUNT_UNIQUE_EMAIL = True
 AUTO_SIGNUP = True
 # SOCIALACCOUNT_ADAPTER = 'billwise.views.CustomSocialAccountAdapter'
-
+# SESSION_COOKIE_DOMAIN = 'http://localhost:3000/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -310,6 +310,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online'
         },
+        # 'METHOD': 'billwise.views.CustomGoogleOAuth2Adapter',  # Update with your actual path
         'APP': {
             'client_id': os.environ.get('GOOGLE_CLIENT'),
             'secret': os.environ.get('GOOGLE_SECRET'),

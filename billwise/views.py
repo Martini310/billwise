@@ -8,8 +8,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from users.models import NewUser
 from rest_framework import status
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialAccount
 import os
@@ -25,6 +23,39 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 client_id = os.environ.get('GOOGLE_CLIENT')
 consumer_secret = os.environ.get('GOOGLE_SECRET')
 
+
+
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.views import View    
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter, OAuth2LoginView, OAuth2CallbackView
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from allauth.socialaccount import signals
+
+class CustomGoogleOAuth2Adapter(GoogleOAuth2Adapter):
+    def complete_login(self, request, app, token, **kwargs):
+        response = super().complete_login(request, app, token, **kwargs)
+        print('------------------------------------------------ --------------')
+        # Customize the login process here, e.g., set cookies
+        # You can access the user using `response.account.user`
+        print(token)
+
+        print(response)
+        # response.set_cookie('adf', 'adfdsf')
+        return response
+
+class CustomGoogleLoginView(OAuth2LoginView):
+    adapter_class = CustomGoogleOAuth2Adapter
+    client_class = OAuth2Client
+
+class CustomGoogleCallbackView(OAuth2CallbackView):
+    adapter_class = CustomGoogleOAuth2Adapter
+    client_class = OAuth2Client
+
+abab = OAuth2LoginView.adapter_view(CustomGoogleOAuth2Adapter)
+baba = OAuth2CallbackView.adapter_view(CustomGoogleOAuth2Adapter)
 
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     # def pre_social_login(self, request, sociallogin):

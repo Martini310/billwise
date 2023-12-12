@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import (TokenRefreshView)
-from .views import CustomTokenObtainPairView
+from .views import CustomTokenObtainPairView, CustomGoogleLoginView, abab, baba
 # , google_login
 
 urlpatterns = [
@@ -11,6 +11,8 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('api/user/', include('users.urls', namespace='users')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('accounts/google/login/', abab, name='google_login'),
+    path('accounts/google/login/callback/', baba, name='google_callback'),
     path('accounts/', include('allauth.urls')),
     # path('api/google/login/', google_login, name='google_login'),
 ]
