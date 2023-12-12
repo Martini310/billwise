@@ -116,15 +116,30 @@ export const AuthProvider = (props) => {
 
   const signIn = async (provider, email, password) => {
 
+
+
+
+
+
+
+
+
+
+
+    
     try {
       console.log('before')
       if (provider.provider === 'google') {
         console.log('in')
 
-        const session = await getSession();
-        console.log(session)
-
-        const result = await nextAuthSignIn('google', {scopes: ['openid', 'profile', 'email', 'id_token'], callbackUrl: 'http://localhost:3000/', force: true });
+        const result = await nextAuthSignIn(
+          'google', 
+          {
+            scopes: ['openid', 'profile', 'email', 'id_token'], 
+            callbackUrl: 'http://localhost:3000/', 
+            force: true,
+          });
+        
         if (result?.error) {
           console.error('Google login failed:', result.error);
         }
@@ -132,16 +147,11 @@ export const AuthProvider = (props) => {
         const updatedSession = await getSession();
         const googleToken = updatedSession?.access_token;
         const idToken = updatedSession?.id_token;
-        console.log(updatedSession.access_token === session.access_token)
-        console.log(session)
-        console.log(updatedSession)
 
         if (!idToken) {
-        // if (!result) {
           console.error('Google login failed: No valid ID token');
         } else {
           console.log('ID token available');
-          // Further processing with the ID token
           const response = await fetch('http://localhost:8000/api/google/login/', {
             method: 'POST',
             headers: {
@@ -154,7 +164,6 @@ export const AuthProvider = (props) => {
           });
 
           if (response.ok) {
-            console.log(response)
             const accessTokenData = await response.json();
             Cookies.set('access_token', accessTokenData.access_token)
             Cookies.set('refresh_token', accessTokenData.refresh_token)
@@ -162,16 +171,22 @@ export const AuthProvider = (props) => {
             Cookies.set('username', accessTokenData.username)
             window.sessionStorage.setItem('authenticated', 'true');
             axiosInstance.defaults.headers['Authorization'] = 'JWT ' + accessTokenData.access_token;
-            console.log('Cookies and header set')
 
           } else {
             console.error('Failed to exchange Google token:', response.statusText);
-            console.log(response)
           }
         }
         console.log('after');
-        const updatedSession2 = await getSession();
-        console.log(updatedSession2)
+
+
+
+
+
+
+
+
+
+
 
 
       } else {

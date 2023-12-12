@@ -292,11 +292,12 @@ SITE_ID = 1
 SOCIALACCOUNT_STORE_TOKENS = True
 # SOCIALACCOUNT_LOGIN_ON_GET = True
 # LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'http://localhost:3000/'
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 ACCOUNT_UNIQUE_EMAIL = True
 AUTO_SIGNUP = True
-SOCIALACCOUNT_ADAPTER = 'billwise.views.CustomSocialAccountAdapter'
+# SOCIALACCOUNT_ADAPTER = 'billwise.views.CustomSocialAccountAdapter'
 
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -307,7 +308,7 @@ SOCIALACCOUNT_PROVIDERS = {
             # 'https://www.googleapis.com/auth/gmail.readonly',
             ],
         'AUTH_PARAMS': {
-            'access_type': 'offline'
+            'access_type': 'online'
         },
         'APP': {
             'client_id': os.environ.get('GOOGLE_CLIENT'),
