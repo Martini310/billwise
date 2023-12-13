@@ -23,28 +23,51 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 client_id = os.environ.get('GOOGLE_CLIENT')
 consumer_secret = os.environ.get('GOOGLE_SECRET')
 
+import logging
 
+logger = logging.getLogger(__name__)
 
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import View    
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter, OAuth2LoginView, OAuth2CallbackView
+from allauth.socialaccount.providers.oauth2.views import OAuth2LoginView, OAuth2CallbackView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from allauth.socialaccount import signals
+
 
 class CustomGoogleOAuth2Adapter(GoogleOAuth2Adapter):
     def complete_login(self, request, app, token, **kwargs):
         response = super().complete_login(request, app, token, **kwargs)
-        print('------------------------------------------------ --------------')
-        # Customize the login process here, e.g., set cookies
-        # You can access the user using `response.account.user`
-        print(token)
+        try:
+            print('------------------------------------------------ --------------')
+            # Customize the login process here, e.g., set cookies
+            # You can access the user using `response.account.user`
+            print(token)
 
-        print(response)
-        # response.set_cookie('adf', 'adfdsf')
-        return response
+            print(response)
+            # response.set_cookie('adf', 'adfdsf')
+            # return response
+                # Obtain user instance from the response
+            user = response.user
+
+            # Log in the user
+            login(request, user)
+
+            # Set session data (optional)
+            request.session['authenticated'] = True
+
+            # Set cookies with tokens
+            response.set_cookie('access_token', token.token)
+            response.set_cookie('refresh_token', token.token_secret)
+
+            # Redirect to the frontend
+            redirect_url = 'http://127.0.0.1:3000/'
+        except Exception as e:
+            logger.error(f"Social login error: {e}")
+            print(f"Social login error: {e}")
+            raise
+        return redirect(redirect_url)
 
 class CustomGoogleLoginView(OAuth2LoginView):
     adapter_class = CustomGoogleOAuth2Adapter

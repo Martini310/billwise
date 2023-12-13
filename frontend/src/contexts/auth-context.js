@@ -128,54 +128,57 @@ export const AuthProvider = (props) => {
 
     
     try {
-      console.log('before')
+      // console.log('before')
       if (provider.provider === 'google') {
-        console.log('in')
+      //   console.log('in')
 
-        const result = await nextAuthSignIn(
-          'google', 
-          {
-            scopes: ['openid', 'profile', 'email', 'id_token'], 
-            callbackUrl: 'http://localhost:3000/', 
-            force: true,
-          });
+      //   const result = await nextAuthSignIn(
+      //     'google', 
+      //     {
+      //       scopes: ['openid', 'profile', 'email', 'id_token'], 
+      //       callbackUrl: 'http://localhost:3000/', 
+      //       force: true,
+      //     });
         
-        if (result?.error) {
-          console.error('Google login failed:', result.error);
-        }
+      //   if (result?.error) {
+      //     console.error('Google login failed:', result.error);
+      //   }
 
-        const updatedSession = await getSession();
-        const googleToken = updatedSession?.access_token;
-        const idToken = updatedSession?.id_token;
+        // const updatedSession = await getSession();
+        // const googleToken = updatedSession?.access_token;
+        // const idToken = updatedSession?.id_token;
 
-        if (!idToken) {
-          console.error('Google login failed: No valid ID token');
-        } else {
-          console.log('ID token available');
-          const response = await fetch('http://localhost:8000/api/google/login/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              access_token: googleToken,
-              id_token: idToken,
-            }),
-          });
+        // if (!idToken) {
+        //   console.error('Google login failed: No valid ID token');
+        // } else {
+        //   console.log('ID token available');
 
-          if (response.ok) {
-            const accessTokenData = await response.json();
-            Cookies.set('access_token', accessTokenData.access_token)
-            Cookies.set('refresh_token', accessTokenData.refresh_token)
-            Cookies.set('id', accessTokenData.id)
-            Cookies.set('username', accessTokenData.username)
-            window.sessionStorage.setItem('authenticated', 'true');
-            axiosInstance.defaults.headers['Authorization'] = 'JWT ' + accessTokenData.access_token;
+          router.push('http://localhost:8000/accounts/google/login/callback/')
+          // console.log(ggett)
+          // const response = await fetch('http://localhost:8000/accounts/google/login/callback/', {
+          //   method: 'POST',
+          //   headers: {
+          //     'Content-Type': 'application/json',
+          //   },
+          //   body: JSON.stringify({
+          //     access_token: googleToken,
+          //     id_token: idToken,
+          //   }),
+          // });
 
-          } else {
-            console.error('Failed to exchange Google token:', response.statusText);
-          }
-        }
+        //   if (response.ok) {
+        //     const accessTokenData = await response.json();
+        //     Cookies.set('access_token', accessTokenData.access_token)
+        //     Cookies.set('refresh_token', accessTokenData.refresh_token)
+        //     Cookies.set('id', accessTokenData.id)
+        //     Cookies.set('username', accessTokenData.username)
+        //     window.sessionStorage.setItem('authenticated', 'true');
+        //     axiosInstance.defaults.headers['Authorization'] = 'JWT ' + accessTokenData.access_token;
+
+        //   } else {
+        //     console.error('Failed to exchange Google token:', response.statusText);
+        //   }
+        // }
         console.log('after');
 
 
