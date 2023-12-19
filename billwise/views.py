@@ -49,17 +49,17 @@ class CustomGoogleOAuth2Adapter(GoogleOAuth2Adapter):
             # response.set_cookie('adf', 'adfdsf')
             # return response
                 # Obtain user instance from the response
-            user = response.user
+            # user = response.user
 
-            # Log in the user
-            login(request, user)
+            # # Log in the user
+            # login(request, user.id, 'allauth.account.auth_backends.AuthenticationBackend')
 
-            # Set session data (optional)
-            request.session['authenticated'] = True
+            # # Set session data (optional)
+            # request.session['authenticated'] = True
 
-            # Set cookies with tokens
-            response.set_cookie('access_token', token.token)
-            response.set_cookie('refresh_token', token.token_secret)
+            # # Set cookies with tokens
+            # response.set_cookie('access_token', token.token)
+            # response.set_cookie('refresh_token', token.token_secret)
 
             # Redirect to the frontend
             redirect_url = 'http://127.0.0.1:3000/'
@@ -67,7 +67,7 @@ class CustomGoogleOAuth2Adapter(GoogleOAuth2Adapter):
             logger.error(f"Social login error: {e}")
             print(f"Social login error: {e}")
             raise
-        return redirect(redirect_url)
+        return response
 
 class CustomGoogleLoginView(OAuth2LoginView):
     adapter_class = CustomGoogleOAuth2Adapter
@@ -77,8 +77,8 @@ class CustomGoogleCallbackView(OAuth2CallbackView):
     adapter_class = CustomGoogleOAuth2Adapter
     client_class = OAuth2Client
 
-abab = OAuth2LoginView.adapter_view(CustomGoogleOAuth2Adapter)
-baba = OAuth2CallbackView.adapter_view(CustomGoogleOAuth2Adapter)
+custom_login = OAuth2LoginView.adapter_view(CustomGoogleOAuth2Adapter)
+custom_callback = OAuth2CallbackView.adapter_view(CustomGoogleOAuth2Adapter)
 
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     # def pre_social_login(self, request, sociallogin):
@@ -231,3 +231,22 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
 
 # google_login = GoogleLoginView.as_view()
 
+
+
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from django.conf import settings
+
+class GoogleLoginView(SocialLoginView):
+    authentication_classes = []
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "http://localhost:3000"
+    client_class = OAuth2Client
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "http://127.0.0.1:3000/"
+    client_class = OAuth2Client
+    

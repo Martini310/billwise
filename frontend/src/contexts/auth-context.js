@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { axiosInstance } from 'src/utils/axios';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { signIn as nextAuthSignIn, getSession, GetSessionParams, SessionContext } from 'next-auth/react';
+import { signIn as nextAuthSignIn, getSession, GetSessionParams, SessionContext, } from 'next-auth/react';
+import NextAuth from 'next-auth';
 
 
 const HANDLERS = {
@@ -153,7 +154,9 @@ export const AuthProvider = (props) => {
         // } else {
         //   console.log('ID token available');
 
-          router.push('http://localhost:8000/accounts/google/login/callback/')
+          const redirectUrl = await NextAuth.;
+          console.log(redirectUrl)
+          window.location.href = redirectUrl.google.signinUrl;
           // console.log(ggett)
           // const response = await fetch('http://localhost:8000/accounts/google/login/callback/', {
           //   method: 'POST',
@@ -237,7 +240,7 @@ export const AuthProvider = (props) => {
 
     } catch (error) {
       // Handle authentication error
-      console.error('Authentication failed:', error);
+      console.error('**Authentication failed:', error);
       return error.response.data.detail
     }
   };

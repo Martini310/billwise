@@ -48,23 +48,26 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'corsheaders',
     'base',
     'users',
     'rest_framework_simplejwt.token_blacklist',
-    # 'rest-framework-simplejwt',
     'django_celery_beat',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -194,6 +197,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'dj_rest_auth.utils.JWTCookieAuthentication',
     ),
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.IsAuthenticated'
@@ -203,14 +209,18 @@ REST_FRAMEWORK = {
 # Custon user model
 AUTH_USER_MODEL = "users.NewUser"
 
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://billwise.onrender.com",
-    "https://bill-wise.onrender.com",
-]
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ORIGIN_ALLOW_ALL = True # Only for production
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3000/",
+        "http://127.0.0.1:3000/",
+        "https://billwise.onrender.com",
+        "https://bill-wise.onrender.com",
+    ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
@@ -222,40 +232,11 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": False,
+    "UPDATE_LAST_LOGIN": True,
 
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": "",
-    "AUDIENCE": None,
-    "ISSUER": None,
-    "JSON_ENCODER": None,
-    "JWK_URL": None,
-    "LEEWAY": 0,
-
-    "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-
-    "JTI_CLAIM": "jti",
-
-    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
-    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
-    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
-    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
-    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
-}
+    }
 
 
 # Celery configuration
@@ -289,14 +270,26 @@ CELERY_BEAT_SCHEDULE = {
 # }
 
 SITE_ID = 1
-SOCIALACCOUNT_STORE_TOKENS = True
+# SOCIALACCOUNT_STORE_TOKENS = True
 # SOCIALACCOUNT_LOGIN_ON_GET = True
 # LOGIN_REDIRECT_URL = '/'
-LOGIN_REDIRECT_URL = 'http://127.0.0.1:3000/'
+# LOGIN_REDIRECT_URL = 'http://127.0.0.1:3000/'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_REQUIRED = False
 
-SOCIALACCOUNT_AUTO_SIGNUP = True
-ACCOUNT_UNIQUE_EMAIL = True
-AUTO_SIGNUP = True
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_HTTPONLY": False,
+}
+
+# REST_USE_JWT = True
+# REST_AUTH_SERIALIZERS = {
+#     'USER_DETAILS_SERIALIZER': 'users.serializers.CustomUserSerializer'
+# }
+
+# SOCIALACCOUNT_AUTO_SIGNUP = True
+# ACCOUNT_UNIQUE_EMAIL = True
+# AUTO_SIGNUP = True
 # SOCIALACCOUNT_ADAPTER = 'billwise.views.CustomSocialAccountAdapter'
 # SESSION_COOKIE_DOMAIN = 'http://localhost:3000/'
 
@@ -310,7 +303,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online'
         },
-        # 'METHOD': 'billwise.views.CustomGoogleOAuth2Adapter',  # Update with your actual path
+        "VERIFIED_EMAIL": True,
         'APP': {
             'client_id': os.environ.get('GOOGLE_CLIENT'),
             'secret': os.environ.get('GOOGLE_SECRET'),
