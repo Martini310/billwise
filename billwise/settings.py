@@ -249,7 +249,7 @@ SIMPLE_JWT = {
 # Celery configuration
 if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' in os.environ:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
-    # CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
+    CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
     # CELERY_RESULT_BACKEND = 'db+postgresql://admin:admin@localhost:5432/billwise_db'
 
     # Include tasks from all installed apps
