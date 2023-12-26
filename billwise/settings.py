@@ -118,6 +118,17 @@ elif 'RENDER' in os.environ:
             conn_max_age=600
         )
     }
+elif 'KOYEB' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'koyebdb',
+            'USER': 'koyeb-adm',
+            'PASSWORD': 'S9fWEyIitKP1',
+            'HOST': 'ep-quiet-fire-46414821.eu-central-1.aws.neon.tech',
+            'OPTIONS': {'sslmode': 'require'},
+        }
+    }
 else:
     DATABASES = {
         'default': {
@@ -265,6 +276,11 @@ CELERY_BEAT_SCHEDULE = {
     'scheduled_synchronizing_data': {
         'task': 'base.tasks.scheduled_get_data',
         'schedule': timedelta(minutes=10),
+    },
+    'scheduled_adding': {
+        'task': 'base.tasks.add',
+        'args': (33, 55),
+        'schedule': timedelta(minutes=1),
     },
 }
 
