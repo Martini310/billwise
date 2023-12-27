@@ -3,12 +3,18 @@ from celery import shared_task
 from django.db import connection
 from .models import Account
 from .services import get_enea, get_aquanet, get_pgnig
+import logging
 
 
 fetch_data_functions = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
 
+logger = logging.getLogger(__name__)
+
 @shared_task
 def add(x, y):
+    logger.info(f'Executing add task with arguments x={x} and y={y}')
+    result = x + y
+    logger.info(f'The result of {x} + {y} is {result}')
     return x + y
 
 @shared_task

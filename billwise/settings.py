@@ -267,7 +267,7 @@ if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' i
     CELERY_IMPORTS = ('base.tasks',)
 
     CELERY_DEFAULT_QUEUE = 'default'
-    CELERY_WORKER_CONCURRENCY = 4
+    CELERY_WORKER_CONCURRENCY = 1
     CELERY_TASK_TIME_LIMIT = 300
     CELERY_TASK_MAX_RETRIES = 3
 
