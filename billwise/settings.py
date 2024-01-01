@@ -30,7 +30,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 # DEBUG = 'IN_DOCKER' not in os.environ
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'billwise-api-martini310.koyeb.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'billwise-api-martini310.koyeb.app', 'billwise-app-9di6t.ondigitalocean.app']
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
