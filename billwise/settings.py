@@ -118,7 +118,7 @@ elif 'RENDER' in os.environ:
             conn_max_age=600
         )
     }
-elif 'KOYEB' in os.environ:
+elif 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
