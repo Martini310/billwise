@@ -113,14 +113,6 @@ const Page = () => {
                 >
                   Zarejestruj się
                 </Link>
-                <Link
-                  component={NextLink}
-                  href="http://127.0.0.1:8000/accounts/google/login/"
-                  underline="hover"
-                  variant="subtitle2"
-                >
-                  Google
-                </Link>
               </Typography>
             </Stack>
             <Tabs

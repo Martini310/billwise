@@ -19,15 +19,6 @@ export const items = [
     )
   },
   {
-    title: 'Customers',
-    path: '/customers',
-    icon: (
-      <SvgIcon fontSize="small">
-        <UsersIcon />
-      </SvgIcon>
-    )
-  },
-  {
     title: 'Dostawcy',
     path: '/accounts',
     icon: (
@@ -42,6 +33,15 @@ export const items = [
     icon: (
       <SvgIcon fontSize="small">
         <UserIcon />
+      </SvgIcon>
+    )
+  },
+  {
+    title: 'Customers',
+    path: '/customers',
+    icon: (
+      <SvgIcon fontSize="small">
+        <UsersIcon />
       </SvgIcon>
     )
   },

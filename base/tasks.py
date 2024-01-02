@@ -4,6 +4,7 @@ from django.db import connection
 from .models import Account
 from .services import get_enea, get_aquanet, get_pgnig
 import logging
+from random import randint
 
 
 fetch_data_functions = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
@@ -11,7 +12,7 @@ fetch_data_functions = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aqu
 logger = logging.getLogger(__name__)
 
 @shared_task
-def add(x, y):
+def add(x=randint(1, 100), y=randint(1,100)):
     logger.info(f'Executing add task with arguments x={x} and y={y}')
     result = x + y
     logger.info(f'The result of {x} + {y} is {result}')
@@ -26,7 +27,6 @@ def sync_accounts_task(user_pk):
             fetch(user_pk, account.pk)
             account.save()
         return "User data synchronized"
-        # return sync_accounts(user_pk)
 
 @shared_task
 def scheduled_get_data():

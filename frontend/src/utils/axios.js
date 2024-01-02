@@ -1,12 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-// export const baseURL = 'http://127.0.0.1:8000/api/';
-// export const baseURL = 'https://billwise-api.onrender.com/api/';
-// export const baseURL = process.env.RENDER ? process.env.URL : 'http://localhost:8000/api/';
-// export const baseURL = process.env.NEXT_PUBLIC_RENDER ? process.env.NEXT_PUBLIC_URL : 'http://localhost:8000/api/';
 export const baseURL = process.env.NEXT_PUBLIC_URL
-
 
 export const axiosInstance = axios.create({
     baseURL: baseURL,
@@ -54,7 +49,8 @@ axiosInstance.interceptors.response.use(
 		if (
 			error.response.data.code === 'token_not_valid' &&
 			error.response.status === 401 &&
-			error.response.statusText === 'Unauthorized'
+			// error.response.statusText === 'Unauthorized'
+			error.response.data.messages[0].message === 'Token is invalid or expired'
 			) {
 			const refreshToken = Cookies.get('refresh_token');
 

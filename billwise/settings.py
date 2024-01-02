@@ -24,10 +24,8 @@ load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# DEBUG = 'RENDER' not in os.environ
-# DEBUG = 'IN_DOCKER' not in os.environ
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'billwise-api-martini310.koyeb.app', 'billwise-app-9di6t.ondigitalocean.app']
@@ -225,43 +223,14 @@ SIMPLE_JWT = {
 
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": "",
-    "AUDIENCE": None,
-    "ISSUER": None,
-    "JSON_ENCODER": None,
-    "JWK_URL": None,
-    "LEEWAY": 0,
-
     "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-
-    "JTI_CLAIM": "jti",
-
-    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
-    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
-    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
-    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
-    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
 
 # Celery configuration
 if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
-    CELERY_RESULT_BACKEND = 'rpc://'  # Use RPC result backend, adjust as needed
-    # CELERY_RESULT_BACKEND = 'db+postgresql://admin:admin@localhost:5432/billwise_db'
+    CELERY_RESULT_BACKEND = 'rpc://'
 
     # Include tasks from all installed apps
     CELERY_IMPORTS = ('base.tasks',)
@@ -275,22 +244,15 @@ if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' i
 CELERY_BEAT_SCHEDULE = {
     'scheduled_synchronizing_data': {
         'task': 'base.tasks.scheduled_get_data',
-        'schedule': timedelta(minutes=10),
+        'schedule': timedelta(minutes=360),
     },
     'scheduled_adding': {
         'task': 'base.tasks.add',
-        'args': (33, 55),
-        'schedule': timedelta(minutes=1),
+        # 'args': (33, 55),
+        'schedule': timedelta(minutes=60),
     },
 }
 
-# CELERY_BEAT_SCHEDULE = {
-#     "scheduled_task": {
-#         "task": "base.tasks.add",
-#         "schedule": 5.0,
-#         "args": (20,10),
-#     },
-# }
 
 SITE_ID = 1
 SOCIALACCOUNT_LOGIN_ON_GET = True

@@ -34,25 +34,16 @@ The purpose of the app is to manage payments from different suppliers in one pla
 
 ### Live preview 🔍
 
-#### Billwise is deployed on [Render](https://render.com/). You can see the App in action [here](https://bill-wise.onrender.com).  
+#### Billwise is deployed on [Render](https://render.com/) (*Redis*), [DigitalOcean](https://digitalocean.com/) (*API and Celery*) and [Koyeb](https://www.koyeb.com/) (*Frontend*) to minimize costs. You can see the App in action [here](https://billwise-martini310.koyeb.app/).  
 <br>
 
-***IMPORTANT!***  
-This is only the free tier so it have some serious limitations:  
 
-- after 15 minutes of idle servers fall asleep
-
-- wake up can take up to a few minutes so **be patient**
-
-- it is a good idea to firstly wake up API server by access this [link](https://billwise-api-qkpt.onrender.com/admin)
-
-- celery worker is deployed as a normal web-server not as a background worker so it need to be restarted manually every time
 
 ---
 
 ### Docker 🐋
 
-Much better option is to run the app locally using Docker. There are ready to use Dockerfiles and docker-compose. You only need to clone the repository and run docker compose.
+You can also run the app locally using Docker. There are ready to use Dockerfiles and docker-compose. You only need to clone the repository and run docker compose.
 
 ```bash
 git clone https://github.com/Martini310/billwise.git
@@ -74,8 +65,8 @@ If you want to run all the services manually it is also easy but require a littl
 
 Before you get started, make sure you have the following installed:
 
-- [Python](https://www.python.org/downloads/) (3.10.7)
-- [Node.js](https://nodejs.org/) (18.16.1)
+- [Python](https://www.python.org/downloads/) (3.10.7 or higher)
+- [Node.js](https://nodejs.org/) (18.16.1 or higher)
 - RabbitMQ / Redis
 
 Firstly clone the repo
