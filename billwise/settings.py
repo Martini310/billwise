@@ -120,10 +120,10 @@ elif 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ('DB_NAME'),
-            'USER': os.environ('DB_USER'),
-            'PASSWORD': os.environ('DB_PASSWORD'),
-            'HOST': os.environ('DB_HOST'),
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
             'OPTIONS': {'sslmode': 'require'},
         }
     }
