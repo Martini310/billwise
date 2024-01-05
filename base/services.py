@@ -62,7 +62,7 @@ def update_invoices_in_db(invoices: list, user: object, supplier: str):
 
 
 def login_to_pgnig(account, session):
-    logger.info("Starting login_to_pgnig()")
+    logger.info("[PGNIG] Starting login_to_pgnig()")
     response = session.post(
         url=PGNIG_LOGIN_URL,
         data={
@@ -78,7 +78,7 @@ def login_to_pgnig(account, session):
     )
 
     response.raise_for_status()
-    logger.info("Fetched token")
+    logger.info("[PGNIG] Fetched token")
     token = response.json().get('Token')
     session.headers.update({'AuthToken': token})
 
@@ -91,12 +91,12 @@ def get_pgnig_addresses(session):
         ppg_number = ppg.get('IdLocal')
         address = ppg.get('Address')
         addresses[ppg_number] = f"{address.get('Ulica')} {address.get('NrBudynku')}/{address.get('NrLokalu')}, {address.get('KodPocztowy')} {address.get('Miejscowosc')}"
-    logger.info("Finished get_pgnig_adresses()")
+    logger.info("[PGNIG] Finished get_pgnig_adresses()")
     return addresses
 
 
 def get_pgnig_invoices(session):
-    logger.info("Starting get_pgnig_invoices()")
+    logger.info("[PGNIG] Starting get_pgnig_invoices()")
     # GET invoices on account - amount declared in 'pageSize'
     get_invoices = session.get(
         url=PGNIG_INVOICES_URL,
@@ -109,13 +109,13 @@ def get_pgnig_invoices(session):
 
     invoices = get_invoices.json()['InvoicesList']
     addresses = get_pgnig_addresses(session)
-    logger.info("Finished get_pgnig_invoices()")
+    logger.info("[PGNIG] Finished get_pgnig_invoices()")
 
     return {'invoices': invoices, 'addresses': addresses}
 
 
 def create_pgnig_invoice_objects(invoices, user, account):
-    logger.info("Starting create_pgnig_invoice_objects()")
+    logger.info("[PGNIG] Starting create_pgnig_invoice_objects()")
     return [Invoice(number=invoice.get('Number'),
                     date=datetime.fromisoformat(invoice.get('Date')[:-1]),
                     amount=invoice.get('GrossAmount'),
@@ -141,7 +141,7 @@ def create_pgnig_invoice_objects(invoices, user, account):
 
 
 def login_to_enea(account, session, ):
-    logger.info("Starting login_to_enea()")
+    logger.info("[ENEA] Starting login_to_enea()")
 
     payload = {
         'email': account.login,
@@ -191,8 +191,8 @@ def get_enea_invoices(session):
             transfer_title =  p.text.replace('Tytuł przelewu:', '').strip()
         if 'Numer konta' in p.find('strong', class_='display-block').text:
             account_number = p.text.replace('Numer konta:', '').strip()
-    print(transfer_title)
-    print(account_number)
+    # print(transfer_title)
+    # print(account_number)
 
     return {'invoices': invoices,
             'bank_account_number': account_number,
@@ -308,7 +308,7 @@ def get_aquanet_invoices(session):
         if 'Numer konta' in div.find('span', class_='form-label').text:
             account_number = div.find('strong').text.strip()
             break
-    print(account_number)
+    # print(account_number)
 
     return {'invoices': [*paid_invoices, *unpaid_invoices], 'bank_account_number': account_number}
 
