@@ -22,6 +22,7 @@ const Page = () => {
 
   const auth = useAuth();
   const [method, setMethod] = useState('email');
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -42,7 +43,7 @@ const Page = () => {
 
     onSubmit: async (values, helpers) => {
       let error;
-    
+      setButtonDisabled(true);
       try {
         error = await auth.signIn(values.email, values.password);
         console.log('Error from signIn:', error);
@@ -50,16 +51,18 @@ const Page = () => {
           helpers.setStatus({ success: false });
           helpers.setErrors({ submit: error });
           helpers.setSubmitting(false);
+          setButtonDisabled(false);
         }
       } catch (err) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
         helpers.setErrors({ submit: err });
         helpers.setSubmitting(false);
+        setButtonDisabled(false);
       }
     }
   });
-
+  
   const handleMethodChange = useCallback(
     (event, value) => {
       setMethod(value);
@@ -173,6 +176,7 @@ const Page = () => {
                   sx={{ mt: 3 }}
                   type="submit"
                   variant="contained"
+                  disabled={isButtonDisabled}
                 >
                   Zaloguj
                 </Button>
