@@ -7,6 +7,7 @@ import {
   Alert,
   Box,
   Button,
+  CircularProgress,
   Link,
   Stack,
   Tab,
@@ -45,7 +46,7 @@ const Page = () => {
       let error;
       setButtonDisabled(true);
       try {
-        error = await auth.signIn(values.email, values.password);
+        // error = await auth.signIn(values.email, values.password);
         console.log('Error from signIn:', error);
         if (error) {
           helpers.setStatus({ success: false });
@@ -178,7 +179,13 @@ const Page = () => {
                   variant="contained"
                   disabled={isButtonDisabled}
                 >
-                  Zaloguj
+                  {isButtonDisabled ? (
+                    <>
+                      Logowanie <CircularProgress size='21px' sx={{ mt: 0, ml: 2 }} />
+                    </>
+                    ) : (
+                      'Zaloguj'
+                  )}                
                 </Button>
                 <Alert
                   color="primary"
