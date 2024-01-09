@@ -26,7 +26,7 @@ const useChartOptions = () => {
         show: false
       }
     },
-    colors: [alpha(theme.palette.primary.main, 0.25), theme.palette.primary.main],
+    colors: [alpha(theme.palette.primary.main, 0.15), alpha(theme.palette.primary.main, 0.4), theme.palette.primary.main],
     dataLabels: {
       enabled: false
     },
@@ -54,7 +54,7 @@ const useChartOptions = () => {
     },
     plotOptions: {
       bar: {
-        columnWidth: '40px'
+        columnWidth: '50px'
       }
     },
     stroke: {

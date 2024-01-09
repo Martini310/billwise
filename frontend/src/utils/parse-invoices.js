@@ -5,6 +5,7 @@ export const SumAndSortInvoices = (invoices, categories) => {
   // Create an arrays to store the summed invoice amounts for each month
   const currentYearAmounts = Array(12).fill(0);
   const previousYearAmounts = Array(12).fill(0);
+  const twoYearsAgoAmounts = Array(12).fill(0);
 
   const totalAmountByCategory = {};
   const percentageByCategory = {};
@@ -33,6 +34,12 @@ export const SumAndSortInvoices = (invoices, categories) => {
     if (invoiceYear === currentYear - 1) {
       previousYearAmounts[invoiceMonth] += amount;
     }
+
+    // Sum the invoice amounts for each month within the previous year
+    if (invoiceYear === currentYear - 2) {
+      twoYearsAgoAmounts[invoiceMonth] += amount;
+    }
+
     // Sum amounts for each category
     totalAmountByCategory[invoice.category.name] += invoice.amount;
     totalAmount += invoice.amount;
@@ -60,7 +67,8 @@ export const SumAndSortInvoices = (invoices, categories) => {
   const monthDifference = currentValue / previousValue * 100 - 100
 
   return ([currentYearAmounts, 
-          previousYearAmounts, 
+          previousYearAmounts,
+          twoYearsAgoAmounts,
           percentageByCategory, 
           paidInvoices, 
           unpaidInvoices, 

@@ -46,6 +46,7 @@ const Page = () => {
 
   const [currentYearAmounts, setCurrentYearAmounts] = useState([]);
   const [previousYearAmounts, setPreviousYearAmounts] = useState([]);
+  const [twoYearsAgoAmounts, settwoYearsAgoAmounts] = useState([]);
   const [percentageByCategory, setPercentageByCategory] = useState({});
   const [paidInvoices, setPaidInvoices] = useState(0);
   const [unpaidInvoices, setUnpaidInvoices] = useState([]);
@@ -115,6 +116,7 @@ const Page = () => {
       const [
         currentYearAmounts,
         previousYearAmounts,
+        twoYearsAgoAmounts,
         percentageByCategory,
         paidInvoices,
         unpaidInvoices,
@@ -124,6 +126,7 @@ const Page = () => {
       // Update the state variables with the calculated data
       setCurrentYearAmounts(currentYearAmounts);
       setPreviousYearAmounts(previousYearAmounts);
+      settwoYearsAgoAmounts(twoYearsAgoAmounts);
       setPercentageByCategory(percentageByCategory);
       setPaidInvoices(paidInvoices);
       setUnpaidInvoices(unpaidInvoices);
@@ -134,7 +137,8 @@ const Page = () => {
   }, [invoices, categories]);
 
   const newestInvoice = invoices[0]
-  
+  const year = new Date().getFullYear()
+
   return (
   <>
     <Head>
@@ -187,7 +191,7 @@ const Page = () => {
             xs={12}
             sm={6}
             lg={3}
-          >
+            >
             <OverviewPaidPercentage
               sx={{ height: '100%' }}
               value={parseFloat((paidInvoices / invoices.length * 100).toFixed(0))}
@@ -226,11 +230,15 @@ const Page = () => {
             <MonthlyChartLoading isLoading={appState.loading} 
               chartSeries={[
                 {
-                  name: 'Last year',
+                  name: year - 2,
+                  data: twoYearsAgoAmounts
+                },
+                {
+                  name: year - 1,
                   data: previousYearAmounts
                 },
                 {
-                  name: 'This year',
+                  name: year,
                   data: currentYearAmounts
                 }
               ]}
