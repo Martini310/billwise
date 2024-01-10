@@ -196,7 +196,7 @@ export default function EnhancedTable(props) {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Card sx={{ width: '100%' }}>
+      <Card sx={{ borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px', width: '100%' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <CardHeader title="Ostatnie faktury" />
           <Button
@@ -214,7 +214,7 @@ export default function EnhancedTable(props) {
         </Box>
       </Card>
       <Paper sx={{ width: '100%', mb: 2, borderRadius: '30px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.15)' }}>
-        <TableContainer sx={{ width: '100%', mb: 2, borderRadius: '20px'}}>
+        <TableContainer sx={{ width: '100%', mb: 2, borderRadius: '0px'}}>
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
