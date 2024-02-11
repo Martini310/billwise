@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { getSession } from 'next-auth/react';
 
 export const baseURL = process.env.NEXT_PUBLIC_URL
 
@@ -9,17 +10,18 @@ export const axiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
-
+		
     },
 });
 
 // Request interceptor to add the JWT token from cookies to the headers
-axiosInstance.interceptors.request.use((config) => {
-	const token = Cookies.get('access_token');
-	if (token) {
-	  config.headers.Authorization = `JWT ${token}`;
+axiosInstance.interceptors.request.use(async (request) => {
+	const session = await getSession();
+	// const token = fetchedSession.access_token;
+	if (session) {
+	  request.headers.Authorization = `JWT ${session.access_token}`;
 	}
-	return config;
+	return request;
   });
 
 axiosInstance.interceptors.response.use(
@@ -52,7 +54,8 @@ axiosInstance.interceptors.response.use(
 			// error.response.statusText === 'Unauthorized'
 			error.response.data.messages[0].message === 'Token is invalid or expired'
 			) {
-			const refreshToken = Cookies.get('refresh_token');
+			// const refreshToken = Cookies.get('refresh_token');
+			const refreshToken = fetchedSession.refresh_token;
 
 			if (refreshToken ) {
 

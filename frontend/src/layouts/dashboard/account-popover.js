@@ -1,22 +1,21 @@
 import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import PropTypes from 'prop-types';
 import { Box, Divider, MenuItem, MenuList, Popover, Typography } from '@mui/material';
-import { useAuth } from 'src/hooks/use-auth';
-import Cookies from 'js-cookie';
+// import { useAuth } from 'src/hooks/use-auth';
+import { signOut, useSession } from 'next-auth/react';
+
 
 export const AccountPopover = (props) => {
   const { anchorEl, onClose, open } = props;
-  const router = useRouter();
-  const auth = useAuth();
+  // const auth = useAuth();
+  const { data: session, status } = useSession()
 
   const handleSignOut = useCallback(
     () => {
       onClose?.();
-      auth.signOut();
-      router.push('/auth/login');
+      signOut({ callbackUrl: 'http://127.0.0.1:3000/auth/login' })
     },
-    [onClose, auth, router]
+    [onClose]
   );
 
   return (
@@ -43,7 +42,7 @@ export const AccountPopover = (props) => {
           color="text.secondary"
           variant="body2"
         >
-          {Cookies.get('username')}
+          {session?.user?.email}
         </Typography>
       </Box>
       <Divider />

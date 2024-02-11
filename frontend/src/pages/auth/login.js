@@ -15,20 +15,22 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { useAuth } from 'src/hooks/use-auth';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { toast } from 'sonner'
+
 
 
 const Page = () => {
 
-  const auth = useAuth();
+  const router = useRouter()
   const [method, setMethod] = useState('email');
   const [isButtonDisabled, setButtonDisabled] = useState(false);
   const formik = useFormik({
     initialValues: {
       email: '',
       password: '',
-      submit: null
     },
     validationSchema: Yup.object({
       email: Yup
@@ -42,26 +44,31 @@ const Page = () => {
         .required('Password is required')
     }),
 
-    onSubmit: async (values, helpers) => {
-      let error;
-      setButtonDisabled(true);
-      try {
-        error = await auth.signIn(values.email, values.password);
-        console.log('Error from signIn:', error);
-        if (error) {
-          helpers.setStatus({ success: false });
-          helpers.setErrors({ submit: error });
-          helpers.setSubmitting(false);
-          setButtonDisabled(false);
-        }
-      } catch (err) {
+  onSubmit: async (values, helpers) => {
+    setButtonDisabled(true);
+    console.log('values', values)
+    try {
+      const response = await signIn('credentials', { ...values,  redirect: false, callbackUrl: 'http://127.0.0.1:3000/'});
+      console.log('response', response)
+      if (response.ok) {
+        toast.success('Zalogowano prawidłowo!');
+        router.push('/')
+      };
+      if (response && response.status === 401) {
+        console.error('if Sign-in error:', response);
         helpers.setStatus({ success: false });
-        helpers.setErrors({ submit: err.message });
-        helpers.setErrors({ submit: err });
+        helpers.setErrors({ submit: response.message || 'Błąd logowania. Sprawdź poprawność danych i spróbuj ponownie' });
         helpers.setSubmitting(false);
         setButtonDisabled(false);
       }
+    } catch (err) {
+      console.error('catch Sign-in error:', err);
+      helpers.setStatus({ success: false });
+      helpers.setErrors({ submit: err.message || 'Wystąpił błąd. Spróbuj ponownie' });
+      helpers.setSubmitting(false);
+      setButtonDisabled(false);
     }
+  }
   });
   
   const handleMethodChange = useCallback(
@@ -186,6 +193,16 @@ const Page = () => {
                     ) : (
                       'Zaloguj'
                   )}                
+                </Button>
+                <Button
+                  fullWidth
+                  size="large"
+                  sx={{ mt: 3 }}
+                  type="button"
+                  variant="contained"
+                  onClick={() => signIn('google', {callbackUrl: 'http://127.0.0.1:3000/'})}
+                >
+                  Sign in with Google
                 </Button>
                 <Alert
                   color="primary"

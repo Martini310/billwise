@@ -46,10 +46,14 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    "dj_rest_auth.registration",
     'corsheaders',
     'base',
     'users',
     'rest_framework_simplejwt.token_blacklist',
+    'rest_framework_simplejwt',
     'django_celery_beat',
     'allauth',
     'allauth.account',
@@ -59,15 +63,15 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
+    # "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'billwise.urls'
@@ -219,11 +223,13 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": False,
+    "UPDATE_LAST_LOGIN": True,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": SECRET_KEY,
     "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
+
+    "SIGNING_KEY": os.environ.get('JWT_SECRET_KEY')
+    # "SIGNING_KEY": "complexsigningkey",  # generate a key and replace me
 }
 
 
@@ -254,10 +260,19 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 
-SITE_ID = 1
+SITE_ID = 2
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_STORE_TOKENS = True
 LOGIN_REDIRECT_URL = 'http://localhost:3000/'
+
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_HTTPONLY": False,
+}
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -272,6 +287,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': os.environ.get('GOOGLE_CLIENT'),
             'secret': os.environ.get('GOOGLE_SECRET'),
             'key': ''
-        }
+        },
+        "VERIFIED_EMAIL": True,
     }
 }

@@ -37,8 +37,8 @@ export const ProfileDetails = (props) => {
       axiosInstance.patch(patchURL, profileDetails)
         .then((res) => {
           console.log(res);
-          Cookies.set('username', res.data.username, {sameSite: 'Lax'});
-          Cookies.set('id', res.data.id, {sameSite: 'Lax'});
+          // Cookies.set('username', res.data.username, {sameSite: 'Lax'});
+          // Cookies.set('id', res.data.id, {sameSite: 'Lax'});
           router.push("/");
         })
         .catch((err) => console.log(err));

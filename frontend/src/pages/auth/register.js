@@ -3,18 +3,21 @@ import NextLink from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Box, Button, Link, Stack, TextField, Typography } from '@mui/material';
-import { useAuth } from 'src/hooks/use-auth';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
+import { axiosInstance } from 'src/utils/axios';
+import { useRouter } from 'next/router';
+
+
 
 const Page = () => {
-  const auth = useAuth();
+  const router = useRouter()
+
   const formik = useFormik({
     initialValues: {
       email: '',
       name: '',
       username: '',
       password: '',
-      submit: null
     },
     validationSchema: Yup.object({
       email: Yup
@@ -34,25 +37,32 @@ const Page = () => {
         .string()
         .max(255)
         .required('Password is required')
-    }),
-
-    onSubmit: async (values, helpers) => {
-      let error; // Declare the error variable here
-    
-      try {
-        error = await auth.signUp(values.email, values.username, values.name, values.password);
-        console.log('Error from signUp:', error); // Check the error here
-        if (error) {
+      }),
+      
+      onSubmit: async (values, helpers) => {
+        console.log('register', values)
+        const { email, name, username, password } = values
+        try {
+          const response = await axiosInstance.post(`user/register/`, {
+            email: email,
+            username: username,
+            first_name: name,
+            password: password,
+          });
+          if (response.status === 201) {
+            console.log(response.data)
+            router.push('/auth/login');
+          } else {
+              console.error('Some error');
+          }
+        } catch (error) {
+          console.error('Registration failed:', error);
           helpers.setStatus({ success: false });
-          helpers.setErrors(error);
+          Object.keys(error.response.data).forEach(field => {
+            helpers.setErrors({ [field]: error.response.data[field] });
+          });
           helpers.setSubmitting(false);
         }
-      } catch (err) {
-        helpers.setStatus({ success: false });
-        helpers.setErrors({ submit: err.message });
-        helpers.setErrors({ submit: err });
-        helpers.setSubmitting(false);
-      }
     }
   });
 
@@ -157,7 +167,7 @@ const Page = () => {
                   sx={{ mt: 3 }}
                   variant="body2"
                 >
-                  {formik.errors.submit}
+                  <b>{formik.errors.submit}</b>
                 </Typography>
               )}
               <Button
