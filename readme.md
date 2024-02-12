@@ -34,7 +34,11 @@ The purpose of the app is to manage payments from different suppliers in one pla
 
 ### Live preview 🔍
 
-#### Billwise is deployed on [Render](https://render.com/) (*Redis*), [DigitalOcean](https://digitalocean.com/) (*API and Celery*) and [Koyeb](https://www.koyeb.com/) (*Frontend*) to minimize costs. You can see the App in action [here](https://billwise-martini310.koyeb.app/).  
+#### Billwise is deployed on:
+ - [Render](https://render.com/) (*Redis*)
+ - [DigitalOcean](https://digitalocean.com/) (*API and Celery*)
+ - [Koyeb](https://www.koyeb.com/) (*Frontend*)<br>
+ to minimize costs. You can see the App in action [here](https://billwise-martini310.koyeb.app/).  
 <br>
 
 
@@ -153,21 +157,21 @@ Main features for now:
 
 - :white_check_mark: Payments synchronized with major platforms in Poland (*PGNiG, Enea, Aquanet*)
 - :white_check_mark: Yearly summary with monthly chart and year-2-year comparission
-- :white_check_mark:Newest/Nearest Payment
-- :white_check_mark:Payment Percentage
-- :white_check_mark:Month summary with month-2-month comparission
-- :white_check_mark:Add own invoices manually
-- :white_check_mark:Invoice details in modal window
-- :white_check_mark:Background  worker to scheduled data fetching
+- :white_check_mark: Newest/Nearest Payment
+- :white_check_mark: Payment Percentage
+- :white_check_mark: Month summary with month-2-month comparission
+- :white_check_mark: Add own invoices manually
+- :white_check_mark: Invoice details in modal window
+- :white_check_mark: Background  worker to scheduled data fetching
 
 Plans:
 
-- :soon:Real-time notifications
-- :soon:Autheticate with Facebook or Google
-- :soon:Email notifications
-- :soon:Payments directly from app
-- :soon:Many more suppliers (*Inea, Orange, Tmobile etc.*)
-- :soon:Dark mode
+- :soon: Real-time notifications
+- :soon: Autheticate with Facebook or Google
+- :soon: Email notifications
+- :soon: Payments directly from app
+- :soon: Many more suppliers (*Inea, Orange, Tmobile etc.*)
+- :soon: Dark mode
 
 ## 👥Contributing
 
@@ -183,3 +187,8 @@ This project is licensed under the [MIT License](LICENSE). See the [LICENSE](LIC
 ## 📨Support & Contact
 
 If you encounter any issues or have questions, please send me an  [email](mailto:maritn.brzezinski@wp.eu)
+
+## Changelog
+
+#### **2024-02-11**
+*Implemented Google authentication*
