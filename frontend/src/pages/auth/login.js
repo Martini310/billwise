@@ -59,6 +59,7 @@ const Page = () => {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: response.message || 'Błąd logowania. Sprawdź poprawność danych i spróbuj ponownie' });
         helpers.setSubmitting(false);
+        toast.warning('Błąd logowania!');
         setButtonDisabled(false);
       }
     } catch (err) {
@@ -66,6 +67,7 @@ const Page = () => {
       helpers.setStatus({ success: false });
       helpers.setErrors({ submit: err.message || 'Wystąpił błąd. Spróbuj ponownie' });
       helpers.setSubmitting(false);
+      toast.error('Wystąpił błąd! Spróbuj ponownie..');
       setButtonDisabled(false);
     }
   }

@@ -1,19 +1,19 @@
 import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Divider, MenuItem, MenuList, Popover, Typography } from '@mui/material';
-// import { useAuth } from 'src/hooks/use-auth';
 import { signOut, useSession } from 'next-auth/react';
+import { toast } from 'sonner'
 
 
 export const AccountPopover = (props) => {
   const { anchorEl, onClose, open } = props;
-  // const auth = useAuth();
   const { data: session, status } = useSession()
 
   const handleSignOut = useCallback(
     () => {
       onClose?.();
       signOut({ callbackUrl: 'http://127.0.0.1:3000/auth/login' })
+      toast.success('Wylogowano prawidłowo!');
     },
     [onClose]
   );

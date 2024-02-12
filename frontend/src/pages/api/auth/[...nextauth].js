@@ -20,8 +20,7 @@ const SIGN_IN_HANDLERS = {
     try {
     const response = await axios({
         method: "post",
-        // url: process.env.NEXTAUTH_BACKEND_URL + "auth/google/",
-        url: "http://127.0.0.1:8000/google/",
+        url: process.env.NEXTAUTH_BACKEND_URL + "auth/google/",
         data: {
         access_token: account["id_token"]
         },
@@ -47,23 +46,21 @@ export const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        // username: {label: "Username", type: "text"},
         email: {label: "Email", type: "email"},
         password: {label: "Password", type: "password"}
       },
       // The data returned from this function is passed forward as the
       // `user` variable to the signIn() and jwt() callback
       async authorize(credentials, req) {
-        console.log('authorize - credentials', credentials)
+        // console.log('authorize - credentials', credentials)
         try {
           const response = await axios({
-            // url: process.env.NEXT_PUBLIC_URL + "/login/",
-            url: "http://127.0.0.1:8000/login/",
+            url: process.env.NEXTAUTH_BACKEND_URL + "auth/login/",
             method: "post",
             data: credentials,
           });
           const data = response.data;
-          console.log('authorize data', data)
+        //   console.log('authorize data', data)
           if (data) return data;
         } catch (error) {
           console.error('authorize - catch', error.response.data);
@@ -106,8 +103,7 @@ export const authOptions = {
       if (getCurrentEpochTime() > token["ref"]) {
         const response = await axios({
           method: "post",
-        //   url: process.env.NEXTAUTH_BACKEND_URL + "auth/token/refresh/",
-          url: "http://localhost:8000/token/refresh/",
+          url: process.env.NEXTAUTH_BACKEND_URL + "auth/token/refresh/",
           data: {
             refresh: token["refresh_token"],
           },
@@ -121,7 +117,7 @@ export const authOptions = {
     // Since we're using Django as the backend we have to pass the JWT
     // token to the client instead of the `session`.
     async session({token}) {
-        // console.log('session - token', token)
+        console.log('session - token', token)
       return token;
     },
   }
