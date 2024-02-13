@@ -12,7 +12,7 @@ export const AccountPopover = (props) => {
   const handleSignOut = useCallback(
     () => {
       onClose?.();
-      signOut({ callbackUrl: process.env.NEXTAUTH_URL + 'auth/login' })
+      signOut({ callbackUrl: '/auth/login' })
       toast.success('Wylogowano prawidłowo!');
     },
     [onClose]
