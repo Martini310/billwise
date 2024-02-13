@@ -48,7 +48,7 @@ const Page = () => {
     setButtonDisabled(true);
     console.log('values', values)
     try {
-      const response = await signIn('credentials', { ...values,  redirect: false, callbackUrl: 'http://127.0.0.1:3000/'});
+      const response = await signIn('credentials', { ...values,  redirect: false, callbackUrl: process.env.NEXTAUTH_URL});
       console.log('response', response)
       if (response.ok) {
         toast.success('Zalogowano prawidłowo!');
@@ -202,7 +202,7 @@ const Page = () => {
                   sx={{ mt: 3 }}
                   type="button"
                   variant="contained"
-                  onClick={() => signIn('google', {callbackUrl: 'http://127.0.0.1:3000/'})}
+                  onClick={() => signIn('google', {callbackUrl: process.env.NEXTAUTH_URL})}
                 >
                   Sign in with Google
                 </Button>
