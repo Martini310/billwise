@@ -202,7 +202,7 @@ const Page = () => {
                   sx={{ mt: 3 }}
                   type="button"
                   variant="contained"
-                  onClick={() => signIn('google', {callbackUrl: process.env.NEXTAUTH_URL})}
+                  onClick={() => signIn('google', {callbackUrl: '/'})}
                 >
                   Sign in with Google
                 </Button>
