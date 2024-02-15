@@ -27,7 +27,8 @@ const SIGN_IN_HANDLERS = {
         method: "post",
         url: process.env.NEXTAUTH_BACKEND_URL + "auth/google/",
         data: {
-        access_token: account["id_token"]
+        // access_token: account["id_token"]
+        access_token: account["access_token"]
         },
     });
     account["meta"] = response.data;
@@ -35,7 +36,7 @@ const SIGN_IN_HANDLERS = {
     return true;
     } catch (error) {
         console.error('serwer', error);
-        console.log('serwer', error);
+        console.log('RESPONSE DATA', response.data);
     return false;
     }
 }
