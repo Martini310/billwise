@@ -26,7 +26,7 @@ const SIGN_IN_HANDLERS = {
         },
     });
     account["meta"] = response.data;
-
+    console.log(response)
     return true;
     } catch (error) {
         console.error('serwer', error);
@@ -85,6 +85,11 @@ export const authOptions = {
     async signIn({user, account, profile, email, credentials}) {
       if (!SIGN_IN_PROVIDERS.includes(account.provider)) return false;
       console.log('callback signIn'); // 1
+      console.log('user', user); // 1
+      console.log('account', account); // 1
+      console.log('profile', profile); // 1
+      console.log('email', email); // 1
+      console.log('credentials', credentials); // 1
       return SIGN_IN_HANDLERS[account.provider](
         user, account, profile, email, credentials
       );
@@ -117,7 +122,7 @@ export const authOptions = {
     // Since we're using Django as the backend we have to pass the JWT
     // token to the client instead of the `session`.
     async session({token}) {
-        console.log('session - token', token)
+        // console.log('session - token', token)
       return token;
     },
   }
