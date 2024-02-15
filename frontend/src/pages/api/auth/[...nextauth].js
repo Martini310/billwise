@@ -18,7 +18,12 @@ const SIGN_IN_HANDLERS = {
   },
   "google": async (user, account, profile, email, credentials) => {
     try {
-    const response = await axios({
+      console.log('user', user); // 1
+      console.log('account', account); // 1
+      console.log('profile', profile); // 1
+      console.log('email', email); // 1
+      console.log('credentials', credentials); // 1
+      const response = await axios({
         method: "post",
         url: process.env.NEXTAUTH_BACKEND_URL + "auth/google/",
         data: {
@@ -30,6 +35,7 @@ const SIGN_IN_HANDLERS = {
     return true;
     } catch (error) {
         console.error('serwer', error);
+        console.log('serwer', error);
     return false;
     }
 }
@@ -85,11 +91,7 @@ export const authOptions = {
     async signIn({user, account, profile, email, credentials}) {
       if (!SIGN_IN_PROVIDERS.includes(account.provider)) return false;
       console.log('callback signIn'); // 1
-      console.log('user', user); // 1
-      console.log('account', account); // 1
-      console.log('profile', profile); // 1
-      console.log('email', email); // 1
-      console.log('credentials', credentials); // 1
+
       return SIGN_IN_HANDLERS[account.provider](
         user, account, profile, email, credentials
       );
