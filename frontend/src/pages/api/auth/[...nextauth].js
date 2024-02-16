@@ -18,25 +18,17 @@ const SIGN_IN_HANDLERS = {
   },
   "google": async (user, account, profile, email, credentials) => {
     try {
-      console.log('user', user); // 1
-      console.log('account', account); // 1
-      console.log('profile', profile); // 1
-      console.log('email', email); // 1
-      console.log('credentials', credentials); // 1
       const response = await axios({
         method: "post",
         url: process.env.NEXTAUTH_BACKEND_URL + "auth/google/",
         data: {
-        // access_token: account["id_token"]
         access_token: account["access_token"]
         },
     });
     account["meta"] = response.data;
-    console.log(response)
     return true;
     } catch (error) {
         console.error('serwer', error);
-        console.log('RESPONSE DATA', response.data);
     return false;
     }
 }
@@ -59,7 +51,6 @@ export const authOptions = {
       // The data returned from this function is passed forward as the
       // `user` variable to the signIn() and jwt() callback
       async authorize(credentials, req) {
-        // console.log('authorize - credentials', credentials)
         try {
           const response = await axios({
             url: process.env.NEXTAUTH_BACKEND_URL + "auth/login/",
@@ -67,7 +58,6 @@ export const authOptions = {
             data: credentials,
           });
           const data = response.data;
-        //   console.log('authorize data', data)
           if (data) return data;
         } catch (error) {
           console.error('authorize - catch', error.response.data);
@@ -91,7 +81,6 @@ export const authOptions = {
   callbacks: {
     async signIn({user, account, profile, email, credentials}) {
       if (!SIGN_IN_PROVIDERS.includes(account.provider)) return false;
-      console.log('callback signIn'); // 1
 
       return SIGN_IN_HANDLERS[account.provider](
         user, account, profile, email, credentials
@@ -125,7 +114,6 @@ export const authOptions = {
     // Since we're using Django as the backend we have to pass the JWT
     // token to the client instead of the `session`.
     async session({token}) {
-        // console.log('session - token', token)
       return token;
     },
   }

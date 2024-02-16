@@ -19,6 +19,7 @@ import { Layout as AuthLayout } from 'src/layouts/auth/layout';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner'
+import GoogleSignInButton from 'src/components/g_button'
 
 
 
@@ -196,20 +197,11 @@ const Page = () => {
                       'Zaloguj'
                   )}                
                 </Button>
-                <Button
-                  fullWidth
-                  size="large"
-                  sx={{ mt: 3 }}
-                  type="button"
-                  variant="contained"
-                  onClick={() => signIn('google', {callbackUrl: '/'})}
-                >
-                  Sign in with Google
-                </Button>
+                <GoogleSignInButton onClick={() => signIn('google', {callbackUrl: '/'})} />
                 <Alert
                   color="primary"
                   severity="info"
-                  sx={{ mt: 3 }}
+                  sx={{ mt: 2 }}
                 >
                   <div>
                     You can use <b>test@user.com</b> and password <b>test</b>
