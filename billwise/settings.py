@@ -45,16 +45,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
-    'rest_framework',
-    'rest_framework.authtoken',
-    'dj_rest_auth',
-    "dj_rest_auth.registration",
-    'corsheaders',
     'base',
     'users',
+
+    'corsheaders',
+    'django_celery_beat',
+    'rest_framework',
+    'rest_framework.authtoken',
+
+    'dj_rest_auth',
+    "dj_rest_auth.registration",
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_simplejwt',
-    'django_celery_beat',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -229,7 +231,6 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer", "JWT"),
 
     "SIGNING_KEY": os.environ.get('JWT_SECRET_KEY')
-    # "SIGNING_KEY": "complexsigningkey",  # generate a key and replace me
 }
 
 
@@ -263,13 +264,10 @@ CELERY_BEAT_SCHEDULE = {
 SITE_ID = int(os.getenv('SITE_ID'))
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_STORE_TOKENS = True
-# LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL')
 
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-
-USE_X_FORWARDED_HOST = True
 
 REST_AUTH = {
     "USE_JWT": True,

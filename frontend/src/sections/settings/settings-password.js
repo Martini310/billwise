@@ -37,7 +37,7 @@ export const SettingsPassword = () => {
     <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader
-          subheader="Update password"
+          subheader="Zmiana hasła dostępna jest w ustawieniach konta"
           title="Password"
         />
         <Divider />
@@ -47,6 +47,7 @@ export const SettingsPassword = () => {
             sx={{ maxWidth: 400 }}
           >
             <TextField
+              disabled='true'
               fullWidth
               label="Password"
               name="password"
@@ -55,6 +56,7 @@ export const SettingsPassword = () => {
               value={values.password}
             />
             <TextField
+              disabled='true'
               fullWidth
               label="Password (Confirm)"
               name="confirm"
