@@ -51,6 +51,16 @@ def setup_logging():
 
 logger = setup_logging()
 
+def supplier_log(abr):
+    def logged(func):
+        def wrapper(*args, **kwargs):
+            logger.info(f'[{abr}] {func.__name__} - start')
+            f = func(*args, **kwargs)
+            logger.info(f'[{abr}] {func.__name__} - finnish')
+            return f
+        return wrapper
+    return logged
+
 
 def update_invoices_in_db(invoices: list, user: object, supplier: str):
     # Update existing invoices if status or amount change
@@ -61,8 +71,8 @@ def update_invoices_in_db(invoices: list, user: object, supplier: str):
             Invoice.objects.filter(number=invoice.number, user=user).update(is_paid=invoice.is_paid, amount_to_pay=invoice.amount_to_pay, amount=invoice.amount)
 
 
+@supplier_log('PGNIG')
 def login_to_pgnig(account, session):
-    logger.info("[PGNIG] Starting login_to_pgnig()")
     response = session.post(
         url=PGNIG_LOGIN_URL,
         data={
@@ -83,6 +93,7 @@ def login_to_pgnig(account, session):
     session.headers.update({'AuthToken': token})
 
 
+@supplier_log('PGNIG')
 def get_pgnig_addresses(session):
     get_entry_points = session.get('https://ebok.pgnig.pl/crm/get-ppg-list?api-version=3.0')
     ppg_list = get_entry_points.json().get('PpgList')
@@ -91,12 +102,11 @@ def get_pgnig_addresses(session):
         ppg_number = ppg.get('IdLocal')
         address = ppg.get('Address')
         addresses[ppg_number] = f"{address.get('Ulica')} {address.get('NrBudynku')}/{address.get('NrLokalu')}, {address.get('KodPocztowy')} {address.get('Miejscowosc')}"
-    logger.info("[PGNIG] Finished get_pgnig_adresses()")
     return addresses
 
 
+@supplier_log('PGNIG')
 def get_pgnig_invoices(session):
-    logger.info("[PGNIG] Starting get_pgnig_invoices()")
     # GET invoices on account - amount declared in 'pageSize'
     get_invoices = session.get(
         url=PGNIG_INVOICES_URL,
@@ -106,16 +116,13 @@ def get_pgnig_invoices(session):
             'pageSize': 100,
         }
     )
-
     invoices = get_invoices.json()['InvoicesList']
     addresses = get_pgnig_addresses(session)
-    logger.info("[PGNIG] Finished get_pgnig_invoices()")
-
     return {'invoices': invoices, 'addresses': addresses}
 
 
+@supplier_log('PGNIG')
 def create_pgnig_invoice_objects(invoices, user, account):
-    logger.info("[PGNIG] Starting create_pgnig_invoice_objects()")
     return [Invoice(number=invoice.get('Number'),
                     date=datetime.fromisoformat(invoice.get('Date')[:-1]),
                     amount=invoice.get('GrossAmount'),
@@ -402,3 +409,4 @@ def get_pgnig(user_pk: int, account_pk: int):
 # get_enea(2, 13) # nieistniejące konto
 # get_enea(2, 10) # zły login
 # get_pgnig(2, 9)
+# get_pgnig(2, 18)
