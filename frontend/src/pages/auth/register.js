@@ -6,7 +6,7 @@ import { Box, Button, Link, Stack, TextField, Typography } from '@mui/material';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
 import { axiosInstance } from 'src/utils/axios';
 import { useRouter } from 'next/router';
-
+import { toast } from 'sonner'
 
 
 const Page = () => {
@@ -40,7 +40,6 @@ const Page = () => {
       }),
       
       onSubmit: async (values, helpers) => {
-        console.log('register', values)
         const { email, name, username, password } = values
         try {
           const response = await axiosInstance.post(`user/register/`, {
@@ -50,10 +49,11 @@ const Page = () => {
             password: password,
           });
           if (response.status === 201) {
-            console.log(response.data)
             router.push('/auth/login');
+            toast.success('Prawidłowo utworzono nowe konto! Możesz się zalogować.');
           } else {
               console.error('Some error');
+              toast.error("Coś poszło nie tak, spróbuj ponownie")
           }
         } catch (error) {
           console.error('Registration failed:', error);

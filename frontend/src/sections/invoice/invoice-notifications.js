@@ -26,7 +26,7 @@ export const InvoiceNotifications = () => {
     <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader
-          subheader="Manage the notifications"
+          subheader="Dostępne wkrótce"
           title="Notifications"
         />
         <Divider />
@@ -47,18 +47,22 @@ export const InvoiceNotifications = () => {
                 </Typography>
                 <Stack>
                   <FormControlLabel
+                    disabled='true'
                     control={<Checkbox defaultChecked />}
                     label="Email"
                   />
                   <FormControlLabel
+                    disabled='true'
                     control={<Checkbox defaultChecked />}
                     label="Push Notifications"
                   />
                   <FormControlLabel
+                    disabled='true'
                     control={<Checkbox />}
                     label="Text Messages"
                   />
                   <FormControlLabel
+                    disabled='true'
                     control={<Checkbox defaultChecked />}
                     label="Phone calls"
                   />
@@ -77,14 +81,17 @@ export const InvoiceNotifications = () => {
                 </Typography>
                 <Stack>
                   <FormControlLabel
+                    disabled='true'
                     control={<Checkbox defaultChecked />}
                     label="Email"
                   />
                   <FormControlLabel
+                    disabled='true'
                     control={<Checkbox />}
                     label="Push Notifications"
                   />
                   <FormControlLabel
+                    disabled='true'
                     control={<Checkbox defaultChecked />}
                     label="Phone calls"
                   />

@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { toast } from 'sonner'
 
 
 export const ProfilePassword = () => {
@@ -58,14 +59,13 @@ export const ProfilePassword = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      console.log(passwords)
-      console.log(comparePasswords())
       if (comparePasswords()) {
         axiosInstance
           .post('user/change_password/', passwords)
           .then((res) => {
             console.log(res);
             router.push("/");
+            toast.success('Hasło zostało zmienione');
           })
           .catch((err) => {
             err.response.data.error === "Incorrect old password."

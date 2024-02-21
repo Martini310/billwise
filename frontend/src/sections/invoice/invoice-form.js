@@ -12,6 +12,7 @@ import {
   TextField,
   MenuItem
 } from '@mui/material';
+import { toast } from 'sonner'
 
 
 export const InvoiceForm = () => {
@@ -56,12 +57,12 @@ export const InvoiceForm = () => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      console.log(values);
       axiosInstance
         .post('invoices/', values)
         .then((res) => {
           console.log(res);
           router.push("/");
+          toast.success('Dodano nową płatność!');
         })
         .catch((err) => console.log(err));
     }, [values]

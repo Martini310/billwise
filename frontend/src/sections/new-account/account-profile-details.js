@@ -17,6 +17,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { axiosInstance } from 'src/utils/axios';
 import axios from 'axios';
+import { toast } from 'sonner'
 
 
 export const AccountProfileDetails = (props) => {
@@ -70,6 +71,7 @@ export const AccountProfileDetails = (props) => {
         .then((res) => {
           console.log(res);
           router.push("/accounts/");
+          toast.success('Dodano nowego dostawcę');
         })
         .catch((err) => console.log(err));
     }, [post]

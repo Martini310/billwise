@@ -12,7 +12,6 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
-import Cookies from 'js-cookie';
 
 
 export const ProfileDetails = (props) => {
@@ -37,9 +36,8 @@ export const ProfileDetails = (props) => {
       axiosInstance.patch(patchURL, profileDetails)
         .then((res) => {
           console.log(res);
-          // Cookies.set('username', res.data.username, {sameSite: 'Lax'});
-          // Cookies.set('id', res.data.id, {sameSite: 'Lax'});
           router.push("/");
+          toast.success('Zapisano zmiany');
         })
         .catch((err) => console.log(err));
     },

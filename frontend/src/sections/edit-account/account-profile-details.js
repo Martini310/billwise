@@ -16,6 +16,7 @@ import {
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { axiosInstance } from 'src/utils/axios';
+import { toast } from 'sonner'
 
 
 export const AccountProfileDetails = (props) => {
@@ -51,6 +52,7 @@ export const AccountProfileDetails = (props) => {
         .then((res) => {
           console.log(res);
           router.push("/accounts/");
+          toast.success('Zapisano zmiany');
         })
         .catch((err) => console.log(err));
     }, [post]
@@ -63,6 +65,7 @@ export const AccountProfileDetails = (props) => {
         .then((res) => {
           console.log(res);
           router.push("/accounts/");
+          toast.success('Usunięto dostawcę');
         })
         .catch((err) => console.log(err));
     }, [account]
