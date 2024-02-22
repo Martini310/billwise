@@ -62,7 +62,6 @@ export const SumAndSortInvoices = (invoices, categories) => {
     percentageByCategory[category] = +percentage.toFixed(2); // Round the percentage to 2 decimal places
   });
 
-  const testvar = 'trying merge in git'
 
   // Calculate monthly percentage difference
   const currentMonth = new Date().getMonth()

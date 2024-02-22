@@ -24,8 +24,12 @@ def sync_accounts_task(user_pk):
         accounts = Account.objects.filter(user__pk=user_pk)
         for account in accounts:
             fetch = fetch_data_functions.get(account.supplier.name)
-            fetch(user_pk, account.pk)
-            account.save()
+            try:
+                fetch(user_pk, account.pk)
+                account.save()
+            except ValueError as e:
+                return e
+
         return "User data synchronized"
 
 @shared_task

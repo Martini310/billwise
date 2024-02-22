@@ -73,24 +73,28 @@ def update_invoices_in_db(invoices: list, user: object, supplier: str):
 
 @supplier_log('PGNIG')
 def login_to_pgnig(account, session):
-    response = session.post(
-        url=PGNIG_LOGIN_URL,
-        data={
-            'identificator': account.login,
-            'accessPin': account.password,
-            'DeviceId': '824e02bc5b8ac6100b807f6fc6184abf',
-            'DeviceType': 'Web'
-        },
-        params={'api-version': PGNIG_API_VERSION},
-        headers=PGNIG_HEADERS,
-        verify=False,
-        timeout=5000,
-    )
+    try:
+        response = session.post(
+            url=PGNIG_LOGIN_URL,
+            data={
+                'identificator': account.login,
+                'accessPin': account.password,
+                'DeviceId': '824e02bc5b8ac6100b807f6fc6184abf',
+                'DeviceType': 'Web'
+            },
+            params={'api-version': PGNIG_API_VERSION},
+            headers=PGNIG_HEADERS,
+            verify=False,
+            timeout=5000,
+        )
 
-    response.raise_for_status()
-    logger.info("[PGNIG] Fetched token")
-    token = response.json().get('Token')
-    session.headers.update({'AuthToken': token})
+        response.raise_for_status()
+        logger.info("[PGNIG] Fetched token")
+        token = response.json().get('Token')
+        session.headers.update({'AuthToken': token})
+    except RequestException as exc:
+        logger.error(f"[PGNIG] Request exception occurred: {exc}")
+        raise ValueError('Nie można się zalogować przy użyciu podanych danych') from exc
 
 
 @supplier_log('PGNIG')
@@ -382,7 +386,8 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         logger.info(f"[{supplier.upper()}] Finished fetching data for user {user.username}")
 
     except NewUser.DoesNotExist:
-        logger.debug(f"User with pk {user_pk} does not exist")
+        # logger.debug(f"User with pk {user_pk} does not exist")
+        logger.debug("User with pk %s does not exist", user_pk)
     except Account.DoesNotExist:
         logger.debug(f"Account with pk {account_pk} does not exist")
     except requests.exceptions.Timeout as e:
@@ -391,6 +396,9 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         logger.debug(f"ConnectionError: {e}")
     except requests.exceptions.RequestException as e:
         logger.debug(f"RequestException: {e}")
+    except ValueError as e:
+        logger.error(str(e))
+        return str(e)
     except Exception as e:
         logger.debug(f"An unexpected error occurred: {e}")
 
@@ -409,4 +417,4 @@ def get_pgnig(user_pk: int, account_pk: int):
 # get_enea(2, 13) # nieistniejące konto
 # get_enea(2, 10) # zły login
 # get_pgnig(2, 9)
-# get_pgnig(2, 18)
+get_pgnig(2, 13)
