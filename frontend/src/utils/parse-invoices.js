@@ -48,6 +48,12 @@ export const SumAndSortInvoices = (invoices, categories) => {
       : unpaidInvoices.push(invoice);
   });
   
+  
+  // Sort unpaid invoices to set the oldest deadline at first position
+  unpaidInvoices.sort(function(a,b){
+    return new Date(a.pay_deadline) - new Date(b.pay_deadline);
+  });
+
 
   // Count percentage of each category
   categories.forEach((category) => {
