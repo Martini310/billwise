@@ -398,6 +398,10 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         logger.debug(f"RequestException: {e}")
     except ValueError as e:
         logger.error(str(e))
+        print('error print')
+        # account.notification = str(e)
+        account.notification = 'kskksks'
+        account.save()
         return str(e)
     except Exception as e:
         logger.debug(f"An unexpected error occurred: {e}")
@@ -417,4 +421,4 @@ def get_pgnig(user_pk: int, account_pk: int):
 # get_enea(2, 13) # nieistniejące konto
 # get_enea(2, 10) # zły login
 # get_pgnig(2, 9)
-get_pgnig(2, 13)
+# get_pgnig(2, 13)

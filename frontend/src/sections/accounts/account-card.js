@@ -35,6 +35,15 @@ export const AccountCard = (props) => {
             sx={{ width: 160, height: 100 }}
           />
         </Box>
+        {account.notification ?? 
+          <Typography
+            align="center"
+            gutterBottom
+            variant="h6"
+            colort="red"
+            >
+            {account.notification}
+        </Typography>}
         <Typography
           align="center"
           gutterBottom
