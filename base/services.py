@@ -386,8 +386,7 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         logger.info(f"[{supplier.upper()}] Finished fetching data for user {user.username}")
 
     except NewUser.DoesNotExist:
-        # logger.debug(f"User with pk {user_pk} does not exist")
-        logger.debug("User with pk %s does not exist", user_pk)
+        logger.debug(f"User with pk {user_pk} does not exist")
     except Account.DoesNotExist:
         logger.debug(f"Account with pk {account_pk} does not exist")
     except requests.exceptions.Timeout as e:
@@ -398,11 +397,9 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         logger.debug(f"RequestException: {e}")
     except ValueError as e:
         logger.error(str(e))
-        print('error print')
-        # account.notification = str(e)
-        account.notification = 'kskksks'
-        account.save()
-        return str(e)
+        account.notification = str(e)
+        account.save(update_fields=['notification'])
+        raise ValueError(str(e)) from e
     except Exception as e:
         logger.debug(f"An unexpected error occurred: {e}")
 

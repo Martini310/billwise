@@ -28,8 +28,7 @@ def sync_accounts_task(user_pk):
                 fetch(user_pk, account.pk)
                 account.save()
             except ValueError as e:
-                return e
-
+                return f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}"
         return "User data synchronized"
 
 @shared_task
