@@ -44,18 +44,15 @@ export const AccountProfile = (props) => {
             >
               {account.supplier['name']}
             </Typography>
-            <Typography
-              color="text.secondary"
-              variant="body2"
-            >
-              jakiś tekst
-            </Typography>
-            <Typography
-              color="text.secondary"
-              variant="body2"
-            >
-              i coś jeszcze
-            </Typography>
+            {account.notification && 
+              <Typography
+                align="center"
+                gutterBottom
+                variant="h6"
+                color="red"
+                >
+                  {account.notification}
+            </Typography>}
           </Box>
         </CardContent>
         <Divider />

@@ -46,6 +46,7 @@ export const AccountProfileDetails = (props) => {
       event.preventDefault();
       delete post.supplier;
       delete post.last_sync;
+      post.notification = '';
       if (typeof post.category === 'object') 
         (delete post.category); // if category not edited remove it from post request
       axiosInstance.patch(`accounts/${post.id}/`, post)
