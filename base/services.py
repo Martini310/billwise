@@ -150,10 +150,8 @@ def create_pgnig_invoice_objects(invoices, user, account):
 
 
 
-
+@supplier_log('ENEA')
 def login_to_enea(account, session, ):
-    logger.info("[ENEA] Starting login_to_enea()")
-
     payload = {
         'email': account.login,
         'password': account.password,
@@ -176,9 +174,8 @@ def login_to_enea(account, session, ):
         logger.error('[get_enea] error msg: %s', login_msg.text.strip())
         raise ValueError(login_msg.text.strip())
     
-    logger.info(f'[get_enea] Succesfull login to Enea')
 
-
+@supplier_log('ENEA')
 def get_enea_invoices(session):
     invoice_payload = {
         'limit':200,
@@ -202,14 +199,13 @@ def get_enea_invoices(session):
             transfer_title =  p.text.replace('Tytuł przelewu:', '').strip()
         if 'Numer konta' in p.find('strong', class_='display-block').text:
             account_number = p.text.replace('Numer konta:', '').strip()
-    # print(transfer_title)
-    # print(account_number)
 
     return {'invoices': invoices,
             'bank_account_number': account_number,
             'transfer_title': transfer_title}
 
 
+@supplier_log('ENEA')
 def create_enea_invoice_objects(invoices: dict, user: object, account: object) -> list:
     invoice_objects = []
     bank_account_number = invoices.get('bank_account_number')
@@ -249,7 +245,7 @@ def create_enea_invoice_objects(invoices: dict, user: object, account: object) -
 
 
 
-
+@supplier_log('AQUANET')
 def login_to_aquanet(account, session):
     payload = {
         'user-login-email[email]': account.login,
@@ -276,6 +272,7 @@ def login_to_aquanet(account, session):
     session.post(AQUANET_LOGIN_URL, data=payload)
 
 
+@supplier_log('AQUANET')
 def get_aquanet_invoices(session):
     page = session.get('https://ebok.aquanet.pl/faktury', verify=False)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -324,6 +321,7 @@ def get_aquanet_invoices(session):
     return {'invoices': [*paid_invoices, *unpaid_invoices], 'bank_account_number': account_number}
 
 
+@supplier_log('AQUANET')
 def create_aquanet_invoice_objects(invoices: dict, user: object, account: object) -> list:
     invoice_objects = []
     for invoice in invoices.get('invoices'):
@@ -416,6 +414,6 @@ def get_pgnig(user_pk: int, account_pk: int):
 
 # get_aquanet(2, 11)
 # get_enea(2, 13) # nieistniejące konto
-# get_enea(2, 10) # zły login
+# get_enea(26, 19) # zły login
 # get_pgnig(2, 9)
 # get_pgnig(2, 13)
