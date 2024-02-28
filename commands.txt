@@ -10,6 +10,7 @@ celery -A billwise flower --port=5555
 
 C:\nodejs\node-v18.16.1-win-x64
 set PATH=C:\nodejs\node-v18.16.1-win-x64;%PATH%
+set NODE_TLS_REJECT_UNAUTHORIZED=0   - cmd
 Z:\Desktop\Pyton\Bills\frontend
 npm start
 

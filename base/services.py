@@ -269,9 +269,15 @@ def login_to_aquanet(account, session):
     }
 
     session.headers.update(headers)
-    session.post(AQUANET_LOGIN_URL, data=payload)
+    sign_in = session.post(AQUANET_LOGIN_URL, data=payload)
 
-
+    # Handle Login error
+    if sign_in.url == AQUANET_LOGIN_URL:
+        soup = BeautifulSoup(sign_in.content, 'html.parser')
+        login_msg = soup.find('div', class_='alert alert-danger')
+        logger.error('[AQUANET] error msg: %s', login_msg.text.strip())
+        raise ValueError(login_msg.text.strip())
+    
 @supplier_log('AQUANET')
 def get_aquanet_invoices(session):
     page = session.get('https://ebok.aquanet.pl/faktury', verify=False)
@@ -415,5 +421,6 @@ def get_pgnig(user_pk: int, account_pk: int):
 # get_aquanet(2, 11)
 # get_enea(2, 13) # nieistniejące konto
 # get_enea(26, 19) # zły login
+# get_pgnig(7, 14) # zły login SPP
 # get_pgnig(2, 9)
 # get_pgnig(2, 13)
