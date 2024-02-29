@@ -47,10 +47,8 @@ const Page = () => {
 
   onSubmit: async (values, helpers) => {
     setButtonDisabled(true);
-    console.log('values', values)
     try {
       const response = await signIn('credentials', { ...values,  redirect: false, callbackUrl: process.env.NEXTAUTH_URL});
-      console.log('response', response)
       if (response.ok) {
         toast.success('Zalogowano prawidłowo!');
         router.push('/')

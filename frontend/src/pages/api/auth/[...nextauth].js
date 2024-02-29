@@ -5,8 +5,9 @@ import axios from "axios";
 
 
 // These two values should be a bit less than actual token lifetimes
-const BACKEND_ACCESS_TOKEN_LIFETIME = 45 * 60;            // 45 minutes
-const BACKEND_REFRESH_TOKEN_LIFETIME = 6 * 24 * 60 * 60;  // 6 days
+const BACKEND_ACCESS_TOKEN_LIFETIME = 55 * 60;            // 55 minutes
+// const BACKEND_ACCESS_TOKEN_LIFETIME = 10;            // 10 seconds
+const BACKEND_REFRESH_TOKEN_LIFETIME = 23 * 60 * 60;  // 23 hours
 
 const getCurrentEpochTime = () => {
   return Math.floor(new Date().getTime() / 1000);
@@ -94,20 +95,28 @@ export const authOptions = {
         token["access_token"] = backendResponse.access;
         token["refresh_token"] = backendResponse.refresh;
         token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+        console.log(token)
         return token;
       }
       // Refresh the backend token if necessary
       if (getCurrentEpochTime() > token["ref"]) {
-        const response = await axios({
-          method: "post",
-          url: process.env.NEXTAUTH_BACKEND_URL + "auth/token/refresh/",
-          data: {
-            refresh: token["refresh_token"],
-          },
-        });
-        token["access_token"] = response.data.access;
-        token["refresh_token"] = response.data.refresh;
-        token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+        try {
+          const response = await axios({
+            method: "post",
+            url: process.env.NEXTAUTH_BACKEND_URL + "auth/token/refresh/",
+            data: {
+              refresh: token["refresh_token"],
+            },
+          })
+          token["access_token"] = response.data.access;
+          token["refresh_token"] = response.data.refresh;
+          token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
+          // console.log('new token', token)
+        }
+        catch (error) {
+          console.log('Refresh token expired!')
+          return token
+        }
       }
       return token;
     },

@@ -37,7 +37,10 @@ def scheduled_get_data():
         accounts = Account.objects.all()
         for account in accounts:
             fetch_data = fetch_data_functions.get(account.supplier.name)
-            fetch_data(account.user.id, account.pk)
-            account.save()
+            try:
+                fetch_data(account.user.id, account.pk)
+                account.save()
+            except ValueError as e:
+                logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
         return "Database synchronized"
     
