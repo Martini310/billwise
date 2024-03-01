@@ -144,7 +144,24 @@ def create_pgnig_invoice_objects(invoices, user, account):
                     transfer_title=invoice.get('Number'),)
         for invoice in invoices.get('invoices')]
 
-
+@supplier_log('PGNIG')
+def parse_pgnig_invoices(invoices, user, account):
+    return [{'number':            invoice.get('Number'),
+            'date':               datetime.fromisoformat(invoice.get('Date')[:-1]),
+            'amount':             invoice.get('GrossAmount'),
+            'pay_deadline':       datetime.fromisoformat(invoice.get('PayingDeadlineDate')[:-1]),
+            'start_date':         datetime.fromisoformat(invoice.get('StartDate')[:-1]),
+            'end_date':           datetime.fromisoformat(invoice.get('EndDate')[:-1]),
+            'amount_to_pay':      invoice.get('AmountToPay'),
+            'wear':               invoice.get('WearKWH'),
+            'user':               user,
+            'is_paid':            invoice.get('IsPaid'),
+            'consumption_point':  invoices.get('addresses').get(invoice.get('IdPP')),
+            'account':            account,
+            'category':           account.category,
+            'bank_account_number':invoice.get('Iban'),
+            'transfer_title':     invoice.get('Number')}
+        for invoice in invoices.get('invoices')]
 
 
 
@@ -237,11 +254,38 @@ def create_enea_invoice_objects(invoices: dict, user: object, account: object) -
     return invoice_objects
 
 
+@supplier_log('ENEA')
+def parse_enea_invoices(invoices: dict, user: object, account: object) -> list:
+    invoice_objects = []
+    bank_account_number = invoices.get('bank_account_number')
+    transfer_title = invoices.get('transfer_title')
 
+    for invoice in invoices.get('invoices'):
+        
+        date = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-date')
+        name = invoice.find('span', class_='font-semibold document-download-link link-dark-blue')
+        address = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-address')
+        payment_date = invoice.find('div',class_='datagrid-col datagrid-col-invoice-real-with-address-payment-date')
+        amount = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-value')
+        amount_to_pay = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
+        status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
+        
+        invoice_objects.append({
+            'number':             name.text.strip(),
+            'date':               datetime.strptime(date.text.strip(), "%d.%m.%Y"),
+            'amount':             float(amount.text.strip().rstrip('\xa0 zł').replace(',', '.')),
+            'pay_deadline':       datetime.strptime(payment_date.text.strip().split()[0], "%d.%m.%Y"),
+            'amount_to_pay':      float(amount_to_pay.text.strip().rstrip('\xa0 zł').replace(',', '.')),
+            'user':               user,
+            'is_paid':            True if 'Zapłacona' in status.text.strip() else False,
+            'consumption_point':  address.text.strip(),
+            'account':            account,
+            'category':           account.category,
+            'bank_account_number':bank_account_number,
+            'transfer_title':     transfer_title.replace('XX/XXX/XXXX', name.text.strip())
+        })
 
-
-
-
+    return invoice_objects
 
 
 
@@ -322,7 +366,6 @@ def get_aquanet_invoices(session):
         if 'Numer konta' in div.find('span', class_='form-label').text:
             account_number = div.find('strong').text.strip()
             break
-    # print(account_number)
 
     return {'invoices': [*paid_invoices, *unpaid_invoices], 'bank_account_number': account_number}
 
@@ -364,6 +407,50 @@ def create_aquanet_invoice_objects(invoices: dict, user: object, account: object
             
     return invoice_objects
 
+
+@supplier_log('AQUANET')
+def parse_aquanet_invoices(invoices: dict, user: object, account: object) -> list:
+    invoice_objects = []
+    for invoice in invoices.get('invoices'):
+        if len(invoice) > 1: # skip empty rows
+            date_pattern = re.compile(r'(\d{2}\.\d{2}\.\d{4}|\d{2}/\d{2}/\d{4})')
+
+            dates = date_pattern.findall(invoice[2])
+            if len(dates) == 2:
+                start_date = dates[0].replace('/', '.')
+                end_date = dates[1].replace('/', '.')
+
+            invoice_objects.append({
+                'number':             invoice[1],
+                'date':               datetime.strptime(invoice[3], "%d.%m.%Y"),
+                'amount':             float(invoice[5].rstrip(' zł').replace(',', '.')),
+                'pay_deadline':       datetime.strptime(invoice[4], "%d.%m.%Y"),
+                'start_date':         datetime.strptime(start_date, "%d.%m.%Y") or '',
+                'end_date':           datetime.strptime(end_date, "%d.%m.%Y") or '',
+                'amount_to_pay':      float(invoice[6].rstrip(' zł').replace(',', '.')) if len(invoice)>= 7 else 0,
+                'user':               user,
+                'is_paid':            len(invoice) == 6,
+                'account':            account,
+                'category':           account.category,
+                'bank_account_number':invoices.get('bank_account_number'),
+                'transfer_title':     invoice[1]
+                })
+            
+    return invoice_objects
+
+
+def create_invoice_objects(invoices):
+    invoice_objects = []
+    keys = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 'end_date',
+            'amount_to_pay', 'wear', 'user', 'is_paid', 'consumption_point',
+            'account', 'category', 'bank_account_number', 'transfer_title']
+    
+    for invoice in invoices:
+        kwargs = {key: invoice.get(key) for key in keys}
+        obj = Invoice(**kwargs)
+        invoice_objects.append(obj)
+        
+    return invoice_objects
 
 
 def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoice_func, supplier):
