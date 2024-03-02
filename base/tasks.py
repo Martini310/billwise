@@ -23,12 +23,13 @@ def sync_accounts_task(user_pk):
     with connection.cursor() as cursor:
         accounts = Account.objects.filter(user__pk=user_pk)
         for account in accounts:
-            fetch = fetch_data_functions.get(account.supplier.name)
-            try:
-                fetch(user_pk, account.pk)
-                account.save()
-            except ValueError as e:
-                logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
+            if not account.notification:
+                fetch = fetch_data_functions.get(account.supplier.name)
+                try:
+                    fetch(user_pk, account.pk)
+                    account.save()
+                except ValueError as e:
+                    logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
         return "User data synchronized"
 
 @shared_task
@@ -36,11 +37,12 @@ def scheduled_get_data():
     with connection.cursor() as cursor:
         accounts = Account.objects.all()
         for account in accounts:
-            fetch_data = fetch_data_functions.get(account.supplier.name)
-            try:
-                fetch_data(account.user.id, account.pk)
-                account.save()
-            except ValueError as e:
-                logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
+            if not account.notification:
+                fetch_data = fetch_data_functions.get(account.supplier.name)
+                try:
+                    fetch_data(account.user.id, account.pk)
+                    account.save()
+                except ValueError as e:
+                    logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
         return "Database synchronized"
     

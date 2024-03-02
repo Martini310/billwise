@@ -441,12 +441,9 @@ def parse_aquanet_invoices(invoices: dict, user: object, account: object) -> lis
 
 def create_invoice_objects(invoices):
     invoice_objects = []
-    keys = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 'end_date',
-            'amount_to_pay', 'wear', 'user', 'is_paid', 'consumption_point',
-            'account', 'category', 'bank_account_number', 'transfer_title']
-    
+    account_fields = [field.name for field in Invoice._meta.get_fields() if field.name not in ['id']]
     for invoice in invoices:
-        kwargs = {key: invoice.get(key) for key in keys}
+        kwargs = {key: invoice.get(key) for key in account_fields}
         obj = Invoice(**kwargs)
         invoice_objects.append(obj)
         
@@ -463,8 +460,9 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
         with requests.Session() as s:
             login_func(account, s)
             invoices = get_invoices_func(s)
-            invoice_objects = create_invoice_func(invoices, user, account)
-
+            # invoice_objects = create_invoice_func(invoices, user, account)
+            invoices_dict = create_invoice_func(invoices, user, account)
+            invoice_objects = create_invoice_objects(invoices_dict)
         Invoice.objects.bulk_create(
             [invoice for invoice
                 in invoice_objects
@@ -497,13 +495,16 @@ def fetch_data(user_pk, account_pk, login_func, get_invoices_func, create_invoic
 
 
 def get_aquanet(user_pk: int, account_pk: int):
-    fetch_data(user_pk, account_pk, login_to_aquanet, get_aquanet_invoices, create_aquanet_invoice_objects, 'aquanet')
+    # fetch_data(user_pk, account_pk, login_to_aquanet, get_aquanet_invoices, create_aquanet_invoice_objects, 'aquanet')
+    fetch_data(user_pk, account_pk, login_to_aquanet, get_aquanet_invoices, parse_aquanet_invoices, 'aquanet')
 
 def get_enea(user_pk: int, account_pk: int):
-    fetch_data(user_pk, account_pk, login_to_enea, get_enea_invoices, create_enea_invoice_objects, 'enea')
+    # fetch_data(user_pk, account_pk, login_to_enea, get_enea_invoices, create_enea_invoice_objects, 'enea')
+    fetch_data(user_pk, account_pk, login_to_enea, get_enea_invoices, parse_enea_invoices, 'enea')
 
 def get_pgnig(user_pk: int, account_pk: int):
-    fetch_data(user_pk, account_pk, login_to_pgnig, get_pgnig_invoices, create_pgnig_invoice_objects, 'pgnig')
+    # fetch_data(user_pk, account_pk, login_to_pgnig, get_pgnig_invoices, create_pgnig_invoice_objects, 'pgnig')
+    fetch_data(user_pk, account_pk, login_to_pgnig, get_pgnig_invoices, parse_pgnig_invoices, 'pgnig')
 
 # get_aquanet(2, 11)
 # get_enea(2, 13) # nieistniejące konto
