@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 from django.db import connection
 from .models import Account
-from .services import get_enea, get_aquanet, get_pgnig
+from .services.services import get_enea, get_aquanet, get_pgnig
 import logging
 from random import randint
 
