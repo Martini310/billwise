@@ -90,3 +90,8 @@ def get_pgnig(user_pk: int, account_pk: int):
 # get_pgnig(7, 14) # zły login SPP
 # get_pgnig(2, 9)
 # get_pgnig(2, 13)
+
+# from .class_services import SyncPGNIG
+
+# a = SyncPGNIG(2,9)
+# a.sync_data()
