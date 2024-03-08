@@ -5,9 +5,13 @@ from .models import Account
 from .services.services import get_enea, get_aquanet, get_pgnig
 import logging
 from random import randint
+from services.pgnig import SyncPGNIG
+from services.enea import SyncEnea
+from services.aquanet import SyncAquanet
 
 
 fetch_data_functions = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
+fetch_data_classes = {'Enea': SyncEnea, 'PGNiG': SyncPGNIG, 'Aquanet': SyncAquanet}
 
 logger = logging.getLogger(__name__)
 
@@ -45,4 +49,23 @@ def scheduled_get_data():
                 except ValueError as e:
                     logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
         return "Database synchronized"
-    
+
+
+@shared_task
+def scheduled_sync_data(user_pk=None):
+    with connection.cursor() as cursor:
+        if user_pk:
+            accounts = Account.objects.filter(user__pk=user_pk)
+        else:
+            accounts = Account.objects.all()
+            
+        for account in accounts:
+            if not account.notification:
+                SupplierClass = fetch_data_classes.get(account.supplier.name)
+                try:
+                    obj = SupplierClass(account.user.id, account.pk)
+                    obj.sync_data()
+                    account.save()
+                except ValueError as e:
+                    logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
+        return "Database synchronized"
