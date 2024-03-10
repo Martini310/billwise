@@ -68,4 +68,6 @@ def scheduled_sync_data(user_pk=None):
                     account.save()
                 except ValueError as e:
                     logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
+                except Exception as e:
+                    logger.error(f"Wystąpił błąd podczas synchronizacji danych: {e}")
         return "Database synchronized"
