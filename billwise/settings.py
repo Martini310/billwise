@@ -253,6 +253,7 @@ if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' i
 CELERY_BEAT_SCHEDULE = {
     'scheduled_synchronizing_data': {
         'task': 'base.tasks.scheduled_get_data',
+        # 'task': 'base.tasks.synchronize_data',
         'schedule': timedelta(minutes=360),
     },
     'scheduled_adding': {

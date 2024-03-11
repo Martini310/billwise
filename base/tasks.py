@@ -5,10 +5,11 @@ from .models import Account
 from .services.services import get_enea, get_aquanet, get_pgnig
 import logging
 from random import randint
-from services.pgnig import SyncPGNIG
-from services.enea import SyncEnea
-from services.aquanet import SyncAquanet
+from base.services.suppliers.pgnig import SyncPGNIG
+from base.services.suppliers.enea import SyncEnea
+from base.services.suppliers.aquanet import SyncAquanet
 
+from services.suppliers import *
 
 fetch_data_functions = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
 fetch_data_classes = {'Enea': SyncEnea, 'PGNiG': SyncPGNIG, 'Aquanet': SyncAquanet}
@@ -52,7 +53,7 @@ def scheduled_get_data():
 
 
 @shared_task
-def scheduled_sync_data(user_pk=None):
+def synchronize_data(user_pk=None):
     with connection.cursor() as cursor:
         if user_pk:
             accounts = Account.objects.filter(user__pk=user_pk)

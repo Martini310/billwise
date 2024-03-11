@@ -9,7 +9,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from api.permissions import IsOwner
 from base.models import Account, Category, Invoice, Supplier
-from base.tasks import sync_accounts_task
+from base.tasks import sync_accounts_task, synchronize_data
 
 from .serializers import (CategorySerializer, GetAccountSerializer,
                         InvoiceSerializer, PostAccountSerializer,
@@ -135,4 +135,5 @@ class CategoryList(GenericViewSet, ListModelMixin):
 class SyncAccounts(APIView):
     def get(self, request):
         sync_accounts_task.delay(self.request.user.pk)
+        # synchronize_data.delay(self.request.user.pk)
         return Response("Done")
