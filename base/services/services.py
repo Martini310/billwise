@@ -4,9 +4,9 @@ from users.models import NewUser
 from ..models import Account, Invoice
 from requests.exceptions import RequestException, Timeout, ConnectionError
 from .decorators import logger
-from .pgnig import login_to_pgnig, get_pgnig_invoices, parse_pgnig_invoices
-from .enea import login_to_enea, get_enea_invoices, parse_enea_invoices
-from .aquanet import login_to_aquanet, get_aquanet_invoices, parse_aquanet_invoices
+from .suppliers.pgnig import login_to_pgnig, get_pgnig_invoices, parse_pgnig_invoices
+from .suppliers.enea import login_to_enea, get_enea_invoices, parse_enea_invoices
+from .suppliers.aquanet import login_to_aquanet, get_aquanet_invoices, parse_aquanet_invoices
 
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

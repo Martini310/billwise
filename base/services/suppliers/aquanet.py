@@ -2,7 +2,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 import re
 from ..decorators import supplier_log, logger
-from class_services import FetchSupplier, SyncSupplier
+from ..class_services import FetchSupplier, SyncSupplier
 
 
 __all__ = ['SyncAquanet']
@@ -124,9 +124,14 @@ def parse_aquanet_invoices(invoices: dict, user: object, account: object) -> lis
 
 class SyncAquanet(FetchSupplier, SyncSupplier):
     
+    supplier_name = 'Aquanet'
     AQUANET_LOGIN_URL = 'https://ebok.aquanet.pl/user/login'
-
-    @supplier_log('AQUANET')
+    
+    # @property
+    # def supplier_name(self):
+    #     return "Aquanet"
+    
+    # @supplier_log('AQUANET')
     def login(self, session):
         payload = {
             'user-login-email[email]': self.account.login,
@@ -160,7 +165,7 @@ class SyncAquanet(FetchSupplier, SyncSupplier):
             raise ValueError(error_login_msg)
         
         
-    @supplier_log('AQUANET')
+    # @supplier_log('AQUANET')
     def get_invoices(self, session):
         page = session.get('https://ebok.aquanet.pl/faktury', verify=False)
         soup = BeautifulSoup(page.content, 'html.parser')
@@ -208,7 +213,7 @@ class SyncAquanet(FetchSupplier, SyncSupplier):
         return {'invoices': [*paid_invoices, *unpaid_invoices], 'bank_account_number': account_number}
 
 
-    @supplier_log('AQUANET')
+    # @supplier_log('AQUANET')
     def parse_invoices(self, invoices):
         invoice_objects = []
         for invoice in invoices.get('invoices'):

@@ -1,7 +1,7 @@
 """
 Module to create fake data and save it to given user
 """
-from .models import *
+from ..models import *
 from users.models import NewUser
 import random
 import datetime
@@ -21,19 +21,19 @@ def random_date(start, end):
 
 def random_invoice_number():
     number = ''
-    for i in range(3):
-        for j in range(4):
+    for _ in range(3):
+        for _ in range(4):
             number += random.choice(string.ascii_letters)
         number += '/'
     return number[:-1]
 
 def random_account_number():
     acc = ''
-    for i in range(26):
+    for _ in range(26):
         acc += str(random.randint(0, 9))
     return acc
 
-def generate_test_data(user_id, amount):
+def generate_fake_data(user_id, amount):
     user = NewUser.objects.get(id=user_id)
     invoices = []
     start_date = datetime.datetime(2020,1,1)

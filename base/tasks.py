@@ -5,16 +5,27 @@ from .models import Account
 from .services.services import get_enea, get_aquanet, get_pgnig
 import logging
 from random import randint
-from base.services.suppliers.pgnig import SyncPGNIG
-from base.services.suppliers.enea import SyncEnea
-from base.services.suppliers.aquanet import SyncAquanet
-
-from services.suppliers import *
-
-fetch_data_functions = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
-fetch_data_classes = {'Enea': SyncEnea, 'PGNiG': SyncPGNIG, 'Aquanet': SyncAquanet}
+from importlib import import_module
+import os
 
 logger = logging.getLogger(__name__)
+
+fetch_data_functions = {'Enea': get_enea, 'PGNiG': get_pgnig, 'Aquanet': get_aquanet}
+fetch_data_classes = {}
+
+# Create a dictionary with SyncSupplier classes assigned to supplier name
+for file_name in os.listdir('base/services/suppliers'):
+    if file_name.endswith('.py') and file_name != '__init__.py':
+        module_name = file_name[:-3]
+        module = import_module(f'base.services.suppliers.{module_name}')
+        for attr_name in module.__all__:
+            attr = getattr(module, attr_name)
+            if isinstance(attr, type) and hasattr(attr, 'supplier_name'):
+                fetch_data_classes[attr.supplier_name] = attr
+
+print(fetch_data_classes)
+
+
 
 @shared_task
 def add(x=randint(1, 100), y=randint(1,100)):

@@ -1,5 +1,5 @@
 import logging
-
+from functools import wraps
 
 def setup_logging():
     logging.basicConfig(
@@ -17,12 +17,13 @@ def setup_logging():
 logger = setup_logging()
 
 
-def supplier_log(abr):
+def supplier_log(supplier_name):
     def logged(func):
+        @wraps(func)
         def wrapper(*args, **kwargs):
-            logger.info(f'[{abr}] {func.__name__} - start')
+            logger.info(f'[{supplier_name.upper()}] {func.__name__} - start')
             f = func(*args, **kwargs)
-            logger.info(f'[{abr}] {func.__name__} - finnish')
+            logger.info(f'[{supplier_name.upper()}] {func.__name__} - finnish')
             return f
         return wrapper
     return logged

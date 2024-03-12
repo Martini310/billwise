@@ -11,6 +11,9 @@ class FetchSupplier(ABC):
     """
     Abstract base class representing a supplier from which data can be fetched.
     """
+
+    supplier_name = None
+    
     def __init__(self, user_pk: int, account_pk: int):
         """
         Initialize a FetchSupplier instance with the specified user and account.
@@ -28,6 +31,7 @@ class FetchSupplier(ABC):
             logger.debug(f"Account with pk {self.account.pk} does not exist")
 
     @abstractmethod
+    @supplier_log(supplier_name)
     def login(self, session):
         """
         Abstract method to authenticate and log in to the supplier's system.
@@ -41,6 +45,7 @@ class FetchSupplier(ABC):
         pass
 
     @abstractmethod
+    @supplier_log(supplier_name)
     def get_invoices(self, session):
         """
         Abstract method to retrieve invoices data from the supplier's system.
@@ -54,6 +59,7 @@ class FetchSupplier(ABC):
         pass
 
     @abstractmethod
+    @supplier_log(supplier_name)
     def parse_invoices(self, invoices):
         """
         Abstract method to parse invoices data retrieved from the supplier's system.

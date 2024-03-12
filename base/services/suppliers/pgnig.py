@@ -92,6 +92,7 @@ def parse_pgnig_invoices(invoices, user, account):
 
 
 class SyncPGNIG(FetchSupplier, SyncSupplier):
+    supplier_name = 'PGNiG'
     PGNIG_LOGIN_URL = "https://ebok.pgnig.pl/auth/login"
     PGNIG_INVOICES_URL = "https://ebok.pgnig.pl/crm/get-invoices-v2"
     PGNIG_API_VERSION = "3.0"
