@@ -1,13 +1,14 @@
 import pytest
 from rest_framework import status
+from django.urls import reverse
 from api.tests.conftest import invoice_payload as payload
 
 
 ################# POST ######################
 @pytest.mark.django_db
 def test_user_creates_new_invoice(auth_client):
-
-    response = auth_client.post('/api/invoices/', payload)
+    url = reverse('billwise_api:invoices-list')
+    response = auth_client.post(url, payload)
     assert response.status_code == status.HTTP_201_CREATED
 
     get_response = auth_client.get('/api/invoices/1/')
@@ -33,8 +34,9 @@ def test_user_creates_new_invoice(auth_client):
 
 @pytest.mark.django_db
 def test_not_user_creates_new_invoice_fail(client):
-
-    response = client.post('/api/invoices/', payload)
+    url = reverse('billwise_api:invoices-list')
+    response = client.post(url, payload)
+    
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.data['detail'] == 'Authentication credentials were not provided.'
 
@@ -43,7 +45,8 @@ def test_not_user_creates_new_invoice_fail(client):
 def test_user_creates_new_invoice_for_another_user_fail(auth_client, user2):
     edited_payload = payload.copy()
     edited_payload['user'] = user2.id
-    response = auth_client.post('/api/invoices/', edited_payload)
+    url = reverse('billwise_api:invoices-list')
+    response = auth_client.post(url, edited_payload)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data['detail'] == 'You cannot set the user field explicitly.'

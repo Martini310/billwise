@@ -1,11 +1,13 @@
 import pytest
 from rest_framework import status
+from django.urls import reverse
 
 
 ############  GET  ################
 @pytest.mark.django_db
 def test_get_invoice(invoice, auth_client):
-    response = auth_client.get('/api/invoices/1/')
+    url = reverse('billwise_api:invoices-detail', kwargs={'pk': invoice.pk})
+    response = auth_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
     assert response.headers['Content-Type'] == 'application/json'
@@ -28,14 +30,16 @@ def test_get_invoice(invoice, auth_client):
 
 @pytest.mark.django_db
 def test_user_get_not_existed_invoice_fail(auth_client, invoice):
-    response = auth_client.get('/api/invoices/2/')
+    url = reverse('billwise_api:invoices-detail', kwargs={'pk': 2})
+    response = auth_client.get(url)
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
 def test_not_user_get_invoice_fail(client, invoice):
-    response = client.get('/api/invoices/1/', follow=True)
+    url = reverse('billwise_api:invoices-detail', kwargs={'pk': invoice.pk})
+    response = client.get(url, follow=True)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.data['detail'] == "Authentication credentials were not provided."
@@ -43,7 +47,8 @@ def test_not_user_get_invoice_fail(client, invoice):
 
 @pytest.mark.django_db
 def test_user_get_another_user_invoice_fail(auth_client2, invoice):
-    response = auth_client2.get('/api/invoices/1/', follow=True)
+    url = reverse('billwise_api:invoices-detail', kwargs={'pk': invoice.pk})
+    response = auth_client2.get(url, follow=True)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.data['detail'] == "You are not allowed to see or edit this content"
@@ -51,7 +56,8 @@ def test_user_get_another_user_invoice_fail(auth_client2, invoice):
 
 @pytest.mark.django_db
 def test_user_get_all_his_invoices(auth_client, invoice, invoice2):
-    response = auth_client.get('/api/invoices/', follow=True)
+    url = reverse('billwise_api:invoices-list')
+    response = auth_client.get(url, follow=True)
 
     assert response.status_code == status.HTTP_200_OK
     assert response.headers['Content-Type'] == 'application/json'
@@ -61,7 +67,8 @@ def test_user_get_all_his_invoices(auth_client, invoice, invoice2):
 
 @pytest.mark.django_db
 def test_not_user_get_all_invoices_fail(client, invoice):
-    response = client.get('/api/invoices/', follow=True)
+    url = reverse('billwise_api:invoices-list')
+    response = client.get(url, follow=True)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.data['detail'] == "Authentication credentials were not provided."
