@@ -31,7 +31,6 @@ class FetchSupplier(ABC):
             logger.debug(f"Account with pk {self.account.pk} does not exist")
 
     @abstractmethod
-    @supplier_log(supplier_name)
     def login(self, session):
         """
         Abstract method to authenticate and log in to the supplier's system.
@@ -45,7 +44,6 @@ class FetchSupplier(ABC):
         pass
 
     @abstractmethod
-    @supplier_log(supplier_name)
     def get_invoices(self, session):
         """
         Abstract method to retrieve invoices data from the supplier's system.
@@ -59,7 +57,6 @@ class FetchSupplier(ABC):
         pass
 
     @abstractmethod
-    @supplier_log(supplier_name)
     def parse_invoices(self, invoices):
         """
         Abstract method to parse invoices data retrieved from the supplier's system.
@@ -124,6 +121,7 @@ class SyncSupplier(ABC):
         Returns:
             None
         """
+        attempt = 1
         while attempt <= max_retries:
             try:
                 logger.info(f"[{self.account.supplier.name.upper()}] Starting fetching data for user {self.user.username}")
@@ -148,7 +146,6 @@ class SyncSupplier(ABC):
 
                 logger.info(f"[{self.account.supplier.name.upper()}] Finished fetching data for user {self.user.username}")
 
-                attempt = 1
                 # Exit the loop if synchronization is successful
                 return
 

@@ -252,8 +252,8 @@ if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' i
 # Celery Beat (periodic task scheduler) configuration
 CELERY_BEAT_SCHEDULE = {
     'scheduled_synchronizing_data': {
-        'task': 'base.tasks.scheduled_get_data',
-        # 'task': 'base.tasks.synchronize_data',
+        # 'task': 'base.tasks.scheduled_get_data',
+        'task': 'base.tasks.synchronize_data',
         'schedule': timedelta(minutes=360),
     },
     'scheduled_adding': {
