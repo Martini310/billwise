@@ -194,7 +194,7 @@ const Page = () => {
             >
             <OverviewPaidPercentage
               sx={{ height: '100%' }}
-              value={parseFloat((paidInvoices / invoices.length * 100).toFixed(0))}
+              value={parseFloat((paidInvoices / invoices.length * 100).toFixed(0)) || 0}
             />
           </Grid>
           <Grid
@@ -205,7 +205,7 @@ const Page = () => {
           >
             <OverviewNextPayment
               sx={{ height: '100%' }}
-              value={unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : "Wszystko opłacone!"}
+              value={unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : (unpaidInvoices.length === 0 ? "Brak faktur do wyświetlenia" : "Wszystko opłacone!")}
               supplier={unpaidInvoices[0] ? (unpaidInvoices[0]?.account?.supplier?.name ?? 'Inne') : "---"}
               date={unpaidInvoices[0] ? unpaidInvoices[0].pay_deadline : "---"}
             />

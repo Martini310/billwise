@@ -1,9 +1,11 @@
 from datetime import datetime
+import urllib3
 from requests.exceptions import RequestException
 from ..decorators import supplier_log, logger
 from ..class_services import SyncSupplier, FetchSupplier
 
 __all__ = ['SyncPGNIG']
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class SyncPGNIG(FetchSupplier, SyncSupplier):
@@ -42,13 +44,11 @@ class SyncPGNIG(FetchSupplier, SyncSupplier):
             session.headers.update({'AuthToken': token})
 
         except RequestException as exc:
-            logger.error(f"[PGNIG] Request exception occurred: {exc}")
+            logger.warning(f"[PGNIG] Request exception occurred: {exc}")
             raise ValueError('Nie można się zalogować przy użyciu podanych danych') from exc
-        except ValueError as exc:
-            logger.error(f"[PGNIG] Value error occurred during login: {exc}")
-            self.account.notification = str(exc)
-            self.account.save(update_fields=['notification'])
-            raise  # Re-raise the ValueError to propagate it up the call stack
+        except Exception as exc:
+            logger.warning(f"[PGNIG] W trakcie logowanie wystąpił nieoczekiwany błąd: {exc}")
+            raise
 
     @supplier_log(supplier_name)
     def get_addresses(self, session):

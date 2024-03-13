@@ -1,11 +1,13 @@
 from datetime import datetime
 from bs4 import BeautifulSoup
 import re
+import urllib3
 from ..decorators import supplier_log, logger
 from ..class_services import FetchSupplier, SyncSupplier
 
 
 __all__ = ['SyncAquanet']
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class SyncAquanet(FetchSupplier, SyncSupplier):

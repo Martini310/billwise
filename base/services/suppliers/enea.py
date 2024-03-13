@@ -1,11 +1,12 @@
 from datetime import datetime
 from bs4 import BeautifulSoup
+import urllib3
 from ..decorators import supplier_log, logger
 from ..class_services import SyncSupplier, FetchSupplier
 from requests.exceptions import RequestException
 
 __all__ = ['SyncEnea']
-
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class SyncEnea(FetchSupplier, SyncSupplier):
 

@@ -46,7 +46,9 @@ def synchronize_data(user_pk=None):
                     obj.sync_data()
                     account.save()
                 except ValueError as e:
-                    logger.warning(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
+                    account.notification = str(e)
+                    account.save(update_fields=['notification'])
+                    logger.error(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
                 except Exception as e:
                     logger.error(f"Wystąpił błąd podczas synchronizacji danych: {e}")
         return "Database synchronized"
