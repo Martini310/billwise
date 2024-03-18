@@ -167,7 +167,7 @@ Main features for now:
 Plans:
 
 - :soon: Real-time notifications
-- :soon: Autheticate with Facebook or Google
+- :white_check_mark: Autheticate with Google
 - :soon: Email notifications
 - :soon: Payments directly from app
 - :soon: Many more suppliers (*Inea, Orange, Tmobile etc.*)

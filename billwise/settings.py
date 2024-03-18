@@ -222,9 +222,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    # "ACCESS_TOKEN_LIFETIME": timedelta(seconds=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    # "REFRESH_TOKEN_LIFETIME": timedelta(seconds=30),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
@@ -252,13 +250,11 @@ if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' i
 # Celery Beat (periodic task scheduler) configuration
 CELERY_BEAT_SCHEDULE = {
     'scheduled_synchronizing_data': {
-        # 'task': 'base.tasks.scheduled_get_data',
         'task': 'base.tasks.synchronize_data',
         'schedule': timedelta(minutes=360),
     },
     'scheduled_adding': {
         'task': 'base.tasks.add',
-        # 'args': (33, 55),
         'schedule': timedelta(minutes=60),
     },
 }
