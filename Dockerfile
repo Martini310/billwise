@@ -13,5 +13,9 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+
 # Copy the Django project into the container
 COPY . /app/
+
+RUN python manage.py makemigrations
+RUN python manage.py migrate
