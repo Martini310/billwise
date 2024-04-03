@@ -111,7 +111,7 @@ if 'IN_DOCKER' in os.environ:
             'NAME': 'billwise_db',
             'USER': 'admin',
             'PASSWORD': 'admin',
-            'HOST': 'db',   # Use the service name from Docker Compose
+            'HOST': 'postgres',   # Use the service name from Docker Compose
             'PORT': '5432',
         }
     }

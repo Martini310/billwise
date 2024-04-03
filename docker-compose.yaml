@@ -8,7 +8,7 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      - postgres
       - rabbitmq
       - celery_worker
     env_file:
@@ -29,8 +29,12 @@ services:
       - /frontend/.next
     ports:
       - "3000:3000"
+    depends_on:
+      - postgres
+    env_file:
+      - ./frontend/.env.local
 
-  db:
+  postgres:
     container_name: postgres
     image: postgres:12
     environment:
@@ -54,7 +58,7 @@ services:
       context: .
     depends_on:
       - rabbitmq
-      - db
+      - postgres
     env_file:
       - .env
     environment:
@@ -84,6 +88,7 @@ services:
     image: mher/flower
     depends_on:
       - celery_worker
+      - celery_beat
     command: celery flower
     environment:
       - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
