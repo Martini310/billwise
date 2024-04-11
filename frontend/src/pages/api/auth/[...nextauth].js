@@ -95,7 +95,6 @@ export const authOptions = {
         token["access_token"] = backendResponse.access;
         token["refresh_token"] = backendResponse.refresh;
         token["ref"] = getCurrentEpochTime() + BACKEND_ACCESS_TOKEN_LIFETIME;
-        console.log(token)
         return token;
       }
       // Refresh the backend token if necessary

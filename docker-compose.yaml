@@ -17,6 +17,8 @@ services:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
       - IN_DOCKER=1
+    networks:
+      - backend-network
     command: python manage.py runserver 0.0.0.0:8000
 
   nextjs:
@@ -33,6 +35,12 @@ services:
       - postgres
     env_file:
       - ./frontend/.env.local
+    environment:
+      NEXTAUTH_BACKEND_URL: http://django:8000/api/
+      NEXT_PUBLIC_URL: http://127.0.0.1:8000/api/
+      NEXTAUTH_URL: http://127.0.0.1:3000/
+    networks:
+      - backend-network
 
   postgres:
     container_name: postgres
@@ -45,12 +53,16 @@ services:
       - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - backend-network
 
   rabbitmq:
     image: "rabbitmq:3.12-alpine"
     ports:
       - "15672:15672"  # RabbitMQ management UI
       - "5672:5672"    # RabbitMQ
+    networks:
+      - backend-network
 
   celery_worker:
     <<: *django 
@@ -65,7 +77,8 @@ services:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
       - IN_DOCKER=1
-
+    networks:
+      - backend-network
     ports: []
     command: celery -A billwise worker -l INFO -c 4
 
@@ -81,7 +94,8 @@ services:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
       - IN_DOCKER=1
-
+    networks:
+      - backend-network
     command: celery -A billwise beat -l info
 
   flower:
@@ -95,6 +109,12 @@ services:
       - FLOWER_PORT=5555
     ports:
     - "5555:5555"
+    networks:
+      - backend-network
 
 volumes:
   postgres_data:
+
+networks:
+  backend-network:
+    driver: bridge
