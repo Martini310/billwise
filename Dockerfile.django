@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10-alpine3.17
+FROM python:3.10-slim
 
 # Set environment variables
 ENV PIP_DISABLE_PIP_VERSION_CHECK 1
@@ -9,6 +9,14 @@ ENV IN_DOCKER 1
 
 # Set the working directory
 WORKDIR /app
+
+# Install necessary build tools
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libffi-dev \
+    libssl-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt /app/

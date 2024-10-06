@@ -21,7 +21,7 @@ export const OverviewNextPayment = (props) => {
             >
               Najbliższa płatność
             </Typography>
-            <Typography variant="h4">
+            <Typography variant="h5">
               {value}
             </Typography>
           </Stack>

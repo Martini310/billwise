@@ -168,8 +168,7 @@ const Page = () => {
               supplier={newestInvoice ? (newestInvoice?.account?.supplier?.name ?? 'Inne') : "Brak faktur"}
               sx={{ height: '100%' }}
               value={newestInvoice ? newestInvoice.amount + "zł" : "---"}
-            />
-          </Grid>
+            />          </Grid>
           <Grid
             className='overview-current-month'
             xs={12}

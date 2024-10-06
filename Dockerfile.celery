@@ -1,0 +1,19 @@
+FROM python:3.10-slim
+
+# Set working directory to /app
+WORKDIR /app
+
+# Copy only the necessary files
+COPY requirements.txt .
+COPY billwise /app/billwise
+COPY base /app/base
+COPY users /app/users
+COPY api /app/api
+
+# Install dependencies
+RUN pip install -r requirements.txt
+
+# Set environment variables
+ENV DJANGO_SETTINGS_MODULE=billwise.settings
+ENV CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
+ENV IN_DOCKER=1
