@@ -12,8 +12,8 @@ services:
       - postgres
       - rabbitmq
       - celery_worker
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     environment:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
@@ -35,8 +35,8 @@ services:
       - "3000:3000"
     depends_on:
       - postgres
-    env_file:
-      - ./frontend/.env.local
+    # env_file:
+    #   - ./frontend/.env.local
     environment:
       NEXTAUTH_BACKEND_URL: http://django:8000/api/
       NEXT_PUBLIC_URL: http://127.0.0.1:8000/api/
