@@ -73,8 +73,8 @@ services:
     depends_on:
       - rabbitmq
       - postgres
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     networks:
       - backend-network
     ports: []
@@ -87,8 +87,8 @@ services:
     depends_on:
       - django
       - rabbitmq
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     networks:
       - backend-network
     command: celery -A billwise beat -l info
