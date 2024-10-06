@@ -1,3 +1,6 @@
 FROM koyeb/docker-compose
 
 COPY . /app
+
+# Run Docker Compose using the compose file in /app
+CMD ["docker-compose", "-f", "/app/docker-compose.yaml", "up"]
