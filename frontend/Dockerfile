@@ -3,7 +3,7 @@ FROM node:18.18-alpine3.18
 
 # Set the working directory
 # WORKDIR /frontend
-WORKDIR /app/frontend
+WORKDIR /app
 
 COPY package.json package-lock.json* ./
 
