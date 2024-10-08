@@ -23,26 +23,26 @@ services:
       - backend-network
     command: python manage.py runserver 0.0.0.0:8000
 
-  nextjs:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.nextjs
-    # volumes:
-    #   - ./frontend:/frontend
-    #   - /frontend/node_modules
-    #   - /frontend/.next
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-    # env_file:
-    #   - ./frontend/.env.local
-    environment:
-      NEXTAUTH_BACKEND_URL: http://django:8000/api/
-      NEXT_PUBLIC_URL: http://127.0.0.1:8000/api/
-      NEXTAUTH_URL: http://127.0.0.1:3000/
-    networks:
-      - backend-network
+  # nextjs:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.nextjs
+  #   # volumes:
+  #   #   - ./frontend:/frontend
+  #   #   - /frontend/node_modules
+  #   #   - /frontend/.next
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgres
+  #   # env_file:
+  #   #   - ./frontend/.env.local
+  #   environment:
+  #     NEXTAUTH_BACKEND_URL: http://django:8000/api/
+  #     NEXT_PUBLIC_URL: http://127.0.0.1:8000/api/
+  #     NEXTAUTH_URL: http://127.0.0.1:3000/
+  #   networks:
+  #     - backend-network
 
   postgres:
     container_name: postgres
