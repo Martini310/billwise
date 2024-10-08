@@ -93,19 +93,19 @@ services:
       - backend-network
     command: celery -A billwise beat -l info
 
-  flower:
-    image: mher/flower
-    depends_on:
-      - celery_worker
-      - celery_beat
-    command: celery flower
-    environment:
-      - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
-      - FLOWER_PORT=5555
-    ports:
-    - "5555:5555"
-    networks:
-      - backend-network
+  # flower:
+  #   image: mher/flower
+  #   depends_on:
+  #     - celery_worker
+  #     - celery_beat
+  #   command: celery flower
+  #   environment:
+  #     - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
+  #     - FLOWER_PORT=5555
+  #   ports:
+  #   - "5555:5555"
+  #   networks:
+  #     - backend-network
 
 volumes:
   postgres_data:
