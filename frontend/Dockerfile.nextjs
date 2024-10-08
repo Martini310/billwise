@@ -1,6 +1,13 @@
 # Use an official Node.js runtime as a parent image
 FROM node:18.18-alpine3.18
 
+ARG GOOGLE_CLIENT_ID
+ARG GOOGLE_CLIENT_SECRET
+ARG NEXTAUTH_BACKEND_URL
+ARG NEXTAUTH_SECRET
+ARG NEXTAUTH_URL
+ARG NEXT_PUBLIC_URL
+
 # Set the working directory
 WORKDIR /frontend
 
