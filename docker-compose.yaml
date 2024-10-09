@@ -19,6 +19,7 @@ services:
       - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
       - IN_DOCKER=1
       - SITE_ID=1
+      - SECRET_KEY={{ SECRET_KEY }}
     networks:
       - backend-network
     command: python manage.py runserver 0.0.0.0:8000
