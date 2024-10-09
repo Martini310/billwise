@@ -261,7 +261,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 
-SITE_ID = int(os.getenv('SITE_ID'))
+# SITE_ID = int(os.getenv('SITE_ID'))
+SITE_ID = 1
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_STORE_TOKENS = True
 
