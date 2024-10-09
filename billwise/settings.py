@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['nextjs', 'django', 'localhost', '127.0.0.1', 'billwise-api-martini310.koyeb.app', 'billwise-app-9di6t.ondigitalocean.app']
+ALLOWED_HOSTS = ['nextjs', 'django', 'localhost', '127.0.0.1', 'billwise-api-martini310.koyeb.app', 'billwise-app-9di6t.ondigitalocean.app', 'systematic-margaretta-martini310-fba3edaf.koyeb.app']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)

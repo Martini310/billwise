@@ -76,6 +76,8 @@ services:
       - postgres
     # env_file:
     #   - .env
+    environment:
+      - SECRET_KEY={{ SECRET_KEY }}
     networks:
       - backend-network
     ports: []
@@ -88,6 +90,8 @@ services:
     depends_on:
       - django
       - rabbitmq
+    environment:
+      - SECRET_KEY={{ SECRET_KEY }}
     # env_file:
     #   - .env
     networks:
