@@ -11,7 +11,7 @@ services:
     depends_on:
       - postgres
       - rabbitmq
-      - celery_worker
+      # - celery_worker
     # env_file:
     #   - .env
     environment:
@@ -67,22 +67,22 @@ services:
     networks:
       - backend-network
 
-  celery_worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.celery
-    depends_on:
-      - rabbitmq
-      - postgres
-    # env_file:
-    #   - .env
-    environment:
-      - SECRET_KEY={{ SECRET_KEY }}
-    networks:
-      - backend-network
-    ports: []
-    # command: celery -A billwise worker -l INFO -c 4
-    command: celery -A billwise worker -l INFO -c 4 --beat
+  # celery_worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.celery
+  #   depends_on:
+  #     - rabbitmq
+  #     - postgres
+  #   # env_file:
+  #   #   - .env
+  #   environment:
+  #     - SECRET_KEY={{ SECRET_KEY }}
+  #   networks:
+  #     - backend-network
+  #   ports: []
+  #   # command: celery -A billwise worker -l INFO -c 4
+  #   command: celery -A billwise worker -l INFO -c 4 --beat
 
   # celery_beat:
   #   build:
