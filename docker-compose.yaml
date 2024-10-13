@@ -35,8 +35,8 @@ services:
     #   - /frontend/.next
     ports:
       - "3000:3000"
-    depends_on:
-      - postgres
+    # depends_on:
+    #   - postgres
     # env_file:
     #   - ./frontend/.env.local
     environment:
