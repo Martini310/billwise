@@ -10,7 +10,6 @@ ARG NEXT_PUBLIC_URL
 
 # Set the working directory
 # WORKDIR /frontend
-WORKDIR /app
 
 COPY package.json package-lock.json* ./
 
