@@ -212,6 +212,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://billwise.onrender.com",
     "https://bill-wise.onrender.com",
     'https://billwise-martini310.koyeb.app',
+    'systematic-margaretta-martini310-fba3edaf.koyeb.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -219,6 +220,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     'https://billwise-martini310.koyeb.app',
+    'systematic-margaretta-martini310-fba3edaf.koyeb.app',
 ]
 
 SIMPLE_JWT = {

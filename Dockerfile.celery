@@ -11,6 +11,14 @@ ARG SITE_ID
 # Set working directory to /app
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libffi-dev \
+    libssl-dev \
+    build-essential \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy only the necessary files
 COPY requirements.txt .
 COPY billwise /app/billwise
