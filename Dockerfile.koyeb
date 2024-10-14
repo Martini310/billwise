@@ -20,4 +20,4 @@ COPY . /app
 RUN apk add --no-cache git
 
 # Run Docker Compose using the compose file in /app
-CMD ["docker-compose", "-f", "/app/docker-compose.yaml", "up"]
+CMD ["docker-compose", "-f", "/app/docker-compose.yaml", ,"--verbose","up"]
