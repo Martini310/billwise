@@ -1,4 +1,4 @@
-frontend/
+# frontend/
 venv/
 db.sqlite3
 .idea/
