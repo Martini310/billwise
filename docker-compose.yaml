@@ -26,7 +26,7 @@ services:
 
   nextjs:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile.nextjs
     volumes:
       - ./frontend:/frontend
