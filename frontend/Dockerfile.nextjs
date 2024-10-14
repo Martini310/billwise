@@ -12,7 +12,11 @@ ARG NEXT_PUBLIC_URL
 # WORKDIR /frontend
 WORKDIR /app
 
+RUN echo "Before copying files" && ls -la /app
+
 COPY package.json package-lock.json* ./
+
+RUN echo "After copying package.json and package-lock.json" && ls -la /app
 
 RUN npm install
 

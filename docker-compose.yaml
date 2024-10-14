@@ -34,6 +34,7 @@ services:
     #   - /frontend/.next
     ports:
       - "3000:3000"
+    command: sh -c "ls -la /app && npm run dev"
     # depends_on:
     #   - postgres
     # env_file:
