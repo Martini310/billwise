@@ -23,6 +23,7 @@ RUN npm install
 # Copy the Next.js project into the container
 COPY . /app/
 
+RUN echo "After copying app folder" && ls -la /app
 # Build the Next.js app
 # RUN npm run build
 

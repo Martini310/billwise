@@ -34,9 +34,6 @@ services:
     #   - /frontend/.next
     ports:
       - "3000:3000"
-    entrypoint: sh -c "ls -la /app && tail -f /dev/null"  # Lista plików i "wstrzymanie" kontenera do ręcznej analizy
-
-    command: sh -c "ls -la /app && npm run dev"
     # depends_on:
     #   - postgres
     # env_file:
