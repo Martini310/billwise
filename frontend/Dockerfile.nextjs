@@ -1,19 +1,19 @@
 # Use an official Node.js runtime as a parent image
-# FROM node:18.18-alpine3.18
-FROM node:18-slim
+FROM node:18.18-alpine3.18
+# FROM node:18-slim
 # Set the working directory
 # WORKDIR /frontend
-RUN apt-get update && apt-get install -y \
-    python3 \
-    build-essential \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     python3 \
+#     build-essential \
+#     gcc \
+#     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
 # Install Yarn
-RUN npm install -g yarn
+# RUN npm install -g yarn
 
 # Install dependencies using Yarn
 RUN yarn install
