@@ -12,7 +12,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps --parallel
+# Install Yarn
+RUN npm install -g yarn
+
+# Install dependencies using Yarn
+RUN yarn install
 # RUN npm install
 
 # Copy the Next.js project into the container
@@ -23,7 +27,7 @@ RUN echo "After copying app folder" && ls -la /app
 
 RUN npx update-browserslist-db@latest
 
-RUN npm run build
+RUN yarn run build
 
 RUN echo "After build" && ls -la /app
 
