@@ -1,6 +1,6 @@
 # Use an official Node.js runtime as a parent image
-FROM node:18.18-alpine3.18
-
+# FROM node:18.18-alpine3.18
+FROM node:18-slim
 # Set the working directory
 # WORKDIR /frontend
 WORKDIR /app
@@ -15,7 +15,7 @@ COPY . /app/
 RUN echo "After copying app folder" && ls -la /app
 # Build the Next.js app
 
-RUN npx browserslist@latest --update-db
+RUN npx update-browserslist-db@latest
 
 RUN npm run build
 
