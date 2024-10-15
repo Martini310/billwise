@@ -1,22 +1,11 @@
 # Use an official Node.js runtime as a parent image
 FROM node:18.18-alpine3.18
 
-ARG GOOGLE_CLIENT_ID
-ARG GOOGLE_CLIENT_SECRET
-ARG NEXTAUTH_BACKEND_URL
-ARG NEXTAUTH_SECRET
-ARG NEXTAUTH_URL
-ARG NEXT_PUBLIC_URL
-
 # Set the working directory
 # WORKDIR /frontend
 WORKDIR /app
 
-RUN echo "Before copying files" && ls -la /app
-
 COPY package.json package-lock.json* ./
-
-RUN echo "After copying package.json and package-lock.json" && ls -la /app
 
 RUN npm install
 
@@ -25,10 +14,11 @@ COPY . /app/
 
 RUN echo "After copying app folder" && ls -la /app
 # Build the Next.js app
-# RUN npm run build
+RUN npm run build
 
 # Expose the port your Next.js app runs on
 EXPOSE 3000
 
 # Start the Next.js app
-CMD ["npm","run","dev"]
+# CMD ["npm","run","dev"]
+CMD ["npm","run","start"]
