@@ -15,6 +15,7 @@ COPY . /app/
 RUN echo "After copying app folder" && ls -la /app
 # Build the Next.js app
 # RUN npm run build
+RUN next build
 
 # Expose the port your Next.js app runs on
 EXPOSE 3000
