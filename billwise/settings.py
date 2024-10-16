@@ -213,14 +213,16 @@ CORS_ALLOWED_ORIGINS = [
     "https://bill-wise.onrender.com",
     "https://billwise-martini310.koyeb.app",
     "https://systematic-margaretta-martini310-fba3edaf.koyeb.app",
+    "https://billwise-two.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://nextjs:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3000",
-    'https://billwise-martini310.koyeb.app',
+    "https://billwise-martini310.koyeb.app",
     "https://systematic-margaretta-martini310-fba3edaf.koyeb.app",
+    "https://billwise-two.vercel.app",
 ]
 
 SIMPLE_JWT = {
