@@ -115,7 +115,8 @@ services:
   #     - backend-network
 
 volumes:
-  postgres_data:
+  # postgres_data:
+  postgres-data:
 
 networks:
   backend-network:
