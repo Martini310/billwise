@@ -20,6 +20,7 @@ services:
       - IN_DOCKER=1
       - SITE_ID=1
       - SECRET_KEY={{ SECRET_KEY }}
+      - JWT_SECRET_KEY = {{ JWT_SECRET_KEY }}
     networks:
       - backend-network
     command: python manage.py runserver 0.0.0.0:8000
@@ -55,7 +56,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres-data:/var/lib/postgresql/data/
     networks:
       - backend-network
 
