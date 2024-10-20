@@ -1,13 +1,12 @@
-# Use an official Python runtime as a parent image
-FROM python:3.10-slim
+# Base stage: Install dependencies only once
+FROM python:3.10-slim AS base
 
 # Set environment variables
-ENV PIP_DISABLE_PIP_VERSION_CHECK 1
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV IN_DOCKER 1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    IN_DOCKER=1
 
-# Set the working directory
 WORKDIR /app
 
 # Install necessary build tools
@@ -19,9 +18,17 @@ RUN apt-get update && apt-get install -y \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy requirements and install dependencies
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the Django project into the container
+# Copy the entire project
 COPY . /app/
+
+# Development stage for Django
+FROM base AS django
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# Development stage for Celery
+FROM base AS celery
+CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4", "--beat"]

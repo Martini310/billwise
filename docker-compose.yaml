@@ -4,22 +4,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.django
+      target: django   # Use the Django stage
     # volumes:
     #   - .:/app
     ports:
       - "8000:8000"
     depends_on:
       - postgres
-      # - rabbitmq
+      - rabbitmq
       # - celery_worker
     # env_file:
     #   - .env
     environment:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
-      # - IN_DOCKER=1
-      # - SITE_ID=1
-      - SECRET_KEY={{ SECRET_KEY }}
+      - IN_DOCKER=1
+      - SITE_ID=${SITE_ID}
+      - SECRET_KEY=${SECRET_KEY}
       - JWT_SECRET_KEY =${JWT_SECRET_KEY}
     networks:
       - backend-network
@@ -60,30 +61,33 @@ services:
     networks:
       - backend-network
 
-  # rabbitmq:
-  #   image: "rabbitmq:3.12-alpine"
-  #   ports:
-  #     - "15672:15672"  # RabbitMQ management UI
-  #     - "5672:5672"    # RabbitMQ
-  #   networks:
-  #     - backend-network
+  rabbitmq:
+    image: "rabbitmq:3.12-alpine"
+    ports:
+      - "15672:15672"  # RabbitMQ management UI
+      - "5672:5672"    # RabbitMQ
+    networks:
+      - backend-network
 
-  # celery_worker:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.celery
-  #   depends_on:
-  #     - rabbitmq
-  #     - postgres
-  #   # env_file:
-  #   #   - .env
-  #   environment:
-  #     - SECRET_KEY={{ SECRET_KEY }}
-  #   networks:
-  #     - backend-network
-  #   ports: []
-  #   # command: celery -A billwise worker -l INFO -c 4
-  #   command: celery -A billwise worker -l INFO -c 4 --beat
+  celery_worker:
+    build:
+      context: .
+      # dockerfile: Dockerfile.celery
+      dockerfile: Dockerfile.django
+      target: celery   # Use the Celery stage
+    depends_on:
+      - rabbitmq
+      - postgres
+    # env_file:
+    #   - .env
+    environment:
+      - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
+      - SECRET_KEY=%{SECRET_KEY}
+    networks:
+      - backend-network
+    ports: []
+    # command: celery -A billwise worker -l INFO -c 4
+    command: celery -A billwise worker -l INFO -c 4 --beat
 
   # celery_beat:
   #   build:
