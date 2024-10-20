@@ -80,7 +80,7 @@ services:
     depends_on:
       - rabbitmq
       - postgres
-      # - django
+      - django
     # env_file:
     #   - .env
     environment:
@@ -105,7 +105,7 @@ services:
       dockerfile: Dockerfile.django
       target: beat   # Use the beat stage
     depends_on:
-      # - django
+      - django
       - rabbitmq
     environment:
       - SECRET_KEY=${SECRET_KEY}
