@@ -49,7 +49,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:12
+    image: postgres:12-alpine
     environment:
       POSTGRES_DB: billwise_db
       POSTGRES_USER: admin
