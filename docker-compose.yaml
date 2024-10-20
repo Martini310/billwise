@@ -11,7 +11,7 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
-      # - rabbitmq
+      - rabbitmq
       # - celery_worker
     # env_file:
     #   - .env
@@ -93,11 +93,6 @@ services:
       - backend-network
     ports: []
     command: celery -A billwise worker -l INFO -c 4
-    healthcheck:
-      test: ["CMD", "bash", "/app/celery-healthcheck.sh"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   celery_beat:
     build:
@@ -105,8 +100,9 @@ services:
       dockerfile: Dockerfile.django
       target: beat   # Use the beat stage
     depends_on:
-      # - django
+      - django
       - rabbitmq
+      - celery_worker
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
@@ -116,12 +112,7 @@ services:
     #   - .env
     networks:
       - backend-network
-    command: celery -A billwise beat -l info
-    healthcheck:
-      test: ["CMD", "bash", "/app/celery-beat-healthcheck.sh"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
   # flower:
   #   image: mher/flower
