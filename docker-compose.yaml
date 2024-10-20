@@ -106,7 +106,7 @@ services:
       target: beat   # Use the beat stage
     depends_on:
       django:
-        condition: service_healthy
+        condition: service_started
       rabbitmq:
         condition: service_started
       celery_worker:
