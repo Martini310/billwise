@@ -10,9 +10,9 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      postgres:
-        condition: service_started
       rabbitmq:
+        condition: service_started
+      postgres:
         condition: service_started
 
       # - celery_worker
@@ -27,7 +27,8 @@ services:
       - JWT_SECRET_KEY =${JWT_SECRET_KEY}
     networks:
       - backend-network
-    command: python manage.py runserver 0.0.0.0:8000
+    # command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     # command: >
     #   /bin/sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
@@ -52,6 +53,14 @@ services:
   #   networks:
   #     - backend-network
 
+  rabbitmq:
+    image: "rabbitmq:3.12-alpine"
+    ports:
+      - "15672:15672"  # RabbitMQ management UI
+      - "5672:5672"    # RabbitMQ
+    networks:
+      - backend-network
+
   postgres:
     container_name: postgres
     image: postgres:12-alpine
@@ -63,14 +72,6 @@ services:
       - 5432:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data/
-    networks:
-      - backend-network
-
-  rabbitmq:
-    image: "rabbitmq:3.12-alpine"
-    ports:
-      - "15672:15672"  # RabbitMQ management UI
-      - "5672:5672"    # RabbitMQ
     networks:
       - backend-network
 
@@ -105,9 +106,9 @@ services:
       dockerfile: Dockerfile.django
       target: beat   # Use the beat stage
     depends_on:
-      django:
-        condition: service_started
       rabbitmq:
+        condition: service_started
+      django:
         condition: service_started
       celery_worker:
         condition: service_started
