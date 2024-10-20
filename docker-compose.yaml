@@ -13,7 +13,7 @@ services:
       postgres:
         condition: service_healthy
       rabbitmq:
-        condition: service_healthy
+        condition: service_started
 
       # - celery_worker
     # env_file:
@@ -82,7 +82,7 @@ services:
       target: celery   # Use the Celery stage
     depends_on:
       rabbitmq:
-        condition: service_healthy
+        condition: service_started
       postgres:
         condition: service_healthy
       # - django
@@ -108,7 +108,7 @@ services:
       django:
         condition: service_healthy
       rabbitmq:
-        condition: service_healthy
+        condition: service_started
       celery_worker:
         condition: service_healthy
     environment:
