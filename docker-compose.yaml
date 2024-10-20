@@ -80,6 +80,7 @@ services:
     depends_on:
       - rabbitmq
       - postgres
+      - django
     # env_file:
     #   - .env
     environment:
