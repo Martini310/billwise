@@ -10,8 +10,11 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
       # - celery_worker
     # env_file:
     #   - .env
@@ -78,8 +81,10 @@ services:
       dockerfile: Dockerfile.django
       target: celery   # Use the Celery stage
     depends_on:
-      - rabbitmq
-      - postgres
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
       # - django
     # env_file:
     #   - .env
@@ -100,9 +105,12 @@ services:
       dockerfile: Dockerfile.django
       target: beat   # Use the beat stage
     depends_on:
-      - django
-      - rabbitmq
-      - celery_worker
+      django:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      celery_worker:
+        condition: service_healthy
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
