@@ -11,7 +11,7 @@ services:
       - "8000:8000"
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       rabbitmq:
         condition: service_started
 
@@ -84,7 +84,7 @@ services:
       rabbitmq:
         condition: service_started
       postgres:
-        condition: service_healthy
+        condition: service_started
       # - django
     # env_file:
     #   - .env
