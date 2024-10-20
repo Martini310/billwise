@@ -93,6 +93,11 @@ services:
       - backend-network
     ports: []
     command: celery -A billwise worker -l INFO -c 4
+    healthcheck:
+      test: ["CMD", "bash", "/app/celery-healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   celery_beat:
     build:
@@ -112,6 +117,11 @@ services:
     networks:
       - backend-network
     command: celery -A billwise beat -l info
+    healthcheck:
+      test: ["CMD", "bash", "/app/celery-beat-healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # flower:
   #   image: mher/flower
