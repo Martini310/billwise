@@ -110,7 +110,7 @@ services:
       rabbitmq:
         condition: service_started
       celery_worker:
-        condition: service_healthy
+        condition: service_started
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
