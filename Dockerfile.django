@@ -25,10 +25,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire project
 COPY . /app/
 
-# Development stage for Celery
-FROM base AS celery
-CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4", "--beat"]
-
 # Development stage for Django
 FROM base AS django
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# Development stage for Celery
+FROM base AS celery
+CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4",]
+
+# Development stage for beat
+FROM base AS beat
+CMD ["celery", "-A", "billwise", "beat", "-l", "INFO", '--scheduler', 'django_celery_beat.schedulers:DatabaseScheduler']

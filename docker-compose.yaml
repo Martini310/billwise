@@ -80,32 +80,32 @@ services:
     depends_on:
       - rabbitmq
       - postgres
-      - django
+      # - django
     # env_file:
     #   - .env
     environment:
       - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
-      - SECRET_KEY=%{SECRET_KEY}
+      - SECRET_KEY=${SECRET_KEY}
     networks:
       - backend-network
     ports: []
-    # command: celery -A billwise worker -l INFO -c 4
-    command: celery -A billwise worker -l INFO -c 4 --beat
+    command: celery -A billwise worker -l INFO -c 4
 
-  # celery_beat:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.celery
-  #   depends_on:
-  #     - django
-  #     - rabbitmq
-  #   environment:
-  #     - SECRET_KEY={{ SECRET_KEY }}
-  #   # env_file:
-  #   #   - .env
-  #   networks:
-  #     - backend-network
-  #   command: celery -A billwise beat -l info
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+      target: beat   # Use the beat stage
+    depends_on:
+      - django
+      - rabbitmq
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+    # env_file:
+    #   - .env
+    networks:
+      - backend-network
+    command: celery -A billwise beat -l info
 
   # flower:
   #   image: mher/flower
