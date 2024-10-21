@@ -10,11 +10,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      rabbitmq:
-        condition: service_started
-      postgres:
-        condition: service_started
-
+      - rabbitmq
+      - postgres
       # - celery_worker
     # env_file:
     #   - .env
@@ -60,11 +57,6 @@ services:
       - "5672:5672"    # RabbitMQ
     networks:
       - backend-network
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "status"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   postgres:
     container_name: postgres
@@ -87,10 +79,8 @@ services:
       dockerfile: Dockerfile.django
       target: celery   # Use the Celery stage
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_started
+      - rabbitmq
+      - postgres
       # - django
     # env_file:
     #   - .env
@@ -104,6 +94,7 @@ services:
       - backend-network
     ports: []
     command: celery -A billwise worker -l INFO -c 4
+    restart: "no"
 
   celery_beat:
     build:
@@ -111,12 +102,7 @@ services:
       dockerfile: Dockerfile.django
       target: beat   # Use the beat stage
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      django:
-        condition: service_started
-      celery_worker:
-        condition: service_started
+      - rabbitmq
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
@@ -127,6 +113,7 @@ services:
     networks:
       - backend-network
     command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    restart: "no"
 
   # flower:
   #   image: mher/flower
