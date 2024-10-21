@@ -60,6 +60,11 @@ services:
       - "5672:5672"    # RabbitMQ
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     container_name: postgres
@@ -83,7 +88,7 @@ services:
       target: celery   # Use the Celery stage
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
       postgres:
         condition: service_started
       # - django
@@ -107,7 +112,7 @@ services:
       target: beat   # Use the beat stage
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
       django:
         condition: service_started
       celery_worker:
@@ -121,7 +126,7 @@ services:
     #   - .env
     networks:
       - backend-network
-    # command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
   # flower:
   #   image: mher/flower
