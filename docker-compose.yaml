@@ -27,8 +27,8 @@ services:
       - JWT_SECRET_KEY =${JWT_SECRET_KEY}
     networks:
       - backend-network
-    # command: python manage.py runserver 0.0.0.0:8000
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+    # command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     # command: >
     #   /bin/sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
