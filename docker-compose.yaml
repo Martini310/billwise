@@ -26,7 +26,7 @@ services:
       - email=a@a.pl
       - password=aaa
       - first_name=aaa
-      - $CREATE_SUPERUSER=1
+      - $CREATE_SUPERUSER=true
     networks:
       - backend-network
     # command: python manage.py runserver 0.0.0.0:8000
