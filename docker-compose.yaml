@@ -22,10 +22,10 @@ services:
       - SITE_ID=${SITE_ID}
       - SECRET_KEY=${SECRET_KEY}
       - JWT_SECRET_KEY =${JWT_SECRET_KEY}
-      - username=aaa
-      - email=a@a.pl
-      - password=aaa
-      - first_name=aaa
+      - DJANGO_SUPERUSER_USERNAME=aaa
+      - DJANGO_SUPERUSER_EMAIL=a@a.pl
+      - DJANGO_SUPERUSER_PASSWORD=aaa
+      - DJANGO_SUPERUSER_FIRST_NAME=aaa
       - CREATE_SUPERUSER=true
     networks:
       - backend-network
