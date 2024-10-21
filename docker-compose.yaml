@@ -22,12 +22,16 @@ services:
       - SITE_ID=${SITE_ID}
       - SECRET_KEY=${SECRET_KEY}
       - JWT_SECRET_KEY =${JWT_SECRET_KEY}
+      - username=aaa
+      - email=a@a.pl
+      - password=aaa
+      - first_name=aaa
+      - $CREATE_SUPERUSER=1
     networks:
       - backend-network
-    command: python manage.py runserver 0.0.0.0:8000
-    # command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    # command: >
-    #   /bin/sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    # command: python manage.py runserver 0.0.0.0:8000
+    # command: sh -c "python manage.py migrate; python manage.py runserver 0.0.0.0:8000"
+    command: ./build.sh
 
   # nextjs:
   #   build:
@@ -111,7 +115,9 @@ services:
     #   - .env
     networks:
       - backend-network
-    command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    # command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: bash -c "sleep 300 && celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+
 
   # flower:
   #   image: mher/flower
