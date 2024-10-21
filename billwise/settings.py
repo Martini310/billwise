@@ -177,7 +177,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-if 'RENDER' in os.environ or 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
+if 'IN_DOCKER' in os.environ or 'RENDER' in os.environ or 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
