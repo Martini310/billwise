@@ -36,4 +36,4 @@ CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4",]
 
 # Development stage for beat
 FROM base AS beat
-CMD ["celery", "-A", "billwise", "beat", "-l", "INFO", '--scheduler', 'django_celery_beat.schedulers:DatabaseScheduler']
+# CMD ["celery", "-A", "billwise", "beat", "-l", "INFO", '--scheduler', 'django_celery_beat.schedulers:DatabaseScheduler']
