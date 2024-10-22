@@ -21,7 +21,7 @@ services:
       - IN_DOCKER=1
       - SITE_ID=${SITE_ID}
       - SECRET_KEY=${SECRET_KEY}
-      - JWT_SECRET_KEY =${JWT_SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - DJANGO_SUPERUSER_USERNAME=aaa
       - DJANGO_SUPERUSER_EMAIL=a@a.pl
       - DJANGO_SUPERUSER_PASSWORD=aaa
@@ -98,7 +98,7 @@ services:
       - backend-network
     ports: []
     # command: celery -A billwise worker -l INFO -c 4
-    command: bash -c "sleep 300 && celery -A billwise worker -l INFO -c 4"
+    command: bash -c "sleep 600 && celery -A billwise worker -l INFO -c 4"
 
   celery_beat:
     build:
