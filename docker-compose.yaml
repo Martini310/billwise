@@ -98,7 +98,7 @@ services:
       - backend-network
     ports: []
     # command: celery -A billwise worker -l INFO -c 4
-    command: bash -c "sleep 600 && celery -A billwise worker -l INFO -c 4"
+    command: bash -c "sleep 240 && celery -A billwise worker -l INFO -c 4"
 
   celery_beat:
     build:

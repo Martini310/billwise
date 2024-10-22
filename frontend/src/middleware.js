@@ -18,7 +18,7 @@ export default withAuth({
        * - favicon.ico (favicon file)
        */
       {
-        source: '/((?!api|_next/static|_next/image|favicon.*|auth|assets).*)',
+        source: '/((?!api|_next/static|_next/image|favicon.ico|auth|assets).*)',
         missing: [
           { type: 'header', key: 'next-router-prefetch' },
           { type: 'header', key: 'purpose', value: 'prefetch' },
