@@ -10,17 +10,24 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 WORKDIR /app
 
 # Install necessary build tools
-RUN apt-get update && apt-get install -y \
-    gcc \
-    libffi-dev \
-    libssl-dev \
-    build-essential \
-    vim \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     gcc \
+#     libffi-dev \
+#     libssl-dev \
+#     build-essential \
+#     vim \
+#     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc libffi-dev libssl-dev build-essential vim && \
+    pip install --no-cache-dir -r requirements.txt && \
+    apt-get purge -y --auto-remove gcc libffi-dev libssl-dev build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project
 COPY . /app/
@@ -34,6 +41,6 @@ FROM base AS celery
 # CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4",]
 CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4", "--beat", "--scheduler", 'django_celery_beat.schedulers:DatabaseScheduler']
 
-# Development stage for beat
-FROM base AS beat
-CMD ["celery", "-A", "billwise", "beat", "-l", "INFO", '--scheduler', 'django_celery_beat.schedulers:DatabaseScheduler']
+# # Development stage for beat
+# FROM base AS beat
+# CMD ["celery", "-A", "billwise", "beat", "-l", "INFO", '--scheduler', 'django_celery_beat.schedulers:DatabaseScheduler']

@@ -7,4 +7,4 @@ RUN apk add --no-cache git
 
 # Run Docker Compose using the compose file in /app
 # CMD ["docker-compose", "-f", "/app/docker-compose.yaml", "--verbose","up"]
-CMD ["docker-compose", "-f", "/app/docker-compose.yaml", "--verbose", "up", "django", "postgres", "rabbitmq", "celery_worker"]
+CMD ["docker-compose", "-f", "/app/docker-compose.yaml", "--verbose", "up", "django", "postgres", "redis", "celery_worker", "celery_beat"]
