@@ -31,7 +31,8 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 # Development stage for Celery
 FROM base AS celery
-CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4",]
+# CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4",]
+CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4", "--beat", "--scheduler", 'django_celery_beat.schedulers:DatabaseScheduler']
 
 # Development stage for beat
 FROM base AS beat

@@ -98,7 +98,8 @@ services:
       - backend-network
     ports: []
     # command: celery -A billwise worker -l INFO -c 4
-    command: bash -c "sleep 240 && celery -A billwise worker -l INFO -c 4"
+    # command: bash -c "sleep 240 && celery -A billwise worker -l INFO -c 4"
+    command: bash -c "sleep 240 && celery -A billwise worker -l INFO -c 4 --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler"
 
   celery_beat:
     build:
