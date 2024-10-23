@@ -34,7 +34,8 @@ services:
       - backend-network
     # command: python manage.py runserver 0.0.0.0:8000
     # command: sh -c "python manage.py migrate; python manage.py runserver 0.0.0.0:8000"
-    command: ./build.sh
+    # command: ./build.sh
+    command: sh ./build.sh
 
   # nextjs:
   #   build:
@@ -113,7 +114,8 @@ services:
       - backend-network
     ports: []
     # command: celery -A billwise worker -l INFO -c 4
-    command: bash -c "sleep 240 && celery -A billwise worker -l INFO -c 1"
+    # command: bash -c "sleep 240 && celery -A billwise worker -l INFO -c 1"
+    command: sh -c "sleep 240 && celery -A billwise worker -l INFO -c 1"
     # command: bash -c "sleep 240 && celery -A billwise worker -l INFO -c 4 --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler"
 
   celery_beat:
@@ -137,7 +139,8 @@ services:
     networks:
       - backend-network
     # command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    command: bash -c "sleep 300 && celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    # command: bash -c "sleep 300 && celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    command: sh -c "sleep 300 && celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
 
 
   # flower:

@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
+
+# do obrazu slim !/usr/bin/env bash
 
 set -o errexit  # exit on error
 
