@@ -242,7 +242,7 @@ SIMPLE_JWT = {
 # Celery configuration
 if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
-    CELERY_RESULT_BACKEND = 'rpc://'
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'rpc://')
 
     # Include tasks from all installed apps
     CELERY_IMPORTS = ('base.tasks',)
@@ -251,6 +251,10 @@ if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' i
     CELERY_WORKER_CONCURRENCY = 1
     CELERY_TASK_TIME_LIMIT = 300
     CELERY_TASK_MAX_RETRIES = 3
+
+    CELERY_ACCEPT_CONTENT = ['application/json']
+    CELERY_TASK_SERIALIZER = 'json'
+    CELERY_RESULT_SERIALIZER = 'json'
 
 # Celery Beat (periodic task scheduler) configuration
 CELERY_BEAT_SCHEDULE = {

@@ -1,5 +1,6 @@
 # Base stage: Install dependencies only once
-FROM python:3.10-slim AS base
+# FROM python:3.10-slim AS base
+FROM python:3.10-alpine AS base
 
 # Set environment variables
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -21,12 +22,20 @@ WORKDIR /app
 # Copy requirements and install dependencies
 COPY requirements.txt /app/
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libffi-dev libssl-dev build-essential vim && \
-    pip install --no-cache-dir -r requirements.txt && \
-    apt-get purge -y --auto-remove gcc libffi-dev libssl-dev build-essential && \
-    rm -rf /var/lib/apt/lists/*
+# Install dependencies on slim image
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     gcc libffi-dev libssl-dev build-essential vim && \
+#     pip install --no-cache-dir -r requirements.txt && \
+#     apt-get purge -y --auto-remove gcc libffi-dev libssl-dev build-essential && \
+#     rm -rf /var/lib/apt/lists/*
 
+# Install dependencies on alpine image
+RUN apk add --no-cache \
+    gcc musl-dev libffi-dev openssl-dev build-base vim && \
+    pip install --no-cache-dir -r requirements.txt && \
+    apk del gcc musl-dev libffi-dev openssl-dev build-base && \
+    rm -rf /var/cache/apk/*
+    
 # RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project

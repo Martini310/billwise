@@ -20,6 +20,7 @@ services:
       - DJANGO_SETTINGS_MODULE=billwise.settings
       # - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
       - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379
       - IN_DOCKER=1
       - SITE_ID=${SITE_ID}
       - SECRET_KEY=${SECRET_KEY}
@@ -78,6 +79,7 @@ services:
       POSTGRES_DB: billwise_db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --lc-collate=C --lc-ctype=C --shared_buffers=64MB
     ports:
       - 5432:5432
     volumes:
@@ -101,6 +103,7 @@ services:
     environment:
       # - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
       - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379
       - SECRET_KEY=${SECRET_KEY}
       - SITE_ID=${SITE_ID}
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
@@ -125,6 +128,7 @@ services:
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - SITE_ID=${SITE_ID}
+      - CELERY_RESULT_BACKEND=redis://redis:6379
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
       - CELERY_BROKER_CONNECTION_MAX_RETRIES=100
       - CELERY_BROKER_CONNECTION_RETRY_DELAY=5  # Retry every 5 seconds
