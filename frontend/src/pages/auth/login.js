@@ -15,6 +15,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -45,31 +46,54 @@ const Page = () => {
         .required('Password is required')
     }),
 
+  // onSubmit: async (values, helpers) => {
+  //   setButtonDisabled(true);
+  //   try {
+  //     const response = await signIn('credentials', { ...values,  redirect: false, callbackUrl: process.env.NEXTAUTH_URL});
+  //     if (response.ok) {
+  //       toast.success('Zalogowano prawidłowo!');
+  //       router.push('/')
+  //     };
+  //     if (response && response.status === 401) {
+  //       console.error('if Sign-in error:', response);
+  //       helpers.setStatus({ success: false });
+  //       helpers.setErrors({ submit: response.message || 'Błąd logowania. Sprawdź poprawność danych i spróbuj ponownie' });
+  //       helpers.setSubmitting(false);
+  //       toast.warning('Błąd logowania!');
+  //       setButtonDisabled(false);
+  //     }
+  //   } catch (err) {
+  //     console.error('catch Sign-in error:', err);
+  //     helpers.setStatus({ success: false });
+  //     helpers.setErrors({ submit: err.message || 'Wystąpił błąd. Spróbuj ponownie' });
+  //     helpers.setSubmitting(false);
+  //     toast.error('Wystąpił błąd! Spróbuj ponownie..');
+  //     setButtonDisabled(false);
+  //   } finally {
+  //     setButtonDisabled(false);
+  //   }
+  // }
   onSubmit: async (values, helpers) => {
     setButtonDisabled(true);
     try {
-      const response = await signIn('credentials', { ...values,  redirect: false, callbackUrl: process.env.NEXTAUTH_URL});
-      if (response.ok) {
+      const response = await signIn('credentials', { ...values, redirect: false, callbackUrl: process.env.NEXTAUTH_URL });
+      if (response?.ok) {
         toast.success('Zalogowano prawidłowo!');
-        router.push('/')
-      };
-      if (response && response.status === 401) {
-        console.error('if Sign-in error:', response);
-        helpers.setStatus({ success: false });
-        helpers.setErrors({ submit: response.message || 'Błąd logowania. Sprawdź poprawność danych i spróbuj ponownie' });
-        helpers.setSubmitting(false);
+        return router.push('/');
+      } 
+      if (response?.status === 401) {
+        helpers.setErrors({ submit: 'Błąd logowania. Sprawdź poprawność danych.' });
         toast.warning('Błąd logowania!');
-        setButtonDisabled(false);
       }
     } catch (err) {
-      console.error('catch Sign-in error:', err);
-      helpers.setStatus({ success: false });
-      helpers.setErrors({ submit: err.message || 'Wystąpił błąd. Spróbuj ponownie' });
-      helpers.setSubmitting(false);
-      toast.error('Wystąpił błąd! Spróbuj ponownie..');
+      helpers.setErrors({ submit: 'Wystąpił błąd. Spróbuj ponownie.' });
+      toast.error('Wystąpił błąd! Spróbuj ponownie.');
+    } finally {
       setButtonDisabled(false);
+      helpers.setSubmitting(false);
     }
   }
+
   });
   
   const handleMethodChange = useCallback(
@@ -179,7 +203,7 @@ const Page = () => {
                     <b>{formik.errors.submit}</b>
                   </Typography>
                 )}
-                <Button
+                {/* <Button
                   fullWidth
                   size="large"
                   sx={{ mt: 3 }}
@@ -194,8 +218,19 @@ const Page = () => {
                     ) : (
                       'Zaloguj'
                   )}                
-                </Button>
-                <GoogleSignInButton onClick={() => signIn('google', {callbackUrl: '/'})} />
+                </Button> */}
+                <LoadingButton
+                  fullWidth
+                  size="large"
+                  sx={{ mt: 3 }}
+                  loading={isButtonDisabled}
+                  type="submit"
+                  variant="contained"
+                >
+                  Zaloguj
+                </LoadingButton>
+                {/* <GoogleSignInButton onClick={() => signIn('google', {callbackUrl: '/'})} /> */}
+                <GoogleSignInButton onClick={() => signIn('google', { callbackUrl: process.env.NEXTAUTH_URL })} />
                 <Alert
                   color="primary"
                   severity="info"

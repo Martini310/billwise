@@ -29,8 +29,8 @@ const SIGN_IN_HANDLERS = {
     account["meta"] = response.data;
     return true;
     } catch (error) {
-        console.error('serwer', error);
-    return false;
+      console.error('Google sign-in error:', error.response?.data || error.message);
+      return false;
     }
 }
 };
@@ -61,7 +61,7 @@ export const authOptions = {
           const data = response.data;
           if (data) return data;
         } catch (error) {
-          console.error('authorize - catch', error.response.data);
+            console.error('authorize - catch', error.response?.data || error.message);
           return null
         }
         return null;
@@ -113,8 +113,12 @@ export const authOptions = {
           // console.log('new token', token)
         }
         catch (error) {
-          console.log('Refresh token expired!')
-          return token
+          if (error.response?.status === 401) {
+            console.log('Refresh token expired!');
+            return null; // Invalidates the session
+          }
+          console.error('jwt - catch', error.response?.data || error.message);
+          return null
         }
       }
       return token;
