@@ -3,6 +3,7 @@ import ArrowDownIcon from '@heroicons/react/24/solid/ArrowDownIcon';
 import ArrowUpIcon from '@heroicons/react/24/solid/ArrowUpIcon';
 import CreditCardIcon from '@heroicons/react/24/solid/CreditCardIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
+import { on } from 'events';
 
 export const OverviewCurrentMonth = (props) => {
   const { difference, positive = false, sx, value } = props;
@@ -63,7 +64,8 @@ export const OverviewCurrentMonth = (props) => {
                   color={positive ? 'error.main' : 'success.main'}
                   variant="body2"
                 >
-                  {difference}%
+                  {/* shoe value if difference is infinity */}
+                  {difference === Infinity ? value : difference + '%'}
                 </Typography>
               </Stack>
               <Typography
@@ -82,7 +84,7 @@ export const OverviewCurrentMonth = (props) => {
 OverviewCurrentMonth.propTypes = {
   difference: PropTypes.number,
   positive: PropTypes.bool,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.object, PropTypes.string.isRequired]),
   sx: PropTypes.object
 };
 

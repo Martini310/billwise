@@ -97,8 +97,8 @@ export const OverviewNextPayment = (props) => {
 };
 
 OverviewNextPayment.propTypes = {
-  date: PropTypes.string,
-  supplier: PropTypes.string,
-  value: PropTypes.string,
+  date: PropTypes.oneOfType([PropTypes.object, PropTypes.string.isRequired]),
+  supplier: PropTypes.oneOfType([PropTypes.object, PropTypes.string.isRequired]),
+  value: PropTypes.oneOfType([PropTypes.object, PropTypes.string.isRequired]),
   sx: PropTypes.object
 };

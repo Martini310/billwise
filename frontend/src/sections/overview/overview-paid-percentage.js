@@ -33,7 +33,7 @@ export const OverviewPaidPercentage = (props) => {
               Opłacone faktury
             </Typography>
             <Typography variant="h4">
-              {value}%
+              {typeof value === 'number' ? value + '%' : value}
             </Typography>
           </Stack>
           <Avatar
@@ -50,7 +50,7 @@ export const OverviewPaidPercentage = (props) => {
         </Stack>
         <Box sx={{ mt: 3 }}>
           <LinearProgress
-            value={value}
+            value={typeof value === 'number' ? value : 0}
             variant="determinate"
           />
         </Box>
@@ -58,8 +58,8 @@ export const OverviewPaidPercentage = (props) => {
     </Card>
   );
 };
-
+// value can be either a number or an object
 OverviewPaidPercentage.propTypes = {
-  value: PropTypes.number.isRequired,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
   sx: PropTypes.object
 };

@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { Box, Container, Unstable_Grid2 as Grid, Typography } from '@mui/material';
+import { Box, Container, Unstable_Grid2 as Grid, Typography, Skeleton } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { OverviewNewestPayment } from 'src/sections/overview/overview-newest-payment';
 import { OverviewMonthlyChart } from 'src/sections/overview/overview-monthly-chart';
@@ -165,10 +165,11 @@ const Page = () => {
             lg={3}
           >
             <OverviewNewestPayment
-              supplier={newestInvoice ? (newestInvoice?.account?.supplier?.name ?? 'Inne') : "Brak faktur"}
+              supplier={appState.loading ? <Skeleton width={'50px'}/> : (newestInvoice ? (newestInvoice?.account?.supplier?.name ?? 'Inne') : "Brak faktur")}
               sx={{ height: '100%' }}
-              value={newestInvoice ? newestInvoice.amount + "zł" : "---"}
-            />          </Grid>
+              value={appState.loading ? <Skeleton /> :( newestInvoice ? newestInvoice.amount + "zł" : '---' )}
+            />
+          </Grid>
           <Grid
             className='overview-current-month'
             xs={12}
@@ -179,9 +180,9 @@ const Page = () => {
               difference={+monthDifference.toFixed(2)} // '+' convert value back to a Number
               positive={monthDifference > 0}
               sx={{ height: '100%' }}
-              value={currentYearAmounts[now.getMonth()]
+              value={appState.loading ? <Skeleton /> : (currentYearAmounts[now.getMonth()]
                       ? currentYearAmounts[now.getMonth()].toFixed(2)+"zł"
-                      : '0'
+                      : '0')
                     }
             />
           </Grid>
@@ -193,7 +194,7 @@ const Page = () => {
             >
             <OverviewPaidPercentage
               sx={{ height: '100%' }}
-              value={parseFloat((paidInvoices / invoices.length * 100).toFixed(0)) || 0}
+              value={appState.loading ? <Skeleton /> : (parseFloat((paidInvoices / invoices.length * 100).toFixed(0)) || 0)}
             />
           </Grid>
           <Grid
@@ -204,9 +205,9 @@ const Page = () => {
           >
             <OverviewNextPayment
               sx={{ height: '100%' }}
-              value={unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : (unpaidInvoices.length === 0 ? "Brak faktur do wyświetlenia" : "Wszystko opłacone!")}
-              supplier={unpaidInvoices[0] ? (unpaidInvoices[0]?.account?.supplier?.name ?? 'Inne') : "---"}
-              date={unpaidInvoices[0] ? unpaidInvoices[0].pay_deadline : "---"}
+              value={appState.loading ? <Skeleton /> : ( unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : (unpaidInvoices.length === 0 ? "Brak faktur do wyświetlenia" : "Wszystko opłacone!" ))}
+              supplier={appState.loading ? <Skeleton width={'50px'}/> : ( unpaidInvoices[0] ? (unpaidInvoices[0]?.account?.supplier?.name ?? 'Inne') : "---" )}
+              date={appState.loading ? <Skeleton width={'50px'}/> : ( unpaidInvoices[0] ? unpaidInvoices[0].pay_deadline : "---" )}
             />
           </Grid>
           <Grid
@@ -226,7 +227,9 @@ const Page = () => {
             xs={12}
             lg={8}
           >
-            <MonthlyChartLoading isLoading={appState.loading} 
+            {/* <MonthlyChartLoading isLoading={appState.loading}  */}
+
+            <OverviewMonthlyChart
               chartSeries={[
                 {
                   name: year - 2,

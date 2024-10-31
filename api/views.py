@@ -28,7 +28,7 @@ class InvoiceList(ModelViewSet):
         return get_object_or_404(Invoice, pk=item)
 
     def get_queryset(self):
-        # time.sleep(1) # Only to demonstrate loading circle
+        time.sleep(3) # Only to demonstrate loading circle
         return Invoice.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):

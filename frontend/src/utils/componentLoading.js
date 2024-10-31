@@ -11,7 +11,7 @@ export default function CircularIndeterminate() {
 }
 
 export function withComponentLoading(Component) {
-  return function WihLoadingComponent({ isLoading, ...props }) {
+  return function WihLoadingComponent({ isLoading, skeletons, ...props }) {
     if (!isLoading) return <Component {...props} />;
     return (
       <>
