@@ -22,7 +22,7 @@ export const OverviewCurrentMonth = (props) => {
               color="text.secondary"
               variant="overline"
             >
-              płatności w tym miesiącu
+              aktualny miesiąc
             </Typography>
             <Typography variant="h4">
               {value === 'NaNzł' ? 'Brak' : value}

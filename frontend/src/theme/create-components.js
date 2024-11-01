@@ -19,7 +19,8 @@ export function createComponents(config) {
         root: {
           fontSize: 14,
           fontWeight: 600,
-          letterSpacing: 0
+          letterSpacing: 0,
+          marginLeft: '5px !important'
         }
       }
     },
@@ -62,9 +63,9 @@ export function createComponents(config) {
     MuiCardContent: {
       styleOverrides: {
         root: {
-          padding: '32px 24px',
+          padding: '16px 12px',
           '&:last-child': {
-            paddingBottom: '32px'
+            paddingBottom: '16px'
           }
         }
       }

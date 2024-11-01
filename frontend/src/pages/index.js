@@ -17,6 +17,7 @@ import axios from 'axios';
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { formatDatetime } from 'src/utils/format-datetime';
+import Cookies from 'js-cookie';
 
 
 const driverObj = driver({
@@ -32,7 +33,11 @@ const driverObj = driver({
     { element: '.overview-monthly-chart', popover: { title: 'Podsumowanie roku', description: 'Wykres miesięcznych wydatków z porównaniem do poprzedniego roku.' } },
     { element: '.overview-categories-chart', popover: { title: 'Wykres kategorii', description: 'Podział płatności według kategorii.' } },
     { element: '.latest-invoices', popover: { title: 'Ostatnie faktury', description: 'Tu masz podgląd na 10 ostatnich faktur. Mozesz kliknąć na wybraną fakturę, żeby zobaczyć szczegóły.' } },
-  ]
+  ],
+  onDestroyStarted: () => {
+    Cookies.set('DisableAnimatedTour', true);
+    driverObj.destroy();
+    }
 });
 
 const now = new Date();
@@ -101,7 +106,8 @@ const Page = () => {
           setLastSync(formatedDate);
 
           // Animated tour
-          driverObj.drive();
+          if ( !Cookies.get('DisableAnimatedTour') ) driverObj.drive();
+
         }))
         .catch((err) => console.log(err))
   }, [setInvoices, setCategories, setAppState]
