@@ -2,11 +2,15 @@ import Head from 'next/head';
 import ArrowUpOnSquareIcon from '@heroicons/react/24/solid/ArrowUpOnSquareIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
 import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
+import PlaylistAddRoundedIcon from '@mui/icons-material/PlaylistAddRounded';
 import {
   Box,
   Button,
+  Card,
+  CardActionArea,
+  CardContent,
   Container,
-  Pagination,
+  Link,
   Stack,
   SvgIcon,
   Typography,
@@ -17,34 +21,27 @@ import { AccountCard } from 'src/sections/accounts/account-card';
 import { AccountsSearch } from 'src/sections/accounts/accounts-search';
 import { axiosInstance } from 'src/utils/axios';
 import { useState, useEffect } from 'react';
-
-
-// Example company
-const companies = [
-  {
-    id: '2569ce0d517a7f06d3ea1f24',
-    createdAt: '27/03/2019',
-    description: 'Dropbox is a file hosting service that offers cloud storage, file synchronization, a personal cloud.',
-    logo: '/assets/logos/logo-dropbox.png',
-    title: 'Dropbox',
-    downloads: '594'
-  },
-];
+import { sizeHeight } from '@mui/system';
 
 
 const Page = () => {
 
   const [accounts, setAccounts] = useState([])
-  
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Fetch user accounts
   useEffect(() => {
       axiosInstance
         .get('accounts/')
         .then((res) => {
           setAccounts(res.data);
-          }
-        )
-  }, [setAccounts]);
+        })
+  }, []);
+
+  // Filter accounts based on search query
+  const filteredAccounts = accounts.filter((account) =>
+    account.supplier['name'].toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
   <>
@@ -71,32 +68,6 @@ const Page = () => {
               <Typography variant="h4">
                 Moi dostawcy
               </Typography>
-              <Stack
-                alignItems="center"
-                direction="row"
-                spacing={1}
-              >
-                <Button
-                  color="inherit"
-                  startIcon={(
-                    <SvgIcon fontSize="small">
-                      <ArrowUpOnSquareIcon />
-                    </SvgIcon>
-                  )}
-                >
-                  Import
-                </Button>
-                <Button
-                  color="inherit"
-                  startIcon={(
-                    <SvgIcon fontSize="small">
-                      <ArrowDownOnSquareIcon />
-                    </SvgIcon>
-                  )}
-                >
-                  Export
-                </Button>
-              </Stack>
             </Stack>
             <div>
               <Button
@@ -112,35 +83,62 @@ const Page = () => {
               </Button>
             </div>
           </Stack>
-          <AccountsSearch />
+          <AccountsSearch onSearch={setSearchQuery}/>
           <Grid
             container
             spacing={3}
           >
-            { accounts
-              ? accounts.map((account) => (
-                  <Grid
-                    xs={12}
-                    md={6}
-                    lg={4}
-                    key={account.id}
-                  >
-                    <AccountCard account={account} />
-                  </Grid>
-                ))
-              : <Grid />}
+            {filteredAccounts.map((account) => (
+              <Grid
+                xs={12}
+                md={6}
+                lg={4}
+                key={account.id}
+              >
+                <AccountCard account={account} />
+              </Grid>
+            ))}
+            <Grid
+              xs={12}
+              md={6}
+              lg={4}
+              key={8}
+            >
+              <Link href='new-account/'>
+                <Card
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    backgroundColor: '#6366F1',
+                    '&:hover': {
+                      backgroundColor: '#4C4FD2',
+                    }
+                  }}
+                >
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        pb: 0
+                      }}
+                    >
+                      <PlaylistAddRoundedIcon sx={{fontSize: '210px', color: '#FFF'}}/>
+                    </Box>
+                    <Typography
+                      align="center"
+                      gutterBottom
+                      variant="h5"
+                      color='#FFF'
+                      >
+                      Dodaj konto
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Link>
+            </Grid>
           </Grid>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center'
-            }}
-          >
-            <Pagination
-              count={3}
-              size="small"
-            />
-          </Box>
         </Stack>
       </Container>
     </Box>
@@ -155,3 +153,5 @@ Page.getLayout = (page) => (
 );
 
 export default Page;
+
+

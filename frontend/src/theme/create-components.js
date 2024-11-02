@@ -6,6 +6,7 @@ import {
   paperClasses,
   tableCellClasses
 } from '@mui/material';
+import { height, maxHeight, maxWidth } from '@mui/system';
 
 // Used only to create transitions
 const muiTheme = createTheme();
@@ -21,6 +22,11 @@ export function createComponents(config) {
           fontWeight: 600,
           letterSpacing: 0,
           marginLeft: '5px !important'
+        },
+        img: {
+          height: 'auto',
+          width: 'auto',
+          maxHeight: 100,
         }
       }
     },

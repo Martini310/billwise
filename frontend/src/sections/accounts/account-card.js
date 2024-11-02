@@ -5,6 +5,7 @@ import { Avatar, Box, Card, CardContent, Divider, Stack, SvgIcon, Typography } f
 import { CardActionArea } from '@mui/material';
 import Link from 'next/link';
 import { formatDatetime } from 'src/utils/format-datetime';
+import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
 
 
 export const AccountCard = (props) => {
@@ -32,7 +33,7 @@ export const AccountCard = (props) => {
           <Avatar
             src={img}
             variant="square"
-            sx={{ width: 160, height: 100 }}
+            sx={{ width: 200, height: 100 }}
           />
         </Box>
         {account.notification && 
