@@ -6,22 +6,15 @@ import {
   CardActions,
   CardContent,
   Divider,
+  Skeleton,
   Typography
 } from '@mui/material';
 
 
 const avatar = '/assets/avatars/avatar-anika-visser.png'
-// const user = {
-//   avatar: '/assets/avatars/avatar-anika-visser.png',
-//   city: 'Los Angeles',
-//   country: 'USA',
-//   jobTitle: 'Senior Developer',
-//   name: 'Anika Visserer',
-//   timezone: 'GTM-7'
-// };
 
 export const Profile = (props) => {
-  const { user } = props;
+  const { isLoading, user } = props;
   
   return (
     <Card>
@@ -33,31 +26,34 @@ export const Profile = (props) => {
             flexDirection: 'column'
           }}
         >
-          <Avatar
-            src={avatar}
-            sx={{
-              height: 80,
-              mb: 2,
-              width: 80
-            }}
-          />
+          { isLoading 
+            ? <Skeleton variant='circular' width={80} height={80} /> 
+            : <Avatar
+                src={ avatar }
+                sx={{
+                  height: 80,
+                  mb: 2,
+                  width: 80
+                }}
+              />
+            }
           <Typography
             gutterBottom
             variant="h5"
           >
-            {user.username}
+            { isLoading ? <Skeleton width={100}/> : user.username }
           </Typography>
           <Typography
             color="text.secondary"
             variant="body2"
           >
-            {user.first_name}
+            { isLoading ? <Skeleton width={100}/> : user.first_name }
           </Typography>
           <Typography
             color="text.secondary"
             variant="body2"
           >
-            {user.about}
+            { isLoading ? <Skeleton width={100}/> : user.about }
           </Typography>
         </Box>
       </CardContent>
@@ -66,6 +62,7 @@ export const Profile = (props) => {
         <Button
           fullWidth
           variant="text"
+          disabled
         >
           Upload picture
         </Button>

@@ -17,11 +17,11 @@ import {
 export const ProfileDetails = (props) => {
 
   const { user } = props 
-  
+
   const [profileDetails, setProfileDetails] = useState(user);
-  const patchURL = `user/user-info/${user.id}/`
+  const patchURL = `user/user-info/${user?.id}/`
   const router = useRouter()
-  
+
   const handleChange = 
     (event) => {
       setProfileDetails((prevState) => ({
@@ -52,8 +52,8 @@ export const ProfileDetails = (props) => {
     >
       <Card>
         <CardHeader
-          subheader="Możesz je edytować"
           title="Informacje profilowe"
+          subheader="Możesz je edytować"
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>

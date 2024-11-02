@@ -59,7 +59,7 @@ const Page = () => {
                   md={6}
                   lg={4}
                 >
-                  <ProfileLoading 
+                  <Profile
                     isLoading={appState.loading}
                     user={profileDetails}
                     />
@@ -69,7 +69,7 @@ const Page = () => {
                   md={6}
                   lg={8}
                 >
-                  <ProfileDetailsLoading 
+                  <ProfileDetailsLoading
                     isLoading={appState.loading}
                     user={profileDetails}
                   />
