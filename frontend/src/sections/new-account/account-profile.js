@@ -20,6 +20,10 @@ const user = {
 
 
 export const AccountProfile = (props) => {
+  const { supplierName } = props;
+  const imagePath = supplierName
+    ? `/assets/logos/logo-${supplierName.toLowerCase()}.png`
+    : `/assets/logos/logo-inne.png`;
 
   return (
       <Card>
@@ -32,7 +36,7 @@ export const AccountProfile = (props) => {
             }}
           >
             <Avatar
-              src=''
+              src={imagePath}
               variant="square"
               sx={{ width: 160, height: 100 }}
             />
@@ -46,13 +50,13 @@ export const AccountProfile = (props) => {
               color="text.secondary"
               variant="body2"
             >
-              jakiś tekst
+              {supplierName}
             </Typography>
             <Typography
               color="text.secondary"
               variant="body2"
             >
-              i coś jeszcze
+              eBOK
             </Typography>
           </Box>
         </CardContent>

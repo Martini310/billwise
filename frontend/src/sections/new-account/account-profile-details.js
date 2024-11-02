@@ -22,6 +22,8 @@ import { toast } from 'sonner'
 
 export const AccountProfileDetails = (props) => {
 
+  const { onSupplierChange } = props;
+
   const [categories, setCategories] = useState()
   const [suppliers, setSuppliers] = useState()
   const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +58,10 @@ export const AccountProfileDetails = (props) => {
   };
 
   const handleSelect = (event) => {
-    setPost({...post, 'supplier': event.target.value});
+    const supplierId = event.target.value;
+    const supplierName = event.target.options[supplierId]?.text ?? 'Inne';
+    setPost({ ...post, 'supplier': supplierId });
+    onSupplierChange(supplierName);
   };
 
   const handleInput = (event) => {
@@ -66,10 +71,8 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      console.log(post);
       axiosInstance.post('accounts/', post)
         .then((res) => {
-          console.log(res);
           router.push("/accounts/");
           toast.success('Dodano nowego dostawcę');
         })
@@ -84,8 +87,7 @@ export const AccountProfileDetails = (props) => {
     >
       <Card>
         <CardHeader
-          // subheader="Możesz je edytować"
-          title="Dane Twojego konta w "
+          title="Uzupełnij dane logowania do Twojego konta"
         />
         <CardContent sx={{ pt: 0 }}>
           <Box sx={{ m: -1.5 }}>
