@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
 import { axiosInstance } from 'src/utils/axios';
-import {useRouter} from 'next/router';
+import { useRouter } from 'next/router';
 import {
   Button,
   Card,
@@ -64,7 +64,10 @@ export const InvoiceForm = () => {
           router.push("/");
           toast.success('Dodano nową płatność!');
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          toast.error('Wystąpił błąd! Spróbuj ponownie..');
+          console.log(err)
+      });
     }, [values]
   );
 
@@ -72,8 +75,8 @@ export const InvoiceForm = () => {
     <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader
-          title="Wypełnij pola"
-          subheader="i zatwierdź"
+          title="Wypełnij pola i zatwierdź"
+          subheader="* - pole wymagane"
         />
         <Divider />
         <CardContent>

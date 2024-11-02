@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { InvoiceNotifications } from 'src/sections/invoice/invoice-notifications';
 import { InvoiceForm } from 'src/sections/invoice/invoice-form';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 
@@ -24,7 +23,6 @@ const Page = () => (
             Dodaj płatność
           </Typography>
           <InvoiceForm />
-          <InvoiceNotifications />
         </Stack>
       </Container>
     </Box>
