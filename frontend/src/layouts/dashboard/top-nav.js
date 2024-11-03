@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import BellIcon from '@heroicons/react/24/solid/BellIcon';
 import UsersIcon from '@heroicons/react/24/solid/UsersIcon';
 import Bars3Icon from '@heroicons/react/24/solid/Bars3Icon';
+import RouteIcon from '@mui/icons-material/Route';
 import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon';
 import {
   Avatar,
@@ -16,7 +17,8 @@ import {
 import { alpha } from '@mui/material/styles';
 import { usePopover } from 'src/hooks/use-popover';
 import { AccountPopover } from './account-popover';
-import { deepOrange, deepPurple } from '@mui/material/colors';
+import { deepPurple } from '@mui/material/colors';
+import { driverObj } from 'src/utils/animated-tour';
 
 const SIDE_NAV_WIDTH = 280;
 const TOP_NAV_HEIGHT = 64;
@@ -79,6 +81,13 @@ export const TopNav = (props) => {
             direction="row"
             spacing={2}
           >
+            <Tooltip title="Page tour" className='animated-tour'>
+              <IconButton onClick={ () => driverObj.drive() } >
+                <SvgIcon fontSize="small">
+                  <RouteIcon />
+                </SvgIcon>
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Contacts">
               <IconButton>
                 <SvgIcon fontSize="small">
