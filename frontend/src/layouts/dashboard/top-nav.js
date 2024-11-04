@@ -17,6 +17,7 @@ import {
 import { alpha } from '@mui/material/styles';
 import { usePopover } from 'src/hooks/use-popover';
 import { AccountPopover } from './account-popover';
+import { NotificationPopover } from './notification-popover';
 import { deepPurple } from '@mui/material/colors';
 import { driverObj } from 'src/utils/animated-tour';
 
@@ -27,6 +28,7 @@ export const TopNav = (props) => {
   const { onNavOpen } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
   const accountPopover = usePopover();
+  const notificationPopover = usePopover();
 
   return (
     <>
@@ -81,7 +83,7 @@ export const TopNav = (props) => {
             direction="row"
             spacing={2}
           >
-            <Tooltip title="Page tour" className='animated-tour'>
+            <Tooltip title="Przewodnik" className='animated-tour'>
               <IconButton onClick={ () => driverObj.drive() } >
                 <SvgIcon fontSize="small">
                   <RouteIcon />
@@ -95,8 +97,11 @@ export const TopNav = (props) => {
                 </SvgIcon>
               </IconButton>
             </Tooltip>
-            <Tooltip title="Notifications">
-              <IconButton>
+            <Tooltip title="Powiadomienia">
+              <IconButton
+                onClick={ notificationPopover.handleOpen }
+                ref={ notificationPopover.anchorRef }
+              >
                 <Badge
                   badgeContent={4}
                   color="success"
@@ -128,6 +133,11 @@ export const TopNav = (props) => {
         anchorEl={accountPopover.anchorRef.current}
         open={accountPopover.open}
         onClose={accountPopover.handleClose}
+      />
+      <NotificationPopover
+        anchorEl={notificationPopover.anchorRef.current}
+        open={notificationPopover.open}
+        onClose={notificationPopover.handleClose}
       />
     </>
   );
