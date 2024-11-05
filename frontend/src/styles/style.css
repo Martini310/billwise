@@ -9,3 +9,17 @@
 .MuiBox-root.css-nw5nzo {
     padding-top: 16px;
 }
+
+.test::before {
+    /* add a green badge in right top corner */
+    content: ' ';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10B981;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+  

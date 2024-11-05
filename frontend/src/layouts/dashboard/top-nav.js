@@ -90,27 +90,15 @@ export const TopNav = (props) => {
                 </SvgIcon>
               </IconButton>
             </Tooltip>
-            <Tooltip title="Contacts">
-              <IconButton>
-                <SvgIcon fontSize="small">
-                  <UsersIcon />
-                </SvgIcon>
-              </IconButton>
-            </Tooltip>
             <Tooltip title="Powiadomienia">
               <IconButton
                 onClick={ notificationPopover.handleOpen }
                 ref={ notificationPopover.anchorRef }
+                className='notification-icon'
               >
-                <Badge
-                  badgeContent={4}
-                  color="success"
-                  variant="dot"
-                >
-                  <SvgIcon fontSize="small">
-                    <BellIcon />
-                  </SvgIcon>
-                </Badge>
+                <SvgIcon fontSize="small">
+                  <BellIcon />
+                </SvgIcon>
               </IconButton>
             </Tooltip>
             <Avatar
@@ -121,7 +109,7 @@ export const TopNav = (props) => {
               //   height: 40,
               //   width: 40
               // }}
-              sx={{ cursor: 'pointer', bgcolor: deepPurple[500] }}
+              sx={{ cursor: 'pointer', bgcolor: deepPurple[500], marginLeft: '16px !important' }}
               // src="/assets/avatars/avatar-anika-visser.png"
             >
               
