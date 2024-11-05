@@ -46,24 +46,14 @@ export const SettingsNotifications = () => {
                 </Typography>
                 <Stack>
                   <FormControlLabel
-                    disabled='true'
+                    disabled={true}
                     control={<Checkbox defaultChecked />}
                     label="Email"
                   />
                   <FormControlLabel
-                    disabled='true'
+                    disabled={true}
                     control={<Checkbox defaultChecked />}
                     label="Push Notifications"
-                  />
-                  <FormControlLabel
-                    disabled='true'
-                    control={<Checkbox />}
-                    label="Text Messages"
-                  />
-                  <FormControlLabel
-                    disabled='true'
-                    control={<Checkbox defaultChecked />}
-                    label="Phone calls"
                   />
                 </Stack>
               </Stack>
@@ -80,19 +70,9 @@ export const SettingsNotifications = () => {
                 </Typography>
                 <Stack>
                   <FormControlLabel
-                    disabled='true'
+                    disabled={true}
                     control={<Checkbox defaultChecked />}
                     label="Email"
-                  />
-                  <FormControlLabel
-                    disabled='true'
-                    control={<Checkbox />}
-                    label="Push Notifications"
-                  />
-                  <FormControlLabel
-                    disabled='true'
-                    control={<Checkbox defaultChecked />}
-                    label="Phone calls"
                   />
                 </Stack>
               </Stack>
@@ -101,7 +81,7 @@ export const SettingsNotifications = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained">
+          <Button variant="contained" disabled>
             Save
           </Button>
         </CardActions>
