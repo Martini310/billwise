@@ -140,7 +140,11 @@ const Page = () => {
                       isLoading={appState.loading}
                       chartSeries={[
                         {
-                          name: 'Last year',
+                          name: '2 years ago',
+                          data: new Array(12).fill(0)
+                        },
+                        {
+                          name: 'Previous year',
                           data: Object.keys(value.lastYear)
                                   .sort((a, b) => parseInt(a) - parseInt(b))
                                   .map((key) => value.lastYear[key])
