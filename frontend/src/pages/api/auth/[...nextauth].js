@@ -5,9 +5,9 @@ import axios from "axios";
 
 
 // These two values should be a bit less than actual token lifetimes
-const BACKEND_ACCESS_TOKEN_LIFETIME = 55 * 60;            // 55 minutes
+const BACKEND_ACCESS_TOKEN_LIFETIME = 59 * 60;            // 59 minutes
 // const BACKEND_ACCESS_TOKEN_LIFETIME = 10;            // 10 seconds
-const BACKEND_REFRESH_TOKEN_LIFETIME = 23 * 60 * 60;  // 23 hours
+const BACKEND_REFRESH_TOKEN_LIFETIME = 23 * 60 * 60 + 3540;  // 23 hours 59 minutes
 
 const getCurrentEpochTime = () => {
   return Math.floor(new Date().getTime() / 1000);
@@ -22,11 +22,11 @@ const SIGN_IN_HANDLERS = {
       const response = await axios({
         method: "post",
         url: process.env.NEXTAUTH_BACKEND_URL + "auth/google/",
-        data: {
-        access_token: account["access_token"]
-        },
+        data: { access_token: account["access_token"] },
+        timeout: 5000
     });
     account["meta"] = response.data;
+    console.log('Google sign-in success:', response.data);
     return true;
     } catch (error) {
       console.error('Google sign-in error:', error.response?.data || error.message);
@@ -128,6 +128,10 @@ export const authOptions = {
     async session({token}) {
       return token;
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      return baseUrl;
+    }
   }
 };
 

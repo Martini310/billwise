@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useFormik } from 'formik';
@@ -6,8 +6,6 @@ import * as Yup from 'yup';
 import {
   Alert,
   Box,
-  Button,
-  CircularProgress,
   Link,
   Stack,
   Tab,
@@ -17,7 +15,7 @@ import {
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { toast } from 'sonner'
 import GoogleSignInButton from 'src/components/g_button'
@@ -26,9 +24,19 @@ import GoogleSignInButton from 'src/components/g_button'
 
 const Page = () => {
 
+  const { data: session, status } = useSession();
   const router = useRouter()
   const [method, setMethod] = useState('email');
   const [isButtonDisabled, setButtonDisabled] = useState(false);
+
+
+  // Redirect to main page if already logged in
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push('/'); // Redirect to the main page
+    }
+  }, [status]);
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -46,33 +54,6 @@ const Page = () => {
         .required('Password is required')
     }),
 
-  // onSubmit: async (values, helpers) => {
-  //   setButtonDisabled(true);
-  //   try {
-  //     const response = await signIn('credentials', { ...values,  redirect: false, callbackUrl: process.env.NEXTAUTH_URL});
-  //     if (response.ok) {
-  //       toast.success('Zalogowano prawidłowo!');
-  //       router.push('/')
-  //     };
-  //     if (response && response.status === 401) {
-  //       console.error('if Sign-in error:', response);
-  //       helpers.setStatus({ success: false });
-  //       helpers.setErrors({ submit: response.message || 'Błąd logowania. Sprawdź poprawność danych i spróbuj ponownie' });
-  //       helpers.setSubmitting(false);
-  //       toast.warning('Błąd logowania!');
-  //       setButtonDisabled(false);
-  //     }
-  //   } catch (err) {
-  //     console.error('catch Sign-in error:', err);
-  //     helpers.setStatus({ success: false });
-  //     helpers.setErrors({ submit: err.message || 'Wystąpił błąd. Spróbuj ponownie' });
-  //     helpers.setSubmitting(false);
-  //     toast.error('Wystąpił błąd! Spróbuj ponownie..');
-  //     setButtonDisabled(false);
-  //   } finally {
-  //     setButtonDisabled(false);
-  //   }
-  // }
   onSubmit: async (values, helpers) => {
     setButtonDisabled(true);
     try {
@@ -203,22 +184,6 @@ const Page = () => {
                     <b>{formik.errors.submit}</b>
                   </Typography>
                 )}
-                {/* <Button
-                  fullWidth
-                  size="large"
-                  sx={{ mt: 3 }}
-                  type="submit"
-                  variant="contained"
-                  disabled={isButtonDisabled}
-                >
-                  {isButtonDisabled ? (
-                    <>
-                      Logowanie <CircularProgress size='21px' sx={{ mt: 0, ml: 2 }} />
-                    </>
-                    ) : (
-                      'Zaloguj'
-                  )}                
-                </Button> */}
                 <LoadingButton
                   fullWidth
                   size="large"
@@ -229,7 +194,6 @@ const Page = () => {
                 >
                   Zaloguj
                 </LoadingButton>
-                {/* <GoogleSignInButton onClick={() => signIn('google', {callbackUrl: '/'})} /> */}
                 <GoogleSignInButton onClick={() => signIn('google', { callbackUrl: process.env.NEXTAUTH_URL })} />
                 <Alert
                   color="primary"
