@@ -111,6 +111,8 @@ services:
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
       - CELERY_BROKER_CONNECTION_MAX_RETRIES=100
       - CELERY_BROKER_CONNECTION_RETRY_DELAY=5  # Retry every 5 seconds
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
     networks:
       - backend-network
     ports: []
