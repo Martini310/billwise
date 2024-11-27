@@ -139,7 +139,20 @@ class SyncSupplier(ABC):
 
                     # Create invoice objects from the parsed data and bulk insert into the database
                     invoice_objects = self.create_invoice_objects(parsed_invoices)
-                    Invoice.objects.bulk_create([invoice for invoice in invoice_objects if not Invoice.objects.filter(number=invoice.number, user=self.user.pk).exists()])
+                    new_invoice_objects = [invoice for invoice in invoice_objects if not Invoice.objects.filter(number=invoice.number, user=self.user.pk).exists()]
+
+                    current_invoice_count = Invoice.objects.filter(user=self.user.pk, account=self.account).count()
+
+                    Invoice.objects.bulk_create(new_invoice_objects)
+
+                    if current_invoice_count > 0:
+                        from ..tasks import send_email_notification
+                        for invoice in new_invoice_objects:
+                            send_email_notification.delay(
+                                to_email=invoice.user.email,
+                                subject='[Billwise] Nowa faktura od ' + invoice.account.supplier.name,
+                                message='Uprzejmie informujemy, że otrzymałeś nową fakturę od ' + invoice.account.supplier.name + '. Możesz zobaczyć ją w panelu użytkownika na https://billwise-two.vercel.app'
+                            )
 
                     # Update existing invoices in the database if necessary
                     self.update_invoices(invoice_objects)

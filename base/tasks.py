@@ -6,6 +6,7 @@ import logging
 from random import randint
 from importlib import import_module
 import os
+from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 
@@ -54,3 +55,15 @@ def synchronize_data(user_pk=None):
         return "Database synchronized"
     
 # synchronize_data.delay()
+
+@shared_task
+def send_email_notification(to_email, subject, message):
+    """
+    Task to send an email with notification aboout new invoice to the user.
+    """
+    logger.info(f"[EMAIL] Sending email to {to_email}")
+
+    code = send_mail(subject, message, 'brzoza3102gmail.com', [to_email], fail_silently=False)
+
+    logger.info(f"[EMAIL] Email sent to {to_email} with code {code}")
+    

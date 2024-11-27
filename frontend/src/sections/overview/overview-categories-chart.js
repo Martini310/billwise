@@ -25,9 +25,9 @@ const useChartOptions = (labels) => {
       background: 'transparent'
     },
     colors: [
-      theme.palette.primary.main,
       theme.palette.success.main,
       theme.palette.warning.main,
+      theme.palette.primary.main,
       theme.palette.secondary.main,
     ],
     dataLabels: {
