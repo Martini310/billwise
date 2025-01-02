@@ -105,23 +105,19 @@ WSGI_APPLICATION = 'billwise.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 if 'IN_DOCKER' in os.environ:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'billwise_db',
-            'USER': 'admin',
-            'PASSWORD': 'admin',
-            'HOST': 'postgres',   # Use the service name from Docker Compose
-            'PORT': '5432',
-        }
+        "default": dj_database_url.config(default='postgresql://postgres:EOuvoxdpxZVZqriBkIpXfPjFXmvmsimj@autorack.proxy.rlwy.net:53352/railway', conn_max_age=1800),
     }
-elif 'RENDER' in os.environ:
-    DATABASES = {
-        'default': dj_database_url.config(                
-            default='postgresql://postgres:postgres@localhost:5432/billwise',
-            conn_max_age=600
-        )
-    }
-elif 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'NAME': 'billwise_db',
+    #         'USER': 'admin',
+    #         'PASSWORD': 'admin',
+    #         'HOST': 'postgres',   # Use the service name from Docker Compose
+    #         'PORT': '5432',
+    #     }
+    # }
+elif 'KOYEB' in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -133,11 +129,13 @@ elif 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
         }
     }
 else:
+    # DATABASES = {
+        # 'default': {
+        #     'ENGINE': 'django.db.backends.sqlite3',
+        #     'NAME': BASE_DIR / 'db.sqlite3',
+        # }
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+        "default": dj_database_url.config(default='postgresql://postgres:EOuvoxdpxZVZqriBkIpXfPjFXmvmsimj@autorack.proxy.rlwy.net:53352/railway', conn_max_age=1800),
     }
 
 
@@ -240,7 +238,7 @@ SIMPLE_JWT = {
 
 
 # Celery configuration
-if not DEBUG or 'RENDER' in os.environ or 'IN_DOCKER' in os.environ or 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
+if not DEBUG or 'IN_DOCKER' in os.environ or 'KOYEB' in os.environ:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'rpc://')
 

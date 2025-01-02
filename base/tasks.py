@@ -67,3 +67,4 @@ def send_email_notification(to_email, subject, message):
 
     logger.info(f"[EMAIL] Email sent to {to_email} with code {code}")
     
+# synchronize_data(1)

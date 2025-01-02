@@ -7,7 +7,11 @@
 # from .suppliers.pgnig import login_to_pgnig, get_pgnig_invoices, parse_pgnig_invoices
 # from .suppliers.enea import login_to_enea, get_enea_invoices, parse_enea_invoices
 # from .suppliers.aquanet import login_to_aquanet, get_aquanet_invoices, parse_aquanet_invoices
-
+import re
+import urllib3
+import requests
+from bs4 import BeautifulSoup
+import datetime
 
 # urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -90,3 +94,23 @@
 # get_pgnig(7, 14) # zły login SPP
 # get_pgnig(2, 9)
 # get_pgnig(2, 13)
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# with requests.Session() as s:
+#     payload = {
+#         'email': 'login',
+#         'password': 'password',
+#     }
+    
+#     respone = s.post('https://ebok.aquanet.pl/api/mobile/login', json=payload, verify=False)
+#     print(respone.json())
+#     invoices = s.get('https://ebok.aquanet.pl/api/mobile/invoices?search%5Bstatus%5D=paid', verify=False)
+#     print(invoices.json()['data']['entries'])
+#     unpaid = s.get('https://ebok.aquanet.pl/api/mobile/invoices?search%5Bstatus%5D=unpaid&limit=0', verify=False)
+#     print(unpaid.json()['data']['entries'])
+#     processed = s.get('https://ebok.aquanet.pl/api/mobile/invoices?search%5Bstatus%5D=processing&limit=0', verify=False)
+#     print(processed.json()['data']['entries'])
+#     account = s.get('https://ebok.aquanet.pl/api/mobile/buyers', verify=False)
+#     print(account.json().get('data').get('entries')[0].get('account'))
+
