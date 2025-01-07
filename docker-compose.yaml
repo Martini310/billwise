@@ -117,6 +117,10 @@ services:
       - CELERY_BROKER_CONNECTION_RETRY_DELAY=5  # Retry every 5 seconds
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
     networks:
       - backend-network
     ports: []
@@ -142,6 +146,10 @@ services:
       - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
       - CELERY_BROKER_CONNECTION_MAX_RETRIES=100
       - CELERY_BROKER_CONNECTION_RETRY_DELAY=5  # Retry every 5 seconds
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
     # env_file:
     #   - .env
     networks:
