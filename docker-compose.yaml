@@ -32,6 +32,10 @@ services:
       - CREATE_SUPERUSER=true
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
     networks:
       - backend-network
     # command: python manage.py runserver 0.0.0.0:8000

@@ -105,8 +105,16 @@ WSGI_APPLICATION = 'billwise.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 if 'IN_DOCKER' in os.environ:
     DATABASES = {
-        "default": dj_database_url.config(default='postgresql://postgres:EOuvoxdpxZVZqriBkIpXfPjFXmvmsimj@autorack.proxy.rlwy.net:53352/railway', conn_max_age=1800),
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
+            'PORT': '5432',  # Port PostgreSQL
+        }
     }
+    # Settings if Database is running in Docker
     # DATABASES = {
     #     'default': {
     #         'ENGINE': 'django.db.backends.postgresql',
@@ -129,14 +137,22 @@ elif 'KOYEB' in os.environ:
         }
     }
 else:
-    # DATABASES = {
-        # 'default': {
-        #     'ENGINE': 'django.db.backends.sqlite3',
-        #     'NAME': BASE_DIR / 'db.sqlite3',
-        # }
     DATABASES = {
-        "default": dj_database_url.config(default='postgresql://postgres:EOuvoxdpxZVZqriBkIpXfPjFXmvmsimj@autorack.proxy.rlwy.net:53352/railway', conn_max_age=1800),
-    }
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    # AWS RDS Database
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'NAME': os.environ.get('DB_NAME'),
+    #         'USER': os.environ.get('DB_USER'),
+    #         'PASSWORD': os.environ.get('DB_PASSWORD'),
+    #         'HOST': os.environ.get('DB_HOST'),
+    #         'PORT': '5432',
+    #     }
+}
 
 
 # Password validation
