@@ -14,26 +14,17 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / '.env')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['nextjs', 'django', 'localhost', '127.0.0.1', 'billwise-api-martini310.koyeb.app', 'billwise-app-9di6t.ondigitalocean.app', 'systematic-margaretta-martini310-fba3edaf.koyeb.app']
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
-# Application definition
+ALLOWED_HOSTS = ['nextjs', 'django', 'localhost', '127.0.0.1', 'billwise-api-martini310.koyeb.app', 'systematic-margaretta-martini310-fba3edaf.koyeb.app']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -103,7 +94,7 @@ WSGI_APPLICATION = 'billwise.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if 'IN_DOCKER' in os.environ:
+if 'LOCAL' in os.environ or 'IN_DOCKER' in os.environ: # Development or Production
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -111,29 +102,7 @@ if 'IN_DOCKER' in os.environ:
             'USER': os.environ.get('DB_USER'),
             'PASSWORD': os.environ.get('DB_PASSWORD'),
             'HOST': os.environ.get('DB_HOST'),
-            'PORT': '5432',  # Port PostgreSQL
-        }
-    }
-    # Settings if Database is running in Docker
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
-    #         'NAME': 'billwise_db',
-    #         'USER': 'admin',
-    #         'PASSWORD': 'admin',
-    #         'HOST': 'postgres',   # Use the service name from Docker Compose
-    #         'PORT': '5432',
-    #     }
-    # }
-elif 'KOYEB' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME'),
-            'USER': os.environ.get('DB_USER'),
-            'PASSWORD': os.environ.get('DB_PASSWORD'),
-            'HOST': os.environ.get('DB_HOST'),
-            'OPTIONS': {'sslmode': 'require'},
+            'PORT': '5432',
         }
     }
 else:
@@ -142,16 +111,6 @@ else:
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
-    # AWS RDS Database
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
-    #         'NAME': os.environ.get('DB_NAME'),
-    #         'USER': os.environ.get('DB_USER'),
-    #         'PASSWORD': os.environ.get('DB_PASSWORD'),
-    #         'HOST': os.environ.get('DB_HOST'),
-    #         'PORT': '5432',
-    #     }
 }
 
 
@@ -191,7 +150,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-if 'IN_DOCKER' in os.environ or 'RENDER' in os.environ or 'KOYEB' in os.environ or 'DIGITALOCEAN' in os.environ:
+if 'IN_DOCKER' in os.environ or 'LOCAL' in os.environ:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -223,8 +182,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://nextjs:3000",
     "http://127.0.0.1:3000",
-    "https://billwise.onrender.com",
-    "https://bill-wise.onrender.com",
     "https://billwise-martini310.koyeb.app",
     "https://systematic-margaretta-martini310-fba3edaf.koyeb.app",
     "https://billwise-two.vercel.app",
@@ -255,8 +212,8 @@ SIMPLE_JWT = {
 
 # Celery configuration
 if not DEBUG or 'IN_DOCKER' in os.environ or 'KOYEB' in os.environ:
-    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'pyamqp://guest@rabbitmq:5672//')
-    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'rpc://')
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://redis:6379/0')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379')
 
     # Include tasks from all installed apps
     CELERY_IMPORTS = ('base.tasks',)

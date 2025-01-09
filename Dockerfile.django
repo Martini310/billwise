@@ -1,8 +1,5 @@
-# Base stage: Install dependencies only once
-# FROM python:3.10-slim AS base
 FROM python:3.10-alpine AS base
 
-# Set environment variables
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -12,14 +9,12 @@ WORKDIR /app
 
 COPY requirements.txt /app/
 
-# Install dependencies on alpine image
 RUN apk add --no-cache \
     gcc musl-dev libffi-dev openssl-dev build-base vim && \
     pip install --no-cache-dir -r requirements.txt && \
     apk del gcc musl-dev libffi-dev openssl-dev build-base && \
     rm -rf /var/cache/apk/*
 
-# Copy the entire project
 COPY . /app/
 
 # Development stage for Django
@@ -28,9 +23,4 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 # Development stage for Celery
 FROM base AS celery
-# CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4",]
 CMD ["celery", "-A", "billwise", "worker", "-l", "INFO", "-c", "4", "--beat", "--scheduler", 'django_celery_beat.schedulers:DatabaseScheduler']
-
-# # Development stage for beat
-# FROM base AS beat
-# CMD ["celery", "-A", "billwise", "beat", "-l", "INFO", '--scheduler', 'django_celery_beat.schedulers:DatabaseScheduler']

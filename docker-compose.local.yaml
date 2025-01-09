@@ -1,0 +1,99 @@
+version: '3.9'
+services:
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+      target: django
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - backend-network
+    command: sh ./build.sh
+
+  nextjs:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.nextjs
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    env_file:
+      - ./frontend/.env.local
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+
+  postgres:
+    container_name: postgres
+    image: postgres:12-alpine
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    networks:
+      - backend-network
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+      target: celery
+    depends_on:
+      - redis
+      - postgres
+      - django
+    env_file:
+      - .env
+    networks:
+      - backend-network
+    command: celery -A billwise worker -l INFO -c 1
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+      target: celery
+    depends_on:
+      - redis
+      - django
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - backend-network
+    command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+  flower:
+    image: mher/flower
+    depends_on:
+      - celery_worker
+      - celery_beat
+    command: celery flower
+    env_file:
+      - .env
+    ports:
+      - "5555:5555"
+    networks:
+      - backend-network
+
+volumes:
+  postgres-data:
+
+networks:
+  backend-network:
+    driver: bridge
