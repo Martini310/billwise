@@ -5,20 +5,12 @@ services:
       context: .
       dockerfile: Dockerfile.django
       target: django   # Use the Django stage
-    # volumes:
-    #   - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      # - rabbitmq
       - redis
-      # - postgres
-      # - celery_worker
-    # env_file:
-    #   - .env
     environment:
       - DJANGO_SETTINGS_MODULE=billwise.settings
-      # - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379
       - IN_DOCKER=1
@@ -40,55 +32,12 @@ services:
       - backend-network
     command: sh ./build.sh
 
-  # nextjs:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile.nextjs
-  #   volumes:
-  #     - ./frontend:/frontend
-  #   #   - /frontend/node_modules
-  #   #   - /frontend/.next
-  #   ports:
-  #     - "3000:3000"
-  #   # depends_on:
-  #   #   - postgres
-  #   # env_file:
-  #   #   - ./frontend/.env.local
-  #   environment:
-  #     NEXTAUTH_BACKEND_URL: http://django:8000/api/
-  #     NEXT_PUBLIC_URL: http://127.0.0.1:8000/api/
-  #     NEXTAUTH_URL: http://127.0.0.1:3000/
-  #   networks:
-  #     - backend-network
-
-  # rabbitmq:
-  #   image: "rabbitmq:3.12-alpine"
-  #   ports:
-  #     - "15672:15672"  # RabbitMQ management UI
-  #     - "5672:5672"    # RabbitMQ
-  #   networks:
-  #     - backend-network
-
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
     networks:
       - backend-network
-
-  # postgres:
-  #   container_name: postgres
-  #   image: postgres:12-alpine
-  #   environment:
-  #     POSTGRES_DB: billwise_db
-  #     POSTGRES_USER: admin
-  #     POSTGRES_PASSWORD: admin
-  #   ports:
-  #     - 5432:5432
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data/
-  #   networks:
-  #     - backend-network
 
   celery_worker:
     build:
@@ -97,13 +46,7 @@ services:
       target: celery   # Use the Celery stage
     depends_on:
       - redis
-      # - rabbitmq
-      # - postgres
-      # - django
-    # env_file:
-    #   - .env
     environment:
-      # - CELERY_BROKER=pyamqp://guest@rabbitmq:5672//
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379
       - SECRET_KEY=${SECRET_KEY}
@@ -122,14 +65,12 @@ services:
     ports: []
     command: sh -c "sleep 180 && celery -A billwise worker -l INFO -c 1"
 
-
   celery_beat:
     build:
       context: .
       dockerfile: Dockerfile.django
       target: celery
     depends_on:
-      # - rabbitmq
       - redis
     environment:
       - SECRET_KEY=${SECRET_KEY}
@@ -143,12 +84,9 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
-    # env_file:
-    #   - .env
     networks:
       - backend-network
     command: sh -c "sleep 240 && celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-
 
   # flower:
   #   image: mher/flower
@@ -157,7 +95,7 @@ services:
   #     - celery_beat
   #   command: celery flower
   #   environment:
-  #     - CELERY_BROKER_URL=pyamqp://guest@rabbitmq:5672//
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
   #     - FLOWER_PORT=5555
   #   ports:
   #   - "5555:5555"
