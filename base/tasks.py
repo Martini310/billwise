@@ -40,7 +40,9 @@ def synchronize_data(user_pk=None):
             accounts = Account.objects.all()
             
         for account in accounts:
-            if not account.notification:
+            if account.notification:
+                logger.error(f"Pominięto pobieranie danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {account.notification}")
+            else:
                 SupplierClass = fetch_data_classes.get(account.supplier.name)
                 try:
                     obj = SupplierClass(account.user.id, account.pk)
