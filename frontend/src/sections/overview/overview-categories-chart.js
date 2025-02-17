@@ -5,6 +5,7 @@ import PhoneIcon from '@heroicons/react/24/solid/PhoneIcon';
 import BoltIcon from '@heroicons/react/24/solid/BoltIcon';
 import FireIcon from '@heroicons/react/24/solid/FireIcon';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import {
   Box,
   Card,
@@ -80,6 +81,11 @@ const iconMap = {
   Prąd: (
     <SvgIcon>
       <BoltIcon />
+    </SvgIcon>
+  ),
+  Paliwo: (
+    <SvgIcon>
+      <LocalGasStationIcon />
     </SvgIcon>
   ),
   Inne: (
