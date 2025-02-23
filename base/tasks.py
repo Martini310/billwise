@@ -7,6 +7,7 @@ from random import randint
 from importlib import import_module
 import os
 from django.core.mail import send_mail
+from .services.fake_data import generate_fake_data
 
 logger = logging.getLogger(__name__)
 
@@ -68,5 +69,12 @@ def send_email_notification(to_email, subject, message):
     code = send_mail(subject, message, 'brzoza3102gmail.com', [to_email], fail_silently=False)
 
     logger.info(f"[EMAIL] Email sent to {to_email} with code {code}")
-    
+
+
+@shared_task
+def generate_fake_data_task(user_pk, amount):
+    logger.info(f"[FAKE DATA] Generating fake data for user {user_pk} with amount {amount}")
+    generate_fake_data(user_pk, amount)
+    logger.info(f"[FAKE DATA] Fake data generated for user {user_pk} with amount {amount}")
+
 # synchronize_data(1)

@@ -36,8 +36,8 @@ def random_account_number():
 def generate_fake_data(user_id, amount):
     user = NewUser.objects.get(id=user_id)
     invoices = []
-    start_date = datetime.datetime(2020,1,1)
-    end_date = datetime.datetime(2024,2,20)
+    start_date = datetime.datetime(2023,1,1)
+    end_date = datetime.datetime.today()
 
     for _ in range(amount):
         amount = round(random.random() * 100, 2)
