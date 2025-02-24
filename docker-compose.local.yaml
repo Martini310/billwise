@@ -3,7 +3,7 @@ services:
   django:
     build:
       context: .
-      dockerfile: Dockerfile.django
+      dockerfile: Dockerfile.django.local
       target: django
     ports:
       - "8000:8000"
@@ -14,12 +14,17 @@ services:
       - .env
     networks:
       - backend-network
-    command: sh ./build.sh
+    # command: sh ./build.sh
+    volumes:
+      - .:/app  # Używa lokalnych plików
+      - /app/venv  # Zapobiega nadpisywaniu zależności
+      - /app/__pycache__  # Zapobiega cache'owi w kontenerze
+    command: ["sh", "-c", "watchfiles 'python manage.py runserver 0.0.0.0:8000' --filter python"]
 
   nextjs:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.nextjs
+      dockerfile: Dockerfile.nextjs2
     ports:
       - "3000:3000"
     depends_on:
@@ -28,6 +33,11 @@ services:
       - ./frontend/.env.local
     networks:
       - backend-network
+    volumes:
+      - ./frontend:/app  # Używa lokalnych plików
+      - /app/node_modules  # Zapobiega nadpisywaniu `node_modules`
+      - /app/.next  # Zapobiega nadpisywaniu `.next`
+    command: yarn dev  # Uruchamia Next.js w trybie deweloperskim
 
   redis:
     image: redis:alpine
@@ -51,7 +61,7 @@ services:
   celery_worker:
     build:
       context: .
-      dockerfile: Dockerfile.django
+      dockerfile: Dockerfile.django.local
       target: celery
     depends_on:
       - redis
@@ -61,12 +71,17 @@ services:
       - .env
     networks:
       - backend-network
-    command: celery -A billwise worker -l INFO -c 1
+    volumes:
+      - .:/app  # Używa lokalnych plików
+      - /app/venv  # Zapobiega nadpisywaniu zależności
+      - /app/__pycache__  # Zapobiega cache'owi w kontenerze
+    command: ["sh", "-c", "watchfiles 'celery -A billwise worker -l info --pool=solo' --filter python"]
+    # command: celery -A billwise worker -l INFO -c 1
 
   celery_beat:
     build:
       context: .
-      dockerfile: Dockerfile.django
+      dockerfile: Dockerfile.django.local
       target: celery
     depends_on:
       - redis
@@ -76,20 +91,25 @@ services:
       - .env
     networks:
       - backend-network
-    command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app  # Używa lokalnych plików
+      - /app/venv  # Zapobiega nadpisywaniu zależności
+      - /app/__pycache__  # Zapobiega cache'owi w kontenerze
+    command: ["sh", "-c", "watchfiles 'celery -A billwise beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler' --filter python"]
+    # command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
-  flower:
-    image: mher/flower
-    depends_on:
-      - celery_worker
-      - celery_beat
-    command: celery flower
-    env_file:
-      - .env
-    ports:
-      - "5555:5555"
-    networks:
-      - backend-network
+  # flower:
+  #   image: mher/flower
+  #   depends_on:
+  #     - celery_worker
+  #     - celery_beat
+  #   command: celery flower
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5555:5555"
+  #   networks:
+  #     - backend-network
 
 volumes:
   postgres-data:

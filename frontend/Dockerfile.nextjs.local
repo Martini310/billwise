@@ -1,0 +1,13 @@
+FROM node:18.18-alpine3.18
+
+WORKDIR /app
+
+# Kopiujemy tylko pliki zależności (dla cache)
+COPY package.json package-lock.json* yarn.lock* ./
+
+# Instalujemy zależności
+RUN yarn install
+
+EXPOSE 3000
+
+CMD ["yarn", "dev"]
