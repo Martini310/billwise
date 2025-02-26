@@ -14,17 +14,17 @@ services:
       - .env
     networks:
       - backend-network
-    # command: sh ./build.sh
     volumes:
       - .:/app  # Używa lokalnych plików
       - /app/venv  # Zapobiega nadpisywaniu zależności
       - /app/__pycache__  # Zapobiega cache'owi w kontenerze
     command: ["sh", "-c", "watchfiles 'python manage.py runserver 0.0.0.0:8000' --filter python"]
+    # command: sh ./build.sh
 
   nextjs:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.nextjs2
+      dockerfile: Dockerfile.nextjs.local
     ports:
       - "3000:3000"
     depends_on:

@@ -9,12 +9,15 @@ def create_categories(apps, schema_editor):
     Category.objects.create(name='Gaz')
     Category.objects.create(name='Prąd')
     Category.objects.create(name='Woda')
+    Category.objects.create(name='Paliwo')
+    Category.objects.create(name='Inne')
 
 def create_suppliers(apps, schema_editor):
     Supplier = apps.get_model("base", "Supplier")
     Supplier.objects.create(name="PGNiG", url="https://www.ebok.pgnig.pl")
     Supplier.objects.create(name="Enea", url="https://www.ebok.enea.pl")
     Supplier.objects.create(name="Aquanet", url="https://www.ebok.aquanet.pl")
+    Supplier.objects.create(name="Orlen", url="https://www.orlen.pl")
 
 class Migration(migrations.Migration):
 

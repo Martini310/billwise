@@ -188,32 +188,3 @@ class SyncOrlen(FetchSupplier, SyncSupplier):
         for filename in os.listdir(ATTACHMENTS_DIR):
             if filename.lower().endswith(".pdf"):
                 os.remove(os.path.join(ATTACHMENTS_DIR, filename))
-
-
-# Example usage
-# if __name__ == "__main__":
-    # user_id = 1  # Replace with actual user ID
-    # account_id = 2  # Replace with actual account ID
-
-    # orlen_fetcher = OrlenInvoiceFetcher(user_id, account_id)
-    
-    # # Step 1: Log in
-    # orlen_fetcher.login()
-
-    # # Step 2: Fetch invoices from email
-    # orlen_fetcher.get_invoices()
-
-    # # Step 3: Process downloaded invoices
-    # for filename in os.listdir(ATTACHMENTS_DIR):
-    #     if filename.lower().endswith(".pdf"):
-    #         pdf_path = os.path.join(ATTACHMENTS_DIR, filename)
-    #         invoice_data = orlen_fetcher.parse_invoices(pdf_path)
-            # logger.info(f"Extracted data: {invoice_data}")
-
-# from base.models import Account
-# from users.models import NewUser
-# from base.services.suppliers.orlen import OrlenInvoiceFetcher
-# a = OrlenInvoiceFetcher(6,9)
-# a.login()
-# a.get_invoices()
-# print(a.parse_invoices('attachments/Faktura F 107K19_1147_25 Orlen Pay.pdf'))

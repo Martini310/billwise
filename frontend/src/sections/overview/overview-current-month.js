@@ -25,7 +25,7 @@ export const OverviewCurrentMonth = (props) => {
               aktualny miesiąc
             </Typography>
             <Typography variant="h4">
-              {value === 'NaNzł' ? 'Brak' : value}
+              {typeof value === 'number' ? `${value}zł` : value}
             </Typography>
           </Stack>
           <Avatar
