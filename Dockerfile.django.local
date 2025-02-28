@@ -16,7 +16,7 @@ RUN apk add --no-cache \
     apk del gcc musl-dev libffi-dev openssl-dev build-base && \
     rm -rf /var/cache/apk/*
 
-# COPY . /app/
+COPY . /app/
 
 # Development stage for Django
 FROM base AS django

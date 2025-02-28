@@ -11,15 +11,12 @@ services:
       - redis
       - postgres
     env_file:
-      - .env
+      - example.env
     networks:
       - backend-network
     volumes:
       - .:/app  # Używa lokalnych plików
-      - /app/venv  # Zapobiega nadpisywaniu zależności
-      - /app/__pycache__  # Zapobiega cache'owi w kontenerze
-    command: ["sh", "-c", "watchfiles 'python manage.py runserver 0.0.0.0:8000' --filter python"]
-    # command: sh ./build.sh
+    command: sh ./build.sh
 
   nextjs:
     build:
@@ -30,7 +27,7 @@ services:
     depends_on:
       - postgres
     env_file:
-      - ./frontend/.env.local
+      - ./frontend/example.env.local
     networks:
       - backend-network
     volumes:
@@ -50,7 +47,7 @@ services:
     container_name: postgres
     image: postgres:12-alpine
     env_file:
-      - .env
+      - example.env
     ports:
       - 5432:5432
     volumes:
@@ -68,15 +65,12 @@ services:
       - postgres
       - django
     env_file:
-      - .env
+      - example.env
     networks:
       - backend-network
     volumes:
       - .:/app  # Używa lokalnych plików
-      - /app/venv  # Zapobiega nadpisywaniu zależności
-      - /app/__pycache__  # Zapobiega cache'owi w kontenerze
-    command: ["sh", "-c", "watchfiles 'celery -A billwise worker -l info --pool=solo' --filter python"]
-    # command: celery -A billwise worker -l INFO -c 1
+    command: celery -A billwise worker -l INFO -c 1
 
   celery_beat:
     build:
@@ -88,15 +82,12 @@ services:
       - django
       - postgres
     env_file:
-      - .env
+      - example.env
     networks:
       - backend-network
     volumes:
       - .:/app  # Używa lokalnych plików
-      - /app/venv  # Zapobiega nadpisywaniu zależności
-      - /app/__pycache__  # Zapobiega cache'owi w kontenerze
-    command: ["sh", "-c", "watchfiles 'celery -A billwise beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler' --filter python"]
-    # command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A billwise beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
   # flower:
   #   image: mher/flower
@@ -105,7 +96,7 @@ services:
   #     - celery_beat
   #   command: celery flower
   #   env_file:
-  #     - .env
+  #     - example.env
   #   ports:
   #     - "5555:5555"
   #   networks:
