@@ -10,20 +10,31 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class SyncPGNIG(FetchSupplier, SyncSupplier):
     supplier_name = 'PGNiG'
-    PGNIG_LOGIN_URL = "https://ebok.pgnig.pl/auth/login"
-    PGNIG_INVOICES_URL = "https://ebok.pgnig.pl/crm/get-invoices-v2"
+    # PGNiG eBOK was migrated to the ORLEN platform; the old ebok.pgnig.pl API now
+    # lives under ebok.myorlen.pl with the same request/response shape.
+    PGNIG_BASE_URL = "https://ebok.myorlen.pl"
+    PGNIG_LOGIN_URL = f"{PGNIG_BASE_URL}/auth/login"
+    PGNIG_INVOICES_URL = f"{PGNIG_BASE_URL}/crm/get-invoices-v2"
+    PGNIG_PPG_LIST_URL = f"{PGNIG_BASE_URL}/crm/get-ppg-list"
     PGNIG_API_VERSION = "3.0"
+    # A browser-like User-Agent is required: the WAF rejects the default
+    # python-requests agent with 403 before the request ever reaches the API.
     PGNIG_HEADERS = {'Accept': 'application/json',
                     'Accept-Encoding': 'gzip, deflate, br',
-                    'Host': 'ebok.pgnig.pl',
-                    'Origin': 'https://ebok.pgnig.pl',
-                    'Referer': 'https://ebok.pgnig.pl/',
+                    'User-Agent': ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                                   'AppleWebKit/537.36 (KHTML, like Gecko) '
+                                   'Chrome/131.0 Safari/537.36'),
+                    'Origin': PGNIG_BASE_URL,
+                    'Referer': f'{PGNIG_BASE_URL}/',
                     'Content-Type': 'application/x-www-form-urlencoded',
                     }
 
     @supplier_log(supplier_name)
     def login(self, session):
         try:
+            # Carry the browser User-Agent on every request in this session, not
+            # just the login POST, or the WAF rejects the invoice/address GETs.
+            session.headers.update({'User-Agent': self.PGNIG_HEADERS['User-Agent']})
             response = session.post(
                 url=self.PGNIG_LOGIN_URL,
                 data={
@@ -35,12 +46,16 @@ class SyncPGNIG(FetchSupplier, SyncSupplier):
                 params={'api-version': self.PGNIG_API_VERSION},
                 headers=self.PGNIG_HEADERS,
                 verify=False,
-                timeout=5000,
+                timeout=30,
             )
 
             response.raise_for_status()
+            data = response.json()
+            token = data.get('Token')
+            if not token:
+                message = data.get('EndUserMessage') or data.get('Message') or 'Nie można się zalogować przy użyciu podanych danych'
+                raise ValueError(message)
             logger.info("[PGNIG] Fetched token")
-            token = response.json().get('Token')
             session.headers.update({'AuthToken': token})
 
         except RequestException as exc:
@@ -53,7 +68,7 @@ class SyncPGNIG(FetchSupplier, SyncSupplier):
     @supplier_log(supplier_name)
     def get_addresses(self, session):
         try:
-            get_entry_points = session.get('https://ebok.pgnig.pl/crm/get-ppg-list?api-version=3.0')
+            get_entry_points = session.get(self.PGNIG_PPG_LIST_URL, params={'api-version': self.PGNIG_API_VERSION})
             ppg_list = get_entry_points.json().get('PpgList')
             addresses = dict()
             for ppg in ppg_list:

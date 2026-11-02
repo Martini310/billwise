@@ -69,3 +69,4 @@ urllib3==1.26.6
 vine==5.0.0
 wcwidth==0.2.6
 whitenoise==6.5.0
+pyotp==2.10.0

@@ -20,6 +20,8 @@ class Account(models.Model):
     supplier = models.ForeignKey(to=Supplier, related_name='accounts', on_delete=models.CASCADE)
     login = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
+    totp_secret = models.CharField("Sekret TOTP (2FA)", max_length=128, null=True, blank=True,
+                                   help_text="Sekret base32 z aplikacji authenticator. Pozwala automatycznie generować kod 2FA.")
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     last_sync = models.DateTimeField("Ostatnia aktualizacja", auto_now=True)
