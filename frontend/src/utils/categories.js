@@ -6,15 +6,21 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import WifiIcon from '@mui/icons-material/Wifi';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import TvIcon from '@mui/icons-material/Tv';
+import CellTowerIcon from '@mui/icons-material/CellTower';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 export const CATEGORY_META = {
-  'Prąd':     { color: '#EAB308', Icon: BoltIcon },
-  'Gaz':      { color: '#F79009', Icon: LocalFireDepartmentIcon },
-  'Woda':     { color: '#0EA5E9', Icon: WaterDropIcon },
-  'Paliwo':   { color: '#10B981', Icon: LocalGasStationIcon },
-  'Internet': { color: '#6366F1', Icon: WifiIcon },
-  'Inne':     { color: '#64748B', Icon: ReceiptLongIcon },
+  'Prąd':             { color: '#EAB308', Icon: BoltIcon },
+  'Gaz':              { color: '#F79009', Icon: LocalFireDepartmentIcon },
+  'Woda':             { color: '#0EA5E9', Icon: WaterDropIcon },
+  'Paliwo':           { color: '#10B981', Icon: LocalGasStationIcon },
+  'Internet':         { color: '#6366F1', Icon: WifiIcon },
+  'Telefon':          { color: '#14B8A6', Icon: SmartphoneIcon },
+  'Telewizja':        { color: '#8B5CF6', Icon: TvIcon },
+  'Telekomunikacja':  { color: '#EC4899', Icon: CellTowerIcon },
+  'Inne':             { color: '#64748B', Icon: ReceiptLongIcon },
 };
 
 export const DEFAULT_CATEGORY_META = CATEGORY_META['Inne'];

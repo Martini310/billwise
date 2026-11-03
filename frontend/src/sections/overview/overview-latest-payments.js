@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  Avatar,
   Box,
   Button,
   Card,
@@ -39,12 +38,24 @@ const SupplierCell = ({ name }) => {
   const label = name ?? 'Inne';
   return (
     <Stack alignItems="center" direction="row" spacing={1.5}>
-      <Avatar
-        src={`/assets/logos/logo-${label.toLowerCase()}.png`}
-        variant="rounded"
-        sx={{ width: 32, height: 32, bgcolor: 'background.default', '& img': { objectFit: 'contain' } }}
-        imgProps={{ onError: (e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; } }}
-      />
+      <Box
+        sx={{
+          alignItems: 'center',
+          display: 'flex',
+          flexShrink: 0,
+          height: 28,
+          justifyContent: 'center',
+          width: 48,
+        }}
+      >
+        <Box
+          component="img"
+          alt={label}
+          src={`/assets/logos/logo-${label.toLowerCase()}.png`}
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; }}
+          sx={{ display: 'block', maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+        />
+      </Box>
       <Typography variant="subtitle2">{label}</Typography>
     </Stack>
   );

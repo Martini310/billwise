@@ -9,6 +9,8 @@ export const SumAndSortInvoices = (invoices, categories) => {
 
   const totalAmountByCategory = {};
   const percentageByCategory = {};
+  // Per-category monthly totals for the current year (stacked chart).
+  const currentYearByCategory = {};
   let totalAmount = 0;
   let paidInvoices = 0;
   let unpaidInvoices = []
@@ -16,6 +18,7 @@ export const SumAndSortInvoices = (invoices, categories) => {
   // Assign 0 to each category name
   categories.forEach((category) => {
     totalAmountByCategory[category] = 0;
+    currentYearByCategory[category] = Array(12).fill(0);
   });
   
 
@@ -28,6 +31,13 @@ export const SumAndSortInvoices = (invoices, categories) => {
     // Sum the invoice amounts for each month within the specified year
     if (invoiceYear === currentYear) {
       currentYearAmounts[invoiceMonth] += amount;
+
+      // Break the current year down by category for the stacked chart.
+      const catName = invoice.category?.name ?? 'Inne';
+      if (!currentYearByCategory[catName]) {
+        currentYearByCategory[catName] = Array(12).fill(0);
+      }
+      currentYearByCategory[catName][invoiceMonth] += amount;
     }
 
     // Sum the invoice amounts for each month within the previous year
@@ -72,12 +82,13 @@ export const SumAndSortInvoices = (invoices, categories) => {
 
   const monthDifference = currentValue / previousValue * 100 - 100
 
-  return ([currentYearAmounts, 
+  return ([currentYearAmounts,
           previousYearAmounts,
           twoYearsAgoAmounts,
-          percentageByCategory, 
-          paidInvoices, 
-          unpaidInvoices, 
-          monthDifference])
+          percentageByCategory,
+          paidInvoices,
+          unpaidInvoices,
+          monthDifference,
+          currentYearByCategory])
 }
 

@@ -34,6 +34,7 @@ const Page = () => {
   const [paidInvoices, setPaidInvoices] = useState(0);
   const [unpaidInvoices, setUnpaidInvoices] = useState([]);
   const [monthDifference, setMonthDifference] = useState(0);
+  const [currentYearByCategory, setCurrentYearByCategory] = useState({});
   
   const router = useRouter()
   
@@ -105,6 +106,7 @@ const Page = () => {
         paidInvoices,
         unpaidInvoices,
         monthDifference,
+        currentYearByCategory,
       ] = SumAndSortInvoices(invoices, categories);
 
       // Update the state variables with the calculated data
@@ -115,6 +117,7 @@ const Page = () => {
       setPaidInvoices(paidInvoices);
       setUnpaidInvoices(unpaidInvoices);
       setMonthDifference(monthDifference);
+      setCurrentYearByCategory(currentYearByCategory);
 
       setAppState({ ...appState, loading: false });
     }
@@ -122,6 +125,14 @@ const Page = () => {
 
   const newestInvoice = invoices[0]
   const year = new Date().getFullYear()
+
+  // Stacked monthly series: one entry per category present this year.
+  const monthlySeries = Object.entries(currentYearByCategory)
+    .map(([name, data]) => ({ name, data }))
+    .filter((series) => series.data.some((value) => value > 0));
+
+  // Donut shows only categories that actually have spending (skip empty ones).
+  const categoryEntries = Object.entries(percentageByCategory).filter(([, value]) => value > 0);
 
   return (
   <>
@@ -211,23 +222,10 @@ const Page = () => {
             {/* <MonthlyChartLoading isLoading={appState.loading}  */}
 
             <OverviewMonthlyChart
-              chartSeries={[
-                {
-                  name: year - 2,
-                  data: twoYearsAgoAmounts
-                },
-                {
-                  name: year - 1,
-                  data: previousYearAmounts
-                },
-                {
-                  name: year,
-                  data: currentYearAmounts
-                }
-              ]}
+              chartSeries={monthlySeries}
               sx={{ height: '100%' }}
               sync={sync}
-              title='Podsumowanie'
+              title={`Wydatki ${year} wg kategorii`}
               overview="/details/"
             />
 
@@ -239,8 +237,8 @@ const Page = () => {
             lg={4}
           >
             <OverviewCategoriesChart
-              chartSeries={Object.values(percentageByCategory)}
-              labels={Object.keys(percentageByCategory)}
+              chartSeries={categoryEntries.map(([, value]) => value)}
+              labels={categoryEntries.map(([name]) => name)}
               sx={{ height: '100%' }}
               />
           </Grid>

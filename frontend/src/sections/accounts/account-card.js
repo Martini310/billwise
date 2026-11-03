@@ -31,11 +31,12 @@ export const AccountCard = (props) => {
             pb: 0
           }}
         >
-          <Avatar
+          <Box
+            component="img"
+            alt={account.supplier['name']}
             src={img}
-            variant="square"
-            sx={{ width: 200, height: 100, bgcolor: 'transparent', '& img': { objectFit: 'contain' } }}
-            imgProps={{ onError: (e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; } }}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; }}
+            sx={{ width: 200, height: 100, objectFit: 'contain' }}
           />
         </Box>
         {account.notification && 
