@@ -16,9 +16,11 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 import PropTypes from 'prop-types';
 import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
 import { visuallyHidden } from '@mui/utils';
@@ -34,7 +36,7 @@ const formatDate = (value) => {
   return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : value;
 };
 
-const SupplierCell = ({ name }) => {
+const SupplierCell = ({ name, recurring }) => {
   const label = name ?? 'Inne';
   return (
     <Stack alignItems="center" direction="row" spacing={1.5}>
@@ -48,16 +50,44 @@ const SupplierCell = ({ name }) => {
           width: 48,
         }}
       >
-        <Box
-          component="img"
-          alt={label}
-          src={`/assets/logos/logo-${label.toLowerCase()}.png`}
-          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; }}
-          sx={{ display: 'block', maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
-        />
+        {recurring ? (
+          <Box sx={{
+            alignItems: 'center',
+            backgroundColor: 'primary.alpha12',
+            borderRadius: '8px',
+            color: 'primary.main',
+            display: 'flex',
+            height: 28,
+            justifyContent: 'center',
+            width: 28,
+          }}>
+            <AutorenewIcon sx={{ fontSize: 18 }} />
+          </Box>
+        ) : (
+          <Box
+            component="img"
+            alt={label}
+            src={`/assets/logos/logo-${label.toLowerCase()}.png`}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; }}
+            sx={{ display: 'block', maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+          />
+        )}
       </Box>
       <Typography variant="subtitle2">{label}</Typography>
     </Stack>
+  );
+};
+
+const GroupTag = ({ group }) => {
+  if (!group) {
+    return <Typography variant="body2" color="text.secondary">—</Typography>;
+  }
+  return (
+    <Chip
+      size="small"
+      label={group.name}
+      sx={{ backgroundColor: alpha(group.color, 0.12), color: group.color, fontWeight: 600 }}
+    />
   );
 };
 
@@ -103,6 +133,11 @@ const headCells = [
     label: 'Kategoria',
   },
   {
+    id: 'group',
+    numeric: false,
+    label: 'Grupa',
+  },
+  {
     id: 'date',
     numeric: false,
     label: 'Data',
@@ -134,11 +169,14 @@ function getComparator(order, orderBy) {
     }
     
     if (orderBy === 'supplier') {
-      nameA = a.account ? a['account']['supplier']['name'] : 'inne';
-      nameB = b.account ? b['account']['supplier']['name'] : 'inne';
+      nameA = a.account?.supplier?.name ?? a.recurring?.name ?? 'inne';
+      nameB = b.account?.supplier?.name ?? b.recurring?.name ?? 'inne';
     } else if (orderBy === 'category') {
       nameA = a['category']['name'];
       nameB = b['category']['name'];
+    } else if (orderBy === 'group') {
+      nameA = a.account?.group?.name ?? a.recurring?.group?.name ?? '';
+      nameB = b.account?.group?.name ?? b.recurring?.group?.name ?? '';
     } else {
       nameA = a[orderBy]
       nameB = b[orderBy]
@@ -214,7 +252,7 @@ EnhancedTableHead.propTypes = {
 
 export default function EnhancedTable(props) {
 
-  const { rows } = props
+  const { rows, onTogglePaid } = props
 
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('date');
@@ -297,30 +335,41 @@ export default function EnhancedTable(props) {
                       component="th"
                       scope="row"
                     >
-                      <SupplierCell name={row.account?.supplier?.name} />
+                      <SupplierCell
+                        name={row.account?.supplier?.name ?? row.recurring?.name}
+                        recurring={!row.account && !!row.recurring}
+                      />
                     </TableCell>
                     <TableCell>{row.number}</TableCell>
                     <TableCell><CategoryChip name={row?.category?.name} /></TableCell>
+                    <TableCell><GroupTag group={row.account?.group ?? row.recurring?.group} /></TableCell>
                     <TableCell>{formatDate(row.date)}</TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle2">{formatCurrency(row.amount)}</Typography>
                     </TableCell>
                     <TableCell>{formatDate(row.pay_deadline)}</TableCell>
-                    <TableCell>
-                      <SeverityPill color={row.is_paid
-                        ? statusMap[row.is_paid]
-                        : (new Date(row.pay_deadline).getTime() > new Date()
-                          ? statusMap[row.is_paid]
-                          : statusMap['delayed']
-                        )}
-                      >
-                        {row.is_paid
-                          ? "Zapłacone"
-                          : (new Date(row.pay_deadline).getTime() > new Date()
-                            ? "Niezapłacone"
-                            : "Po terminie")
-                        }
-                      </SeverityPill>
+                    <TableCell
+                      sx={{ cursor: 'pointer' }}
+                      onClick={(e) => { e.stopPropagation(); if (onTogglePaid) onTogglePaid(row); }}
+                    >
+                      <Tooltip title="Kliknij, aby zmienić status">
+                        <span>
+                          <SeverityPill
+                            style={{ cursor: 'pointer' }}
+                            color={row.is_paid
+                              ? statusMap[row.is_paid]
+                              : (new Date(row.pay_deadline).getTime() > new Date()
+                                ? statusMap[row.is_paid]
+                                : statusMap['delayed'])}
+                          >
+                            {row.is_paid
+                              ? "Zapłacone"
+                              : (new Date(row.pay_deadline).getTime() > new Date()
+                                ? "Niezapłacone"
+                                : "Po terminie")}
+                          </SeverityPill>
+                        </span>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 );
@@ -334,7 +383,7 @@ export default function EnhancedTable(props) {
               )}
               {emptyRows > 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} />
+                  <TableCell colSpan={8} />
                 </TableRow>
               )}
             </TableBody>

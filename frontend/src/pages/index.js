@@ -19,6 +19,7 @@ import { formatDatetime } from 'src/utils/format-datetime';
 import { formatCurrency } from 'src/utils/format-currency';
 import Cookies from 'js-cookie';
 import { driverObj } from 'src/utils/animated-tour';
+import { toast } from 'sonner';
 
 const now = new Date();
 
@@ -115,14 +116,33 @@ const Page = () => {
     try { localStorage.setItem('billwise.selectedGroup', String(value)); } catch (e) { /* ignore */ }
   };
 
-  // Invoices limited to the selected group (group lives on invoice.account.group).
+  // Manual paid/unpaid toggle (optimistic + PATCH).
+  const handleTogglePaid = (invoice) => {
+    const next = !invoice.is_paid;
+    setInvoices((prev) => prev.map((i) => (i.id === invoice.id
+      ? { ...i, is_paid: next, amount_to_pay: next ? 0 : i.amount } : i)));
+    axiosInstance.patch(`invoices/${invoice.id}/`, { is_paid: next, amount_to_pay: next ? 0 : invoice.amount })
+      .catch(() => {
+        setInvoices((prev) => prev.map((i) => (i.id === invoice.id
+          ? { ...i, is_paid: invoice.is_paid, amount_to_pay: invoice.amount_to_pay } : i)));
+        toast.error('Nie udało się zmienić statusu');
+      });
+  };
+
+  // Group of an invoice: provider account's group, or (for manual recurring
+  // payments) the recurring payment's group.
+  const invoiceGroupId = (inv) => inv.account?.group?.id ?? inv.recurring?.group?.id;
+
   const shownInvoices = useMemo(() => {
     if (selectedGroup === 'all') return invoices;
-    if (selectedGroup === 'none') return invoices.filter((inv) => !inv.account?.group);
-    return invoices.filter((inv) => inv.account?.group?.id === selectedGroup);
+    if (selectedGroup === 'none') return invoices.filter((inv) => !invoiceGroupId(inv));
+    return invoices.filter((inv) => invoiceGroupId(inv) === selectedGroup);
   }, [invoices, selectedGroup]);
 
-  const hasUngrouped = useMemo(() => invoices.some((inv) => !inv.account?.group), [invoices]);
+  const hasUngrouped = useMemo(
+    () => invoices.some((inv) => !(inv.account?.group || inv.recurring?.group)),
+    [invoices]
+  );
 
   useEffect(() => {
     if (invoices.length === 0) {
@@ -305,6 +325,7 @@ const Page = () => {
           >
             <EnhancedTable
               rows={shownInvoices}
+              onTogglePaid={handleTogglePaid}
             />
           </Grid>
         </Grid>

@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import Category, Supplier, Account, Invoice, Group
+from .models import Category, Supplier, Account, Invoice, Group, RecurringPayment
 
 admin.site.register(Category)
 admin.site.register(Supplier)
+admin.site.register(RecurringPayment)
 
 
 @admin.register(Group)

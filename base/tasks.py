@@ -55,6 +55,17 @@ def synchronize_data(user_pk=None):
                     logger.error(f"Wystąpił błąd przy pobieraniu danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {e}")
                 except Exception as e:
                     logger.error(f"Wystąpił błąd podczas synchronizacji danych: {e}")
+
+        # Wygeneruj faktury z cyklicznych opłat (czynsz, śmieci itp.).
+        from .services.recurring import generate_recurring_invoices
+        from users.models import NewUser
+        recurring_users = NewUser.objects.filter(pk=user_pk) if user_pk else NewUser.objects.all()
+        for recurring_user in recurring_users:
+            try:
+                generate_recurring_invoices(recurring_user)
+            except Exception as e:
+                logger.error(f"Błąd generowania opłat cyklicznych dla {recurring_user}: {e}")
+
         return "Database synchronized"
     
 # synchronize_data.delay()

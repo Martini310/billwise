@@ -20,6 +20,7 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { AccountCard } from 'src/sections/accounts/account-card';
 import { AccountsSearch } from 'src/sections/accounts/accounts-search';
 import { GroupsManager } from 'src/sections/accounts/groups-manager';
+import { RecurringManager } from 'src/sections/accounts/recurring-manager';
 import { axiosInstance } from 'src/utils/axios';
 import { useState, useEffect } from 'react';
 import { sizeHeight } from '@mui/system';
@@ -83,6 +84,7 @@ const Page = () => {
             </div>
           </Stack>
           <GroupsManager onChanged={loadAccounts} />
+          <RecurringManager />
           <AccountsSearch onSearch={setSearchQuery}/>
           <Grid
             container

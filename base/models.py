@@ -50,6 +50,29 @@ class Account(models.Model):
         return f"[id:{self.pk}] Konto w {self.supplier.name} użytkownika {self.user.username}"
 
 
+class RecurringPayment(models.Model):
+    """Cykliczna opłata spoza dostawców (np. czynsz, śmieci) — generuje faktury."""
+    name = models.CharField("Nazwa", max_length=100)
+    amount = models.FloatField("Kwota")
+    category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
+    group = models.ForeignKey(to=Group, related_name='recurring_payments', null=True, blank=True,
+                              on_delete=models.SET_NULL)
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, related_name='recurring_payments', on_delete=models.CASCADE)
+    day = models.PositiveSmallIntegerField("Dzień miesiąca", default=1)
+    interval_months = models.PositiveSmallIntegerField("Co ile miesięcy", default=1)
+    start_date = models.DateField("Od")
+    bank_account_number = models.CharField(max_length=32, null=True, blank=True)
+    transfer_title = models.CharField(max_length=100, null=True, blank=True)
+    active = models.BooleanField("Aktywna", default=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Invoice(models.Model):
     number = models.CharField(max_length=100)
     date = models.DateField()
@@ -63,6 +86,8 @@ class Invoice(models.Model):
     is_paid = models.BooleanField()
     consumption_point = models.CharField(max_length=100, null=True, blank=True)
     account = models.ForeignKey(to=Account, on_delete=models.CASCADE, null=True, blank=True)
+    recurring = models.ForeignKey(to=RecurringPayment, related_name='invoices', null=True, blank=True,
+                                  on_delete=models.SET_NULL)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     bank_account_number = models.CharField(max_length=32, null=True, blank=True)
     transfer_title = models.CharField(max_length=100, null=True, blank=True)

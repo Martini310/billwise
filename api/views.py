@@ -8,12 +8,13 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from api.permissions import IsOwner
-from base.models import Account, Category, Invoice, Supplier, Group
+from base.models import Account, Category, Invoice, Supplier, Group, RecurringPayment
 from base.tasks import synchronize_data
+from base.services.recurring import generate_recurring_invoices
 
 from .serializers import (CategorySerializer, GetAccountSerializer, GroupSerializer,
                         InvoiceSerializer, PostAccountSerializer,
-                        PostInvoiceSerializer, SupplierSerializer)
+                        PostInvoiceSerializer, RecurringPaymentSerializer, SupplierSerializer)
 
 
 class InvoiceList(ModelViewSet):
@@ -127,6 +128,23 @@ class GroupList(ModelViewSet):
 
     def get_queryset(self):
         return Group.objects.filter(user=self.request.user)
+
+
+class RecurringPaymentList(ModelViewSet):
+    """CRUD na cyklicznych opłatach; zapis generuje brakujące faktury."""
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    serializer_class = RecurringPaymentSerializer
+
+    def get_queryset(self):
+        return RecurringPayment.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        generate_recurring_invoices(obj.user)
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        generate_recurring_invoices(obj.user)
 
 
 class SupplierList(GenericViewSet, ListModelMixin):

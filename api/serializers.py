@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from base.models import Account, Category, Invoice, Supplier, Group
+from base.models import Account, Category, Invoice, Supplier, Group, RecurringPayment
 
 User = get_user_model()
 
@@ -42,6 +42,26 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'color', 'user')
 
 
+class RecurringPaymentSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = RecurringPayment
+        fields = ('id', 'name', 'amount', 'category', 'group', 'day', 'interval_months',
+                  'start_date', 'bank_account_number', 'transfer_title', 'active', 'user')
+
+
+class RecurringMiniSerializer(serializers.ModelSerializer):
+    """Lekki widok opłaty cyklicznej zagnieżdżany w fakturze (nazwa + grupa)."""
+    group = GroupSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = RecurringPayment
+        fields = ('id', 'name', 'group')
+
+
 class GetAccountSerializer(serializers.ModelSerializer):
     supplier = SupplierSerializer(many=False)
     category = CategorySerializer(many=False)
@@ -65,12 +85,13 @@ class PostAccountSerializer(serializers.ModelSerializer):
 class InvoiceSerializer(serializers.ModelSerializer):
     account = GetAccountSerializer(many=False)
     category = CategorySerializer(many=False)
+    recurring = RecurringMiniSerializer(many=False, read_only=True)
 
     class Meta:
         model = Invoice
-        fields = ['number', 'date', 'amount', 'pay_deadline', 'start_date', 
-                    'end_date', 'amount_to_pay', 'wear', 'is_paid', 'consumption_point', 
-                    'account', 'category', 'bank_account_number', 'transfer_title']
+        fields = ['id', 'number', 'date', 'amount', 'pay_deadline', 'start_date',
+                    'end_date', 'amount_to_pay', 'wear', 'is_paid', 'consumption_point',
+                    'account', 'recurring', 'category', 'bank_account_number', 'transfer_title']
 
 
 class PostInvoiceSerializer(serializers.ModelSerializer):
