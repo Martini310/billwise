@@ -194,8 +194,6 @@ const Page = () => {
     { name: year, data: currentYearAmounts },
   ];
 
-  // Donut shows only categories that actually have spending (skip empty ones).
-  const categoryEntries = Object.entries(percentageByCategory).filter(([, value]) => value > 0);
 
   return (
   <>
@@ -311,8 +309,7 @@ const Page = () => {
             lg={4}
           >
             <OverviewCategoriesChart
-              chartSeries={categoryEntries.map(([, value]) => value)}
-              labels={categoryEntries.map(([name]) => name)}
+              invoices={shownInvoices}
               sx={{ height: '100%' }}
               />
           </Grid>

@@ -108,6 +108,11 @@ class AccountList(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
+        # Zmiana kategorii konta propaguje się na jego istniejące faktury
+        # (nie trzeba ponownie pobierać danych).
+        instance.refresh_from_db()
+        Invoice.objects.filter(account=instance).update(category=instance.category)
+
         return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
@@ -161,6 +166,13 @@ class CategoryList(GenericViewSet, ListModelMixin):
 
 class SyncAccounts(APIView):
     def get(self, request):
-        # sync_accounts_task.delay(self.request.user.pk)
-        synchronize_data.delay(self.request.user.pk)
+        user_pk = self.request.user.pk
+        try:
+            # Wrzuć zadanie na kolejkę Celery (produkcja).
+            synchronize_data.delay(user_pk)
+        except Exception as exc:
+            # Broker/worker niedostępny (np. lokalnie bez Redis) → uruchom synchronicznie.
+            logger = __import__('logging').getLogger(__name__)
+            logger.warning(f"Celery niedostępny ({exc}); synchronizuję synchronicznie.")
+            synchronize_data(user_pk)
         return Response("Done")

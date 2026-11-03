@@ -16,6 +16,7 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
@@ -259,6 +260,25 @@ export default function EnhancedTable(props) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [selectedOrder, setSelectedOrder] = React.useState(null);
+  const [statusFilter, setStatusFilter] = React.useState('all');
+  const [categoryFilter, setCategoryFilter] = React.useState('');
+  const [query, setQuery] = React.useState('');
+
+  const categoryOptions = React.useMemo(
+    () => [...new Set(rows.map((r) => r?.category?.name).filter(Boolean))].sort(),
+    [rows]
+  );
+
+  const filteredRows = React.useMemo(() => rows.filter((row) => {
+    if (statusFilter === 'paid' && !row.is_paid) return false;
+    if (statusFilter === 'unpaid' && row.is_paid) return false;
+    if (categoryFilter && row?.category?.name !== categoryFilter) return false;
+    if (query) {
+      const hay = `${row.number} ${row.account?.supplier?.name ?? row.recurring?.name ?? ''}`.toLowerCase();
+      if (!hay.includes(query.toLowerCase())) return false;
+    }
+    return true;
+  }), [rows, statusFilter, categoryFilter, query]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -278,17 +298,17 @@ export default function EnhancedTable(props) {
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredRows.length) : 0;
 
   const visibleRows = React.useMemo(
     () => {
       const startIndex = page * rowsPerPage;
-      return stableSort(rows, getComparator(order, orderBy)).slice(
+      return stableSort(filteredRows, getComparator(order, orderBy)).slice(
         startIndex,
         startIndex + rowsPerPage
       );
     },
-    [order, orderBy, page, rowsPerPage, rows]
+    [order, orderBy, page, rowsPerPage, filteredRows]
   );
 
   return (
@@ -309,6 +329,47 @@ export default function EnhancedTable(props) {
           </Button>
         )}
       />
+      <Stack
+        alignItems="center"
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={2}
+        sx={{ px: 2, pb: 2 }}
+      >
+        <TextField
+          size="small"
+          placeholder="Szukaj (numer, wystawca)…"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setPage(0); }}
+          sx={{ flexGrow: 1, minWidth: 200 }}
+        />
+        <TextField
+          size="small"
+          select
+          label="Status"
+          SelectProps={{ native: true }}
+          InputLabelProps={{ shrink: true }}
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+          sx={{ minWidth: 150 }}
+        >
+          <option value="all">Wszystkie</option>
+          <option value="paid">Zapłacone</option>
+          <option value="unpaid">Niezapłacone</option>
+        </TextField>
+        <TextField
+          size="small"
+          select
+          label="Kategoria"
+          SelectProps={{ native: true }}
+          InputLabelProps={{ shrink: true }}
+          value={categoryFilter}
+          onChange={(e) => { setCategoryFilter(e.target.value); setPage(0); }}
+          sx={{ minWidth: 150 }}
+        >
+          <option value="">Wszystkie</option>
+          {categoryOptions.map((name) => (<option key={name} value={name}>{name}</option>))}
+        </TextField>
+      </Stack>
       <Divider />
       <TableContainer>
           <Table
@@ -392,7 +453,7 @@ export default function EnhancedTable(props) {
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={rows.length}
+          count={filteredRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
