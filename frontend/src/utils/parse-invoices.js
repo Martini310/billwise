@@ -9,8 +9,11 @@ export const SumAndSortInvoices = (invoices, categories) => {
 
   const totalAmountByCategory = {};
   const percentageByCategory = {};
-  // Per-category monthly totals for the current year (stacked chart).
-  const currentYearByCategory = {};
+  // Per-category monthly totals for each of the last three years, keyed by year
+  // string: { "2026": { "Prąd": [12], ... }, "2025": {...}, "2024": {...} }.
+  const years = [currentYear, currentYear - 1, currentYear - 2].map(String);
+  const byCategoryByYear = {};
+  years.forEach((year) => { byCategoryByYear[year] = {}; });
   let totalAmount = 0;
   let paidInvoices = 0;
   let unpaidInvoices = []
@@ -18,9 +21,9 @@ export const SumAndSortInvoices = (invoices, categories) => {
   // Assign 0 to each category name
   categories.forEach((category) => {
     totalAmountByCategory[category] = 0;
-    currentYearByCategory[category] = Array(12).fill(0);
+    years.forEach((year) => { byCategoryByYear[year][category] = Array(12).fill(0); });
   });
-  
+
 
   invoices.forEach((invoice) => {
     const invoiceYear = new Date(invoice.date).getFullYear();
@@ -31,13 +34,6 @@ export const SumAndSortInvoices = (invoices, categories) => {
     // Sum the invoice amounts for each month within the specified year
     if (invoiceYear === currentYear) {
       currentYearAmounts[invoiceMonth] += amount;
-
-      // Break the current year down by category for the stacked chart.
-      const catName = invoice.category?.name ?? 'Inne';
-      if (!currentYearByCategory[catName]) {
-        currentYearByCategory[catName] = Array(12).fill(0);
-      }
-      currentYearByCategory[catName][invoiceMonth] += amount;
     }
 
     // Sum the invoice amounts for each month within the previous year
@@ -50,6 +46,17 @@ export const SumAndSortInvoices = (invoices, categories) => {
       twoYearsAgoAmounts[invoiceMonth] += amount;
     }
 
+    // Break each of the three years down by category (for the stacked view and
+    // the per-year breakdown tooltip).
+    const yearKey = String(invoiceYear);
+    if (byCategoryByYear[yearKey]) {
+      const catName = invoice.category?.name ?? 'Inne';
+      if (!byCategoryByYear[yearKey][catName]) {
+        byCategoryByYear[yearKey][catName] = Array(12).fill(0);
+      }
+      byCategoryByYear[yearKey][catName][invoiceMonth] += amount;
+    }
+
     // Sum amounts for each category
     totalAmountByCategory[invoice.category.name] += invoice.amount;
     totalAmount += invoice.amount;
@@ -57,8 +64,8 @@ export const SumAndSortInvoices = (invoices, categories) => {
       ? paidInvoices += 1
       : unpaidInvoices.push(invoice);
   });
-  
-  
+
+
   // Sort unpaid invoices to set the oldest deadline at first position
   unpaidInvoices.sort(function(a,b){
     return new Date(a.pay_deadline) - new Date(b.pay_deadline);
@@ -89,6 +96,5 @@ export const SumAndSortInvoices = (invoices, categories) => {
           paidInvoices,
           unpaidInvoices,
           monthDifference,
-          currentYearByCategory])
+          byCategoryByYear])
 }
-

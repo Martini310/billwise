@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import ArrowPathIcon from '@heroicons/react/24/solid/ArrowPathIcon';
 import ArrowRightIcon from '@heroicons/react/24/solid/ArrowRightIcon';
@@ -8,28 +9,104 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  SvgIcon
+  Stack,
+  SvgIcon,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import { Chart } from 'src/components/chart';
 import { useRouter } from 'next/router';
 import { formatCurrency } from 'src/utils/format-currency';
-import { categoryColors } from 'src/utils/categories';
+import { categoryColors, getCategoryMeta } from 'src/utils/categories';
 
 const MONTHS = ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'];
 
-const useChartOptions = (series) => {
-  const theme = useTheme();
-  const names = (series || []).map((item) => item.name);
+const rowHtml = (color, label, value) =>
+  '<div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:2px 0;">'
+  + `<span style="display:flex;align-items:center;"><span style="width:9px;height:9px;border-radius:3px;background:${color};display:inline-block;margin-right:7px;"></span>${label}</span>`
+  + `<span style="font-weight:600;">${formatCurrency(value)}</span></div>`;
 
-  return {
+const boxHtml = (title, rows, total) =>
+  '<div style="padding:10px 12px;font-size:12px;min-width:190px;">'
+  + `<div style="font-weight:700;margin-bottom:5px;">${title}</div>`
+  + (rows || '<div style="color:#9DA4AE;padding:2px 0;">Brak wydatków</div>')
+  + '<div style="display:flex;justify-content:space-between;gap:20px;border-top:1px solid rgba(0,0,0,0.08);margin-top:6px;padding-top:6px;">'
+  + `<span style="font-weight:600;">Razem</span><span style="font-weight:700;">${formatCurrency(total)}</span></div></div>`;
+
+const buildCategorySeries = (byCategory) => Object.entries(byCategory || {})
+  .map(([name, data]) => ({ name, data }))
+  .filter((item) => Array.isArray(item.data) && item.data.some((value) => value > 0));
+
+export const OverviewMonthlyChart = (props) => {
+  const { yearSeries = [], byCategoryByYear = {}, sx, sync, title, overview } = props;
+  const theme = useTheme();
+  const router = useRouter();
+  const [mode, setMode] = useState('years'); // 'years' | 'categories'
+
+  const currentYear = String(new Date().getFullYear());
+  const categorySeries = buildCategorySeries(byCategoryByYear[currentYear]);
+  const isCategories = mode === 'categories';
+  const series = isCategories ? categorySeries : yearSeries;
+
+  const yearShades = [
+    alpha(theme.palette.primary.main, 0.22),
+    alpha(theme.palette.primary.main, 0.5),
+    theme.palette.primary.main
+  ];
+  const colors = isCategories
+    ? categoryColors(series.map((item) => item.name))
+    : yearShades.slice(Math.max(0, yearShades.length - series.length));
+
+  // Years view: one colour per year, hovering a bar reveals that year's
+  // category split. Categories view: stacked category colours with the split
+  // visible, and the tooltip restates each component plus the monthly total.
+  const tooltip = isCategories
+    ? {
+      shared: true,
+      intersect: false,
+      custom: ({ series: tipSeries, dataPointIndex, w }) => {
+        let total = 0;
+        let rows = '';
+        w.globals.seriesNames.forEach((name, index) => {
+          const value = tipSeries[index]?.[dataPointIndex] || 0;
+          if (value <= 0) {
+            return;
+          }
+          total += value;
+          rows += rowHtml(w.globals.colors[index], name, value);
+        });
+        return boxHtml(w.globals.labels[dataPointIndex], rows, total);
+      }
+    }
+    : {
+      shared: false,
+      intersect: true,
+      custom: ({ seriesIndex, dataPointIndex, w }) => {
+        const yearName = String(w.globals.seriesNames[seriesIndex]);
+        const byCat = byCategoryByYear[yearName] || {};
+        let total = 0;
+        let rows = '';
+        Object.entries(byCat).forEach(([category, data]) => {
+          const value = (data && data[dataPointIndex]) || 0;
+          if (value <= 0) {
+            return;
+          }
+          total += value;
+          rows += rowHtml(getCategoryMeta(category).color, category, value);
+        });
+        return boxHtml(`${w.globals.labels[dataPointIndex]} ${yearName}`, rows, total);
+      }
+    };
+
+  const chartOptions = {
     chart: {
-      stacked: true,
+      stacked: isCategories,
       toolbar: {
         show: false
       }
     },
-    colors: categoryColors(names),
+    colors,
     dataLabels: {
       enabled: false
     },
@@ -68,56 +145,23 @@ const useChartOptions = (series) => {
         width: 10
       },
       position: 'bottom',
-      show: true
+      show: isCategories
     },
     plotOptions: {
       bar: {
         borderRadius: 4,
-        columnWidth: '58%'
+        columnWidth: isCategories ? '58%' : '70%'
       }
     },
     stroke: {
       colors: ['transparent'],
       show: true,
-      width: 2
+      width: isCategories ? 2 : 0
     },
     theme: {
       mode: theme.palette.mode
     },
-    tooltip: {
-      custom: ({ series: tipSeries, dataPointIndex, w }) => {
-        const seriesNames = w.globals.seriesNames;
-        const colors = w.globals.colors;
-        let total = 0;
-        let rows = '';
-
-        seriesNames.forEach((name, index) => {
-          const value = tipSeries[index]?.[dataPointIndex] || 0;
-          if (value <= 0) {
-            return;
-          }
-          total += value;
-          rows += `<div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:2px 0;">`
-            + `<span style="display:flex;align-items:center;">`
-            + `<span style="width:9px;height:9px;border-radius:3px;background:${colors[index]};display:inline-block;margin-right:7px;"></span>${name}`
-            + `</span>`
-            + `<span style="font-weight:600;">${formatCurrency(value)}</span>`
-            + `</div>`;
-        });
-
-        const month = w.globals.labels[dataPointIndex];
-        const body = rows || '<div style="color:#9DA4AE;padding:2px 0;">Brak wydatków</div>';
-
-        return `<div style="padding:10px 12px;font-size:12px;min-width:190px;">`
-          + `<div style="font-weight:700;margin-bottom:5px;">${month}</div>`
-          + body
-          + `<div style="display:flex;justify-content:space-between;gap:20px;border-top:1px solid rgba(0,0,0,0.08);margin-top:6px;padding-top:6px;">`
-          + `<span style="font-weight:600;">Razem</span>`
-          + `<span style="font-weight:700;">${formatCurrency(total)}</span>`
-          + `</div>`
-          + `</div>`;
-      }
-    },
+    tooltip,
     xaxis: {
       axisBorder: {
         color: theme.palette.divider,
@@ -145,38 +189,49 @@ const useChartOptions = (series) => {
       }
     }
   };
-};
-
-export const OverviewMonthlyChart = (props) => {
-  const { chartSeries, sx, sync, title, overview } = props;
-  const chartOptions = useChartOptions(chartSeries);
-
-  const router = useRouter();
 
   return (
     <Card sx={sx}>
       <CardHeader
-        action={!sync ? null : (
-          <Button
-            onClick={sync}
-            color="inherit"
-            size="small"
-            startIcon={(
-              <SvgIcon fontSize="small">
-                <ArrowPathIcon />
-              </SvgIcon>
+        action={(
+          <Stack alignItems="center" direction="row" spacing={1}>
+            <ToggleButtonGroup
+              exclusive
+              size="small"
+              value={mode}
+              onChange={(event, value) => value && setMode(value)}
+            >
+              <ToggleButton value="years" sx={{ px: 1.5, py: 0.25, textTransform: 'none' }}>
+                Lata
+              </ToggleButton>
+              <ToggleButton value="categories" sx={{ px: 1.5, py: 0.25, textTransform: 'none' }}>
+                Kategorie
+              </ToggleButton>
+            </ToggleButtonGroup>
+            {sync && (
+              <Button
+                onClick={sync}
+                color="inherit"
+                size="small"
+                startIcon={(
+                  <SvgIcon fontSize="small">
+                    <ArrowPathIcon />
+                  </SvgIcon>
+                )}
+              >
+                Sync
+              </Button>
             )}
-          >
-            Sync
-          </Button>
+          </Stack>
         )}
         title={title}
       />
       <CardContent>
         <Chart
+          key={mode}
           height={350}
           options={chartOptions}
-          series={chartSeries}
+          series={series}
           type="bar"
           width="100%"
         />
@@ -203,7 +258,8 @@ export const OverviewMonthlyChart = (props) => {
 };
 
 OverviewMonthlyChart.propTypes = {
-  chartSeries: PropTypes.array,
+  yearSeries: PropTypes.array,
+  byCategoryByYear: PropTypes.object,
   sx: PropTypes.object,
   sync: PropTypes.func,
   title: PropTypes.string,

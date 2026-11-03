@@ -34,7 +34,7 @@ const Page = () => {
   const [paidInvoices, setPaidInvoices] = useState(0);
   const [unpaidInvoices, setUnpaidInvoices] = useState([]);
   const [monthDifference, setMonthDifference] = useState(0);
-  const [currentYearByCategory, setCurrentYearByCategory] = useState({});
+  const [byCategoryByYear, setByCategoryByYear] = useState({});
   
   const router = useRouter()
   
@@ -106,7 +106,7 @@ const Page = () => {
         paidInvoices,
         unpaidInvoices,
         monthDifference,
-        currentYearByCategory,
+        byCategoryByYear,
       ] = SumAndSortInvoices(invoices, categories);
 
       // Update the state variables with the calculated data
@@ -117,7 +117,7 @@ const Page = () => {
       setPaidInvoices(paidInvoices);
       setUnpaidInvoices(unpaidInvoices);
       setMonthDifference(monthDifference);
-      setCurrentYearByCategory(currentYearByCategory);
+      setByCategoryByYear(byCategoryByYear);
 
       setAppState({ ...appState, loading: false });
     }
@@ -126,10 +126,12 @@ const Page = () => {
   const newestInvoice = invoices[0]
   const year = new Date().getFullYear()
 
-  // Stacked monthly series: one entry per category present this year.
-  const monthlySeries = Object.entries(currentYearByCategory)
-    .map(([name, data]) => ({ name, data }))
-    .filter((series) => series.data.some((value) => value > 0));
+  // Three-year comparison series for the monthly chart (single-colour view).
+  const yearSeries = [
+    { name: year - 2, data: twoYearsAgoAmounts },
+    { name: year - 1, data: previousYearAmounts },
+    { name: year, data: currentYearAmounts },
+  ];
 
   // Donut shows only categories that actually have spending (skip empty ones).
   const categoryEntries = Object.entries(percentageByCategory).filter(([, value]) => value > 0);
@@ -222,10 +224,11 @@ const Page = () => {
             {/* <MonthlyChartLoading isLoading={appState.loading}  */}
 
             <OverviewMonthlyChart
-              chartSeries={monthlySeries}
+              yearSeries={yearSeries}
+              byCategoryByYear={byCategoryByYear}
               sx={{ height: '100%' }}
               sync={sync}
-              title={`Wydatki ${year} wg kategorii`}
+              title='Podsumowanie'
               overview="/details/"
             />
 
