@@ -1,117 +1,135 @@
-from datetime import datetime
+import re
+import imaplib
+import email
+from datetime import datetime, date
+from email.utils import parseaddr, parsedate_to_datetime
 from bs4 import BeautifulSoup
-import urllib3
 from ..decorators import supplier_log, logger
 from ..class_services import SyncSupplier, FetchSupplier
-from requests.exceptions import RequestException
 
 __all__ = ['SyncEnea']
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 class SyncEnea(FetchSupplier, SyncSupplier):
+    """
+    Fetches Enea electricity invoices from the e-invoice notification emails.
+
+    The Enea web portal (moja.enea.pl) sits behind reCAPTCHA Enterprise + F5/Shape
+    bot defence, and the Moja Enea mobile app talks over HTTP/3 (QUIC) which a TCP
+    proxy cannot capture — so neither is scriptable. Enea does email a plain
+    notification for every issued invoice, from powiadomienia@ebok.enea.pl, with
+    the invoice number, amount and due date in the body (no PDF attached). We read
+    those over IMAP and parse the text, the same email route used for Orlen.
+
+    The notification carries no payment status, so a bill is treated as paid once
+    its due date has passed — good enough for on-time payers, and it keeps the
+    current (not yet due) bill correctly flagged as unpaid.
+    """
 
     supplier_name = 'Enea'
-    ENEA_LOGIN_URL = 'https://ebok.enea.pl/logowanie'
-    ENEA_HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
-        'Host': 'ebok.enea.pl',
-        'Origin': 'https://ebok.enea.pl',
-        'Referer': 'https://ebok.enea.pl/',
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
+    IMAP_SERVER = 'imap.wp.pl'
+    IMAP_PORT = 993
+    SENDER_EMAIL = 'powiadomienia@ebok.enea.pl'
+
+    NUMBER_RE = re.compile(r'(P/\d+/\d+/\d+)')
+    AMOUNT_RE = re.compile(r'wynosi\s+([\d ]+,\d{2})\s*z', re.I)
+    DEADLINE_RE = re.compile(r'do dnia\s+(\d{2}\.\d{2}\.\d{4})', re.I)
 
     @supplier_log(supplier_name)
-    def login(self, session):
-        payload = {
-                   'email': self.account.login,
-                   'password': self.account.password,
-                  }
+    def login(self, session=None):
         try:
-            # Get the login page
-            login_page = session.get(self.ENEA_LOGIN_URL, verify=False)
+            self.mail = imaplib.IMAP4_SSL(self.IMAP_SERVER, self.IMAP_PORT)
+            self.mail.login(self.account.login, self.account.password)
+            logger.info('[ENEA] Logged into mailbox')
+        except imaplib.IMAP4.error as e:
+            logger.error(f'[ENEA] IMAP login failed: {e}')
+            raise ValueError(f'Błąd logowania do poczty Enea: {e}')
 
-            # Add hidden token to the payload.
-            soup = BeautifulSoup(login_page._content, 'html.parser')
-            payload['token'] = soup.find('input', type='hidden')['value']
-
-            # LOG IN
-            sign_in = session.post(self.ENEA_LOGIN_URL, data=payload, headers=self.ENEA_HEADERS)
-
-            # Handle Login error
-            if sign_in.url == self.ENEA_LOGIN_URL:
-                soup = BeautifulSoup(sign_in.content, 'html.parser')
-                login_msg = soup.find('div', class_='alert alert-danger alert-dismissible fade show alert-form')
-                logger.error('[get_enea] error msg: %s', login_msg.text.strip())
-                raise ValueError(login_msg.text.strip())
-        except Exception as e:
-            raise e
-    
     @supplier_log(supplier_name)
-    def get_invoices(self, session):
-        invoice_payload = {
-            'limit':200,
-            'page':1,
-            'direction':'DESC',
-            'sort':'issueDate',
-        }
+    def get_invoices(self, session=None):
+        messages = []
         try:
-            invoices_page = session.post('https://ebok.enea.pl/invoices/invoice-history', data=invoice_payload)
-            soup = BeautifulSoup(invoices_page.content, 'html.parser')
+            self.mail.select('inbox')
+            status, data = self.mail.search(None, 'FROM', f'"{self.SENDER_EMAIL}"')
+            if status != 'OK' or not data[0]:
+                logger.warning('[ENEA] No notification emails found.')
+                return {'messages': messages}
 
-            # Find div with all invoices.
-            invoices = soup.find_all('div', class_='datagrid-row-content')
+            email_ids = data[0].split()
+            logger.info(f'[ENEA] Found {len(email_ids)} emails from {self.SENDER_EMAIL}.')
+            for email_id in email_ids:
+                status, msg_data = self.mail.fetch(email_id, '(RFC822)')
+                if status != 'OK':
+                    continue
+                msg = email.message_from_bytes(msg_data[0][1])
+                if parseaddr(msg.get('From'))[1].lower() != self.SENDER_EMAIL:
+                    continue
+                messages.append({'date': msg.get('Date'), 'body': self._body(msg)})
+        finally:
+            self.mail.logout()
+            logger.info('[ENEA] Disconnected from mailbox.')
+        return {'messages': messages}
 
-            # Find transfer title and account number.
-            drop_down = soup.find('div', class_='dropdown-menu dropdown-menu-clear dropdown-content-account-details')
-            user_data = drop_down.find_all('p')
-
-            for p in user_data:
-                if 'Tytuł przelewu' in p.find('strong', class_='display-block').text:
-                    transfer_title =  p.text.replace('Tytuł przelewu:', '').strip()
-                if 'Numer konta' in p.find('strong', class_='display-block').text:
-                    account_number = p.text.replace('Numer konta:', '').strip()
-
-            return {'invoices': invoices,
-                    'bank_account_number': account_number,
-                    'transfer_title': transfer_title}
-        except (RequestException, ValueError) as e:
-            logger.error(f"Error occurred while fetching invoices: {e}")
-            raise  # Re-raise the exception to propagate it up the call stack
-
+    @staticmethod
+    def _body(msg):
+        """Return the message body as plain text (prefer text/plain, else strip HTML)."""
+        text, html = '', ''
+        for part in msg.walk():
+            if part.get_filename() or part.get_content_maintype() == 'multipart':
+                continue
+            charset = part.get_content_charset() or 'utf-8'
+            if part.get_content_type() == 'text/plain':
+                text += part.get_payload(decode=True).decode(charset, 'replace')
+            elif part.get_content_type() == 'text/html':
+                html += part.get_payload(decode=True).decode(charset, 'replace')
+        if text.strip():
+            return text
+        return BeautifulSoup(html, 'html.parser').get_text(' ', strip=True) if html else ''
 
     @supplier_log(supplier_name)
     def parse_invoices(self, invoices):
+        today = date.today()
         invoice_objects = []
-        bank_account_number = invoices.get('bank_account_number')
-        transfer_title = invoices.get('transfer_title')
+        seen = set()
+        for message in invoices.get('messages', []):
+            body = re.sub(r'\s+', ' ', message.get('body') or '')
+            number_match = self.NUMBER_RE.search(body)
+            amount_match = self.AMOUNT_RE.search(body)
+            deadline_match = self.DEADLINE_RE.search(body)
+            if not (number_match and amount_match and deadline_match):
+                continue
 
-        for invoice in invoices.get('invoices'):
+            number = number_match.group(1)
+            if number in seen:
+                continue
+            seen.add(number)
+
             try:
-                date = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-date')
-                name = invoice.find('span', class_='font-semibold document-download-link link-dark-blue')
-                address = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-address')
-                payment_date = invoice.find('div',class_='datagrid-col datagrid-col-invoice-real-with-address-payment-date')
-                amount = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-value')
-                amount_to_pay = invoice.find('div', class_='datagrid-col datagrid-col-invoice-real-with-address-payment')
-                status = invoice.find('div', class_='datagrid-col datagrid-col-invoice-with-address-status')
-                
-                invoice_objects.append({
-                    'number':             name.text.strip(),
-                    'date':               datetime.strptime(date.text.strip(), "%d.%m.%Y"),
-                    'amount':             float(amount.text.strip().rstrip('\xa0 zł').replace(',', '.')),
-                    'pay_deadline':       datetime.strptime(payment_date.text.strip().split()[0], "%d.%m.%Y"),
-                    'amount_to_pay':      float(amount_to_pay.text.strip().rstrip('\xa0 zł').replace(',', '.')),
-                    'user':               self.user,
-                    'is_paid':            True if 'Zapłacona' in status.text.strip() else False,
-                    'consumption_point':  address.text.strip(),
-                    'account':            self.account,
-                    'category':           self.account.category,
-                    'bank_account_number':bank_account_number,
-                    'transfer_title':     transfer_title.replace('XX/XXX/XXXX', name.text.strip())
-                })
-
+                amount = float(amount_match.group(1).replace(' ', '').replace(',', '.'))
+                deadline = datetime.strptime(deadline_match.group(1), '%d.%m.%Y').date()
             except ValueError as e:
-                logger.error(f"Error parsing invoice: {e}")
-                continue  # Skip this invoice and proceed to the next one
+                logger.error(f'[ENEA] Error parsing invoice {number}: {e}')
+                continue
 
+            issued = self._issued_date(message.get('date')) or deadline
+            is_paid = deadline < today
+            invoice_objects.append({
+                'number':         number,
+                'date':           issued,
+                'amount':         amount,
+                'pay_deadline':   deadline,
+                'amount_to_pay':  0.0 if is_paid else amount,
+                'user':           self.user,
+                'is_paid':        is_paid,
+                'account':        self.account,
+                'category':       self.account.category,
+                'transfer_title': number,
+            })
         return invoice_objects
+
+    @staticmethod
+    def _issued_date(raw):
+        try:
+            return parsedate_to_datetime(raw).date()
+        except (TypeError, ValueError):
+            return None
