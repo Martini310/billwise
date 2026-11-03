@@ -19,6 +19,7 @@ import {
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { AccountCard } from 'src/sections/accounts/account-card';
 import { AccountsSearch } from 'src/sections/accounts/accounts-search';
+import { GroupsManager } from 'src/sections/accounts/groups-manager';
 import { axiosInstance } from 'src/utils/axios';
 import { useState, useEffect } from 'react';
 import { sizeHeight } from '@mui/system';
@@ -30,12 +31,10 @@ const Page = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch user accounts
+  const loadAccounts = () => axiosInstance.get('accounts/').then((res) => setAccounts(res.data)).catch(() => {});
+
   useEffect(() => {
-      axiosInstance
-        .get('accounts/')
-        .then((res) => {
-          setAccounts(res.data);
-        })
+      loadAccounts();
   }, []);
 
   // Filter accounts based on search query
@@ -83,6 +82,7 @@ const Page = () => {
               </Button>
             </div>
           </Stack>
+          <GroupsManager onChanged={loadAccounts} />
           <AccountsSearch onSearch={setSearchQuery}/>
           <Grid
             container

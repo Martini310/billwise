@@ -8,10 +8,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from api.permissions import IsOwner
-from base.models import Account, Category, Invoice, Supplier
+from base.models import Account, Category, Invoice, Supplier, Group
 from base.tasks import synchronize_data
 
-from .serializers import (CategorySerializer, GetAccountSerializer,
+from .serializers import (CategorySerializer, GetAccountSerializer, GroupSerializer,
                         InvoiceSerializer, PostAccountSerializer,
                         PostInvoiceSerializer, SupplierSerializer)
 
@@ -118,6 +118,15 @@ class AccountList(ModelViewSet):
         self.perform_destroy(instance)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupList(ModelViewSet):
+    """CRUD na grupach dostawców, ograniczony do grup zalogowanego użytkownika."""
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    serializer_class = GroupSerializer
+
+    def get_queryset(self):
+        return Group.objects.filter(user=self.request.user)
 
 
 class SupplierList(GenericViewSet, ListModelMixin):

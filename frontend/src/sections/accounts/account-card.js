@@ -55,6 +55,19 @@ export const AccountCard = (props) => {
           >
           {account.supplier['name']}
         </Typography>
+        {account.group && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>
+            <Chip
+              size="small"
+              label={account.group.name}
+              sx={{
+                backgroundColor: alpha(account.group.color, 0.12),
+                color: account.group.color,
+                fontWeight: 600,
+              }}
+            />
+          </Box>
+        )}
         <Typography
           align="center"
           variant="body1"

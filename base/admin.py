@@ -1,8 +1,14 @@
 from django.contrib import admin
-from .models import Category, Supplier, Account, Invoice
+from .models import Category, Supplier, Account, Invoice, Group
 
 admin.site.register(Category)
 admin.site.register(Supplier)
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    """ Model admin for Group. """
+    list_display = ('__str__', 'id', 'color', 'user', 'created')
 
 
 @admin.register(Account)
@@ -14,6 +20,7 @@ class ProfileAdmin(admin.ModelAdmin):
         'id',
         'supplier',
         'category',
+        'group',
         'user',
         'last_sync',
     )

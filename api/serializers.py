@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from base.models import Account, Category, Invoice, Supplier
+from base.models import Account, Category, Invoice, Supplier, Group
 
 User = get_user_model()
 
@@ -32,9 +32,20 @@ class SupplierSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Group
+        fields = ('id', 'name', 'color', 'user')
+
+
 class GetAccountSerializer(serializers.ModelSerializer):
     supplier = SupplierSerializer(many=False)
     category = CategorySerializer(many=False)
+    group = GroupSerializer(many=False, read_only=True)
 
     class Meta:
         model = Account

@@ -26,6 +26,7 @@ export const AccountProfileDetails = (props) => {
 
   const [categories, setCategories] = useState()
   const [suppliers, setSuppliers] = useState()
+  const [groups, setGroups] = useState([])
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter()
 
@@ -34,17 +35,20 @@ export const AccountProfileDetails = (props) => {
     password: '',
     supplier: '',
     category: '',
+    group: '',
   });
 
-  // Fetch Categories and create array with category names
+  // Fetch categories, suppliers and groups
   useEffect(() => {
     axios.all([
       axiosInstance.get('category/'),
       axiosInstance.get('suppliers/'),
+      axiosInstance.get('groups/'),
     ])
-    .then(axios.spread((categoryResponse, suppliersResponse) => {
+    .then(axios.spread((categoryResponse, suppliersResponse, groupsResponse) => {
       setCategories(categoryResponse.data);
       setSuppliers(suppliersResponse.data);
+      setGroups(groupsResponse.data);
     }))
   }, [setCategories, setSuppliers]
   )
@@ -71,7 +75,7 @@ export const AccountProfileDetails = (props) => {
   const handleSubmit = useCallback(
     (event) => {
       event.preventDefault();
-      axiosInstance.post('accounts/', post)
+      axiosInstance.post('accounts/', { ...post, group: post.group || null })
         .then((res) => {
           router.push("/accounts/");
           toast.success('Dodano nowego dostawcę');
@@ -201,6 +205,27 @@ export const AccountProfileDetails = (props) => {
                       value={supplier.id}
                     >
                       {supplier.name}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid
+                xs={12}
+                md={6}
+              >
+                <TextField
+                  fullWidth
+                  label="Grupa (opcjonalnie)"
+                  name="group"
+                  onChange={handleInput}
+                  select
+                  SelectProps={{ native: true }}
+                  value={post.group}
+                >
+                  <option key='blank' value=''>— brak —</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
                     </option>
                   ))}
                 </TextField>

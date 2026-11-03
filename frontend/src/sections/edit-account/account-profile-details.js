@@ -24,10 +24,15 @@ export const AccountProfileDetails = (props) => {
 
   const router = useRouter()
   const [post, setPost] = useState();
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     setPost(account);
   }, [account])
+
+  useEffect(() => {
+    axiosInstance.get('groups/').then((res) => setGroups(res.data)).catch(() => {});
+  }, [])
   
   const [showPassword, setShowPassword] = useState(false);
   
@@ -47,8 +52,10 @@ export const AccountProfileDetails = (props) => {
       delete post.supplier;
       delete post.last_sync;
       post.notification = '';
-      if (typeof post.category === 'object') 
+      if (typeof post.category === 'object')
         (delete post.category); // if category not edited remove it from post request
+      // Normalise group: nested object -> id, empty -> null.
+      post.group = post.group && typeof post.group === 'object' ? post.group.id : (post.group || null);
       axiosInstance.patch(`accounts/${post.id}/`, post)
         .then((res) => {
           console.log(res);
@@ -164,6 +171,27 @@ export const AccountProfileDetails = (props) => {
                       value={category.id}
                     >
                       {category.name}
+                    </option>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid
+                xs={12}
+                md={6}
+              >
+                <TextField
+                  fullWidth
+                  label="Grupa (opcjonalnie)"
+                  name="group"
+                  onChange={handleChange}
+                  select
+                  SelectProps={{ native: true }}
+                  value={post.group && typeof post.group === 'object' ? post.group.id : (post.group ?? '')}
+                >
+                  <option key='blank' value=''>— brak —</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
                     </option>
                   ))}
                 </TextField>

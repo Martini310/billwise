@@ -7,8 +7,9 @@ import { OverviewPaidPercentage } from 'src/sections/overview/overview-paid-perc
 import { OverviewCurrentMonth } from 'src/sections/overview/overview-current-month';
 import { OverviewNextPayment } from 'src/sections/overview/overview-next-payment';
 import { OverviewCategoriesChart } from 'src/sections/overview/overview-categories-chart';
+import { OverviewGroupFilter } from 'src/sections/overview/overview-group-filter';
 import EnhancedTable from 'src/sections/overview/overview-latest-payments';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { axiosInstance } from 'src/utils/axios';
 import { withComponentLoading } from 'src/utils/componentLoading';
@@ -25,6 +26,8 @@ const Page = () => {
 
   const [invoices, setInvoices] = useState([])
   const [categories, setCategories] = useState([])
+  const [groups, setGroups] = useState([])
+  const [selectedGroup, setSelectedGroup] = useState('all')
   const [lastSync, setLastSync] = useState()
 
   const [currentYearAmounts, setCurrentYearAmounts] = useState([]);
@@ -63,14 +66,18 @@ const Page = () => {
         axios.all([
           axiosInstance.get('invoices/'),
           axiosInstance.get('category/'),
-          axiosInstance.get('accounts/')
+          axiosInstance.get('accounts/'),
+          axiosInstance.get('groups/')
         ])
-        .then(axios.spread((invoicesResponse, categoriesResponse, accountsResponse) => {
-          
+        .then(axios.spread((invoicesResponse, categoriesResponse, accountsResponse, groupsResponse) => {
+
           // Response from invoices/
           setInvoices(invoicesResponse.data);
           if (invoicesResponse.data.length === 0) // Disble loading if no data
           {setAppState({ ...appState, loading: false });};
+
+          // Response from groups/
+          setGroups(groupsResponse.data);
           
           // Response from category/
           const categories = categoriesResponse.data;
@@ -93,11 +100,36 @@ const Page = () => {
   )
 
 
+  // Restore the last selected group once per mount.
   useEffect(() => {
-    // Check if invoices data is available
-    if (invoices.length > 0) {
+    try {
+      const saved = localStorage.getItem('billwise.selectedGroup');
+      if (saved) {
+        setSelectedGroup(saved === 'all' || saved === 'none' ? saved : Number(saved));
+      }
+    } catch (e) { /* localStorage unavailable */ }
+  }, []);
 
-      // Calculate the other variables based on the invoices data
+  const handleGroupChange = (value) => {
+    setSelectedGroup(value);
+    try { localStorage.setItem('billwise.selectedGroup', String(value)); } catch (e) { /* ignore */ }
+  };
+
+  // Invoices limited to the selected group (group lives on invoice.account.group).
+  const shownInvoices = useMemo(() => {
+    if (selectedGroup === 'all') return invoices;
+    if (selectedGroup === 'none') return invoices.filter((inv) => !inv.account?.group);
+    return invoices.filter((inv) => inv.account?.group?.id === selectedGroup);
+  }, [invoices, selectedGroup]);
+
+  const hasUngrouped = useMemo(() => invoices.some((inv) => !inv.account?.group), [invoices]);
+
+  useEffect(() => {
+    if (invoices.length === 0) {
+      return; // Wait for the fetch; the truly-empty case is handled on load.
+    }
+
+    if (shownInvoices.length > 0) {
       const [
         currentYearAmounts,
         previousYearAmounts,
@@ -107,9 +139,8 @@ const Page = () => {
         unpaidInvoices,
         monthDifference,
         byCategoryByYear,
-      ] = SumAndSortInvoices(invoices, categories);
+      ] = SumAndSortInvoices(shownInvoices, categories);
 
-      // Update the state variables with the calculated data
       setCurrentYearAmounts(currentYearAmounts);
       setPreviousYearAmounts(previousYearAmounts);
       settwoYearsAgoAmounts(twoYearsAgoAmounts);
@@ -118,12 +149,22 @@ const Page = () => {
       setUnpaidInvoices(unpaidInvoices);
       setMonthDifference(monthDifference);
       setByCategoryByYear(byCategoryByYear);
-
-      setAppState({ ...appState, loading: false });
+    } else {
+      // Selected group has no invoices — reset the widgets to zero.
+      setCurrentYearAmounts(Array(12).fill(0));
+      setPreviousYearAmounts(Array(12).fill(0));
+      settwoYearsAgoAmounts(Array(12).fill(0));
+      setPercentageByCategory({});
+      setPaidInvoices(0);
+      setUnpaidInvoices([]);
+      setMonthDifference(0);
+      setByCategoryByYear({});
     }
-  }, [invoices, categories]);
 
-  const newestInvoice = invoices[0]
+    setAppState((prev) => ({ ...prev, loading: false }));
+  }, [shownInvoices, categories]);
+
+  const newestInvoice = shownInvoices[0]
   const year = new Date().getFullYear()
 
   // Three-year comparison series for the monthly chart (single-colour view).
@@ -155,6 +196,16 @@ const Page = () => {
           container
           spacing={3}
         >
+          {groups.length > 0 && (
+            <Grid xs={12} sx={{ pb: 0 }}>
+              <OverviewGroupFilter
+                groups={groups}
+                hasUngrouped={hasUngrouped}
+                value={selectedGroup}
+                onChange={handleGroupChange}
+              />
+            </Grid>
+          )}
           <Grid
             className='overview-newest-payment'
             xs={12}
@@ -188,7 +239,7 @@ const Page = () => {
             >
             <OverviewPaidPercentage
               sx={{ height: '100%' }}
-              value={appState.loading ? <Skeleton /> : (parseFloat((paidInvoices / invoices.length * 100).toFixed(0)) || 0)}
+              value={appState.loading ? <Skeleton /> : (parseFloat((paidInvoices / shownInvoices.length * 100).toFixed(0)) || 0)}
             />
           </Grid>
           <Grid
@@ -253,7 +304,7 @@ const Page = () => {
             lg={12}
           >
             <EnhancedTable
-              rows={invoices}
+              rows={shownInvoices}
             />
           </Grid>
         </Grid>

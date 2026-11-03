@@ -16,6 +16,21 @@ class Supplier(models.Model):
         return f"{self.name}"
     
 
+class Group(models.Model):
+    """Zbiór dostawców użytkownika (np. 'Dom 1', 'Dom 2', 'Rodzice')."""
+    name = models.CharField("Nazwa grupy", max_length=100)
+    color = models.CharField("Kolor", max_length=9, default="#6366F1",
+                             help_text="Kolor używany na przełączniku i chipie grupy.")
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, related_name='account_groups', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Account(models.Model):
     supplier = models.ForeignKey(to=Supplier, related_name='accounts', on_delete=models.CASCADE)
     login = models.CharField(max_length=100)
@@ -26,6 +41,8 @@ class Account(models.Model):
                                      help_text="Token zapamiętanego urządzenia (np. Orange AUTH_DEVICE_TOKEN). Pozwala logować się bez SMS po jednorazowej konfiguracji.")
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
+    group = models.ForeignKey(to=Group, related_name='accounts', null=True, blank=True,
+                              on_delete=models.SET_NULL)
     last_sync = models.DateTimeField("Ostatnia aktualizacja", auto_now=True)
     notification = models.TextField(null=True, blank=True)
 
