@@ -3,7 +3,6 @@ import ArrowDownIcon from '@heroicons/react/24/solid/ArrowDownIcon';
 import ArrowUpIcon from '@heroicons/react/24/solid/ArrowUpIcon';
 import CreditCardIcon from '@heroicons/react/24/solid/CreditCardIcon';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
-import { on } from 'events';
 
 export const OverviewCurrentMonth = (props) => {
   const { difference, positive = false, sx, value } = props;
@@ -25,12 +24,12 @@ export const OverviewCurrentMonth = (props) => {
               aktualny miesiąc
             </Typography>
             <Typography variant="h4">
-              {typeof value === 'number' ? `${value}zł` : value}
+              {value}
             </Typography>
           </Stack>
           <Avatar
             sx={{
-              backgroundColor: 'warning.main',
+              backgroundColor: 'info.main',
               height: 56,
               width: 56
             }}
@@ -41,8 +40,7 @@ export const OverviewCurrentMonth = (props) => {
           </Avatar>
 
         </Stack>
-        {value === 'NaNzł' ? '---' : (
-          difference && (
+        {Number.isFinite(difference) && difference !== 0 && (
             <Stack
               alignItems="center"
               direction="row"
@@ -64,8 +62,7 @@ export const OverviewCurrentMonth = (props) => {
                   color={positive ? 'error.main' : 'success.main'}
                   variant="body2"
                 >
-                  {/* shoe value if difference is infinity */}
-                  {difference === Infinity ? value : difference + '%'}
+                  {difference > 0 ? '+' : ''}{difference}%
                 </Typography>
               </Stack>
               <Typography
@@ -75,7 +72,7 @@ export const OverviewCurrentMonth = (props) => {
                 od poprz. miesiąca
               </Typography>
             </Stack>
-          ))}
+          )}
       </CardContent>
     </Card>
   );

@@ -1,16 +1,17 @@
 import PropTypes from 'prop-types';
 import UserCircleIcon from '@heroicons/react/24/solid/UserCircleIcon';
-import TagIcon from '@heroicons/react/24/solid/TagIcon';
-import { Avatar, Box, Card, CardContent, Divider, Stack, SvgIcon, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import { Avatar, Box, Card, CardContent, Chip, Divider, Stack, SvgIcon, Typography } from '@mui/material';
 import { CardActionArea } from '@mui/material';
 import Link from 'next/link';
 import { formatDatetime } from 'src/utils/format-datetime';
-import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
+import { getCategoryMeta } from 'src/utils/categories';
 
 
 export const AccountCard = (props) => {
   const { account } = props;
   const img='/assets/logos/logo-' + (account.supplier['name']).toLowerCase() + '.png'
+  const { color: categoryColor, Icon: CategoryIcon } = getCategoryMeta(account.category?.['name']);
 
   return (
     <Card
@@ -33,7 +34,8 @@ export const AccountCard = (props) => {
           <Avatar
             src={img}
             variant="square"
-            sx={{ width: 200, height: 100 }}
+            sx={{ width: 200, height: 100, bgcolor: 'transparent', '& img': { objectFit: 'contain' } }}
+            imgProps={{ onError: (e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; } }}
           />
         </Box>
         {account.notification && 
@@ -94,25 +96,17 @@ export const AccountCard = (props) => {
             {account.login}
           </Typography>
         </Stack>
-        <Stack
-          alignItems="center"
-          direction="row"
-          spacing={1}
-        >
-          <SvgIcon
-            color="action"
-            fontSize="small"
-          >
-            <TagIcon />
-          </SvgIcon>
-          <Typography
-            color="text.secondary"
-            display="inline"
-            variant="body2"
-          >
-            {account.category['name']}
-          </Typography>
-        </Stack>
+        <Chip
+          size="small"
+          icon={<CategoryIcon style={{ color: categoryColor, fontSize: 16 }} />}
+          label={account.category?.['name']}
+          sx={{
+            backgroundColor: alpha(categoryColor, 0.12),
+            color: categoryColor,
+            fontWeight: 600,
+            '& .MuiChip-icon': { color: categoryColor },
+          }}
+        />
       </Stack>
     </Card>
   );

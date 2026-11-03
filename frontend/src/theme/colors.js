@@ -68,3 +68,12 @@ export const error = withAlphas({
   darkest: '#7A271A',
   contrastText: '#FFFFFF'
 });
+
+export const purple = withAlphas({
+  lightest: '#F5F3FF',
+  light: '#DDD6FE',
+  main: '#7C3AED',
+  dark: '#5B21B6',
+  darkest: '#4C1D95',
+  contrastText: '#FFFFFF'
+});

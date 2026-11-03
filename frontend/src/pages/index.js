@@ -15,6 +15,7 @@ import { withComponentLoading } from 'src/utils/componentLoading';
 import { SumAndSortInvoices } from 'src/utils/parse-invoices';
 import axios from 'axios';
 import { formatDatetime } from 'src/utils/format-datetime';
+import { formatCurrency } from 'src/utils/format-currency';
 import Cookies from 'js-cookie';
 import { driverObj } from 'src/utils/animated-tour';
 
@@ -150,7 +151,7 @@ const Page = () => {
             <OverviewNewestPayment
               supplier={appState.loading ? <Skeleton width={'50px'}/> : (newestInvoice ? (newestInvoice?.account?.supplier?.name ?? 'Inne') : "Brak faktur")}
               sx={{ height: '100%' }}
-              value={appState.loading ? <Skeleton /> :( newestInvoice ? newestInvoice.amount + "zł" : '---' )}
+              value={appState.loading ? <Skeleton /> :( newestInvoice ? formatCurrency(newestInvoice.amount) : '—' )}
             />
           </Grid>
           <Grid
@@ -163,10 +164,7 @@ const Page = () => {
               difference={+monthDifference.toFixed(2)} // '+' convert value back to a Number
               positive={monthDifference > 0}
               sx={{ height: '100%' }}
-              value={appState.loading ? <Skeleton /> : (currentYearAmounts[now.getMonth()]
-                      ? currentYearAmounts[now.getMonth()].toFixed(2)+"zł"
-                      : '0')
-                    }
+              value={appState.loading ? <Skeleton /> : formatCurrency(currentYearAmounts[now.getMonth()] || 0)}
             />
           </Grid>
           <Grid
@@ -188,7 +186,7 @@ const Page = () => {
           >
             <OverviewNextPayment
               sx={{ height: '100%' }}
-              value={appState.loading ? <Skeleton /> : ( unpaidInvoices[0] ? unpaidInvoices[0].amount + "zł" : (unpaidInvoices.length === 0 ? "Brak faktur do wyświetlenia" : "Wszystko opłacone!" ))}
+              value={appState.loading ? <Skeleton /> : ( unpaidInvoices[0] ? formatCurrency(unpaidInvoices[0].amount) : (unpaidInvoices.length === 0 ? "Brak faktur do wyświetlenia" : "Wszystko opłacone!" ))}
               supplier={appState.loading ? <Skeleton width={'50px'}/> : ( unpaidInvoices[0] ? (unpaidInvoices[0]?.account?.supplier?.name ?? 'Inne') : "---" )}
               date={appState.loading ? <Skeleton width={'50px'}/> : ( unpaidInvoices[0] ? unpaidInvoices[0].pay_deadline : "---" )}
             />

@@ -1,10 +1,13 @@
 import * as React from 'react';
 import {
+  Avatar,
   Box,
   Button,
   Card,
   CardHeader,
-  Paper,
+  Chip,
+  Divider,
+  Stack,
   SvgIcon,
   Table,
   TableBody,
@@ -14,12 +17,56 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  Typography,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
 import { visuallyHidden } from '@mui/utils';
 import { SeverityPill } from 'src/components/severity-pill';
+import { getCategoryMeta } from 'src/utils/categories';
+import { formatCurrency } from 'src/utils/format-currency';
 import { BasicModal } from './overview-modal'
+
+// "2026-10-06" -> "06.10.2026" (czytelniejszy format daty); inne wartości bez zmian.
+const formatDate = (value) => {
+  if (!value || typeof value !== 'string') return value ?? '—';
+  const parts = value.slice(0, 10).split('-');
+  return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : value;
+};
+
+const SupplierCell = ({ name }) => {
+  const label = name ?? 'Inne';
+  return (
+    <Stack alignItems="center" direction="row" spacing={1.5}>
+      <Avatar
+        src={`/assets/logos/logo-${label.toLowerCase()}.png`}
+        variant="rounded"
+        sx={{ width: 32, height: 32, bgcolor: 'background.default', '& img': { objectFit: 'contain' } }}
+        imgProps={{ onError: (e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/logos/logo-inne.png'; } }}
+      />
+      <Typography variant="subtitle2">{label}</Typography>
+    </Stack>
+  );
+};
+
+const CategoryChip = ({ name }) => {
+  const label = name ?? 'Inne';
+  const { color, Icon } = getCategoryMeta(label);
+  return (
+    <Chip
+      size="small"
+      icon={<Icon style={{ color, fontSize: 16 }} />}
+      label={label}
+      sx={{
+        backgroundColor: alpha(color, 0.12),
+        color,
+        fontWeight: 600,
+        '& .MuiChip-icon': { color },
+      }}
+    />
+  );
+};
 
 
 const statusMap = {
@@ -125,6 +172,7 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
+            align={headCell.numeric ? 'right' : 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -195,13 +243,12 @@ export default function EnhancedTable(props) {
   );
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Card sx={{ borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px', width: '100%' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <CardHeader title="Ostatnie faktury" />
+    <Card sx={{ width: '100%' }}>
+      <CardHeader
+        title="Ostatnie faktury"
+        action={(
           <Button
             href='invoice/'
-            sx={{ mr: 10 }}
             startIcon={(
               <SvgIcon fontSize="small">
                 <PlusIcon />
@@ -211,10 +258,10 @@ export default function EnhancedTable(props) {
           >
             Dodaj
           </Button>
-        </Box>
-      </Card>
-      <Paper sx={{ width: '100%', mb: 2, borderRadius: '30px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.15)' }}>
-        <TableContainer sx={{ width: '100%', mb: 2, borderRadius: '0px'}}>
+        )}
+      />
+      <Divider />
+      <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
@@ -239,12 +286,15 @@ export default function EnhancedTable(props) {
                       component="th"
                       scope="row"
                     >
-                      {row.account?.supplier?.name ?? 'Inne'}</TableCell>
+                      <SupplierCell name={row.account?.supplier?.name} />
+                    </TableCell>
                     <TableCell>{row.number}</TableCell>
-                    <TableCell>{row?.category?.name ?? 'Inne'}</TableCell>
-                    <TableCell>{row.date}</TableCell>
-                    <TableCell>{row.amount}</TableCell>
-                    <TableCell>{row.pay_deadline}</TableCell>
+                    <TableCell><CategoryChip name={row?.category?.name} /></TableCell>
+                    <TableCell>{formatDate(row.date)}</TableCell>
+                    <TableCell align="right">
+                      <Typography variant="subtitle2">{formatCurrency(row.amount)}</Typography>
+                    </TableCell>
+                    <TableCell>{formatDate(row.pay_deadline)}</TableCell>
                     <TableCell>
                       <SeverityPill color={row.is_paid
                         ? statusMap[row.is_paid]
@@ -272,8 +322,8 @@ export default function EnhancedTable(props) {
                 />
               )}
               {emptyRows > 0 && (
-                <TableRow                >
-                  <TableCell colSpan={6} />
+                <TableRow>
+                  <TableCell colSpan={7} />
                 </TableRow>
               )}
             </TableBody>
@@ -288,7 +338,6 @@ export default function EnhancedTable(props) {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-      </Paper>
-    </Box>
+    </Card>
   );
 }

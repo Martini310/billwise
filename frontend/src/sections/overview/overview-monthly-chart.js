@@ -13,6 +13,7 @@ import {
 import { alpha, useTheme } from '@mui/material/styles';
 import { Chart } from 'src/components/chart';
 import {useRouter} from 'next/router';
+import { formatCurrency } from 'src/utils/format-currency';
 
 
 
@@ -54,7 +55,8 @@ const useChartOptions = () => {
     },
     plotOptions: {
       bar: {
-        columnWidth: '50px'
+        borderRadius: 4,
+        columnWidth: '58%'
       }
     },
     stroke: {
@@ -64,6 +66,11 @@ const useChartOptions = () => {
     },
     theme: {
       mode: theme.palette.mode
+    },
+    tooltip: {
+      y: {
+        formatter: (value) => formatCurrency(value)
+      }
     },
     xaxis: {
       axisBorder: {
@@ -97,7 +104,7 @@ const useChartOptions = () => {
     },
     yaxis: {
       labels: {
-        formatter: (value) => (value > 0 ? `${+value.toFixed(2)}zł` : `${value}`),
+        formatter: (value) => `${Math.round(value)} zł`,
         offsetX: -10,
         style: {
           colors: theme.palette.text.secondary

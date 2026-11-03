@@ -1,22 +1,16 @@
 import PropTypes from 'prop-types';
-import ComputerDesktopIcon from '@heroicons/react/24/solid/ComputerDesktopIcon';
-import DeviceTabletIcon from '@heroicons/react/24/solid/DeviceTabletIcon';
-import PhoneIcon from '@heroicons/react/24/solid/PhoneIcon';
-import BoltIcon from '@heroicons/react/24/solid/BoltIcon';
-import FireIcon from '@heroicons/react/24/solid/FireIcon';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
-import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import {
   Box,
   Card,
   CardContent,
   CardHeader,
   Stack,
-  SvgIcon,
   Typography,
   useTheme
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { Chart } from 'src/components/chart';
+import { categoryColors, getCategoryMeta } from 'src/utils/categories';
 
 const useChartOptions = (labels) => {
   const theme = useTheme();
@@ -25,12 +19,7 @@ const useChartOptions = (labels) => {
     chart: {
       background: 'transparent'
     },
-    colors: [
-      theme.palette.success.main,
-      theme.palette.warning.main,
-      theme.palette.primary.main,
-      theme.palette.secondary.main,
-    ],
+    colors: categoryColors(labels),
     dataLabels: {
       enabled: false
     },
@@ -40,6 +29,9 @@ const useChartOptions = (labels) => {
     },
     plotOptions: {
       pie: {
+        donut: {
+          size: '72%'
+        },
         expandOnClick: false
       }
     },
@@ -51,7 +43,8 @@ const useChartOptions = (labels) => {
       },
       hover: {
         filter: {
-          type: 'none'
+          type: 'lighten',
+          value: 0.06
         }
       }
     },
@@ -62,100 +55,93 @@ const useChartOptions = (labels) => {
       mode: theme.palette.mode
     },
     tooltip: {
-      fillSeriesColor: false
+      fillSeriesColor: false,
+      y: {
+        formatter: (value) => `${Number(value).toFixed(1)}%`
+      }
     }
   };
-};
-
-const iconMap = {
-  Gaz: (
-    <SvgIcon>
-      <FireIcon />
-    </SvgIcon>
-  ),
-  Woda: (
-    <SvgIcon>
-      <WaterDropIcon />
-    </SvgIcon>
-  ),
-  Prąd: (
-    <SvgIcon>
-      <BoltIcon />
-    </SvgIcon>
-  ),
-  Paliwo: (
-    <SvgIcon>
-      <LocalGasStationIcon />
-    </SvgIcon>
-  ),
-  Inne: (
-    <SvgIcon>
-      <PhoneIcon />
-    </SvgIcon>
-  ),
-  Desktop: (
-    <SvgIcon>
-      <ComputerDesktopIcon />
-    </SvgIcon>
-  ),
-  Tablet: (
-    <SvgIcon>
-      <DeviceTabletIcon />
-    </SvgIcon>
-  ),
 };
 
 export const OverviewCategoriesChart = (props) => {
   const { chartSeries, labels, sx } = props;
   const chartOptions = useChartOptions(labels);
+  const hasData = Array.isArray(chartSeries) && chartSeries.length > 0;
 
   return (
     <Card sx={sx}>
       <CardHeader title="Udział wg kategorii" />
       <CardContent>
-        <Chart
-          height={300}
-          options={chartOptions}
-          series={chartSeries}
-          type="donut"
-          width="100%"
-        />
-        <Stack
-          alignItems="center"
-          direction="row"
-          justifyContent="center"
-          spacing={2}
-          sx={{ mt: 2 }}
-        >
-          {chartSeries.map((item, index) => {
-            const label = labels[index];
+        {hasData ? (
+          <>
+            <Chart
+              height={300}
+              options={chartOptions}
+              series={chartSeries}
+              type="donut"
+              width="100%"
+            />
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              justifyContent="center"
+              sx={{ mt: 2, gap: 2.5 }}
+            >
+              {chartSeries.map((item, index) => {
+                const label = labels[index];
+                const { color, Icon } = getCategoryMeta(label);
 
-            return (
-              <Box
-                key={label}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-              >
-                {iconMap[label]}
-                <Typography
-                  sx={{ my: 1 }}
-                  variant="h6"
-                >
-                  {label}
-                </Typography>
-                <Typography
-                  color="text.secondary"
-                  variant="subtitle2"
-                >
-                  {item}%
-                </Typography>
-              </Box>
-            );
-          })}
-        </Stack>
+                return (
+                  <Box
+                    key={label}
+                    sx={{
+                      alignItems: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      minWidth: 64
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        alignItems: 'center',
+                        backgroundColor: alpha(color, 0.12),
+                        borderRadius: '50%',
+                        color,
+                        display: 'flex',
+                        height: 40,
+                        justifyContent: 'center',
+                        width: 40
+                      }}
+                    >
+                      <Icon fontSize="small" />
+                    </Box>
+                    <Typography
+                      sx={{ mt: 1 }}
+                      variant="subtitle2"
+                    >
+                      {label}
+                    </Typography>
+                    <Typography
+                      color="text.secondary"
+                      variant="caption"
+                    >
+                      {Number(item).toFixed(1)}%
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Stack>
+          </>
+        ) : (
+          <Box sx={{ py: 8, textAlign: 'center' }}>
+            <Typography
+              color="text.secondary"
+              variant="body2"
+            >
+              Brak danych do wyświetlenia
+            </Typography>
+          </Box>
+        )}
       </CardContent>
     </Card>
   );

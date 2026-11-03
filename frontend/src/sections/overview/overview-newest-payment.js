@@ -29,7 +29,7 @@ export const OverviewNewestPayment = (props) => {
           </Stack>
           <Avatar
             sx={{
-              backgroundColor: 'error.main',
+              backgroundColor: 'primary.main',
               height: 56,
               width: 56
             }}
