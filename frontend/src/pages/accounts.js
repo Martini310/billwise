@@ -97,7 +97,7 @@ const Page = () => {
                 lg={4}
                 key={account.id}
               >
-                <AccountCard account={account} />
+                <AccountCard account={account} onConfigured={loadAccounts} />
               </Grid>
             ))}
             <Grid

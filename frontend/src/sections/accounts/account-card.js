@@ -6,10 +6,12 @@ import { CardActionArea } from '@mui/material';
 import Link from 'next/link';
 import { formatDatetime } from 'src/utils/format-datetime';
 import { getCategoryMeta } from 'src/utils/categories';
+import { OrangeSetupDialog } from './orange-setup-dialog';
 
 
 export const AccountCard = (props) => {
-  const { account } = props;
+  const { account, onConfigured } = props;
+  const needsOrangeSetup = account.supplier?.name === 'Orange' && !account.device_token;
   const img='/assets/logos/logo-' + (account.supplier['name']).toLowerCase() + '.png'
   const { color: categoryColor, Icon: CategoryIcon } = getCategoryMeta(account.category?.['name']);
 
@@ -84,6 +86,11 @@ export const AccountCard = (props) => {
       </CardContent></CardActionArea></Link>
       <Box sx={{ flexGrow: 1 }} />
       <Divider />
+      {needsOrangeSetup && (
+        <Box sx={{ px: 2, pt: 2 }}>
+          <OrangeSetupDialog account={account} onConfigured={onConfigured} />
+        </Box>
+      )}
       <Stack
         alignItems="center"
         direction="row"
@@ -127,5 +134,6 @@ export const AccountCard = (props) => {
 };
 
 AccountCard.propTypes = {
-  account: PropTypes.object.isRequired
+  account: PropTypes.object.isRequired,
+  onConfigured: PropTypes.func
 };

@@ -38,6 +38,7 @@ export const AccountProfileDetails = (props) => {
     category: '',
     group: '',
     device_token: '',
+    imap_server: '',
   });
 
   // Fetch categories, suppliers and groups
@@ -156,6 +157,16 @@ export const AccountProfileDetails = (props) => {
                     onChange={handleInput}
                     required
                     value={post.device_token}
+                  />
+                ) : (supplierName === 'Enea' || supplierName === 'Orlen') ? (
+                  <TextField
+                    fullWidth
+                    helperText="Konto pocztowe z e-fakturami; domyślnie imap.wp.pl. Login = e-mail, hasło = hasło do programów pocztowych."
+                    label="Serwer IMAP (opcjonalnie)"
+                    name="imap_server"
+                    onChange={handleInput}
+                    placeholder="imap.wp.pl"
+                    value={post.imap_server}
                   />
                 ) : (
                   <TextField fullWidth label="eBOK" name="ebok" disabled value='' />

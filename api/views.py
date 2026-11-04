@@ -176,3 +176,121 @@ class SyncAccounts(APIView):
             logger.warning(f"Celery niedostępny ({exc}); synchronizuję synchronicznie.")
             synchronize_data(user_pk)
         return Response("Done")
+
+
+# ---------------------------------------------------------------------------
+# Konfiguracja zaufanego urządzenia Orange z poziomu aplikacji (zamiast shella).
+# Dwa kroki: /orange-setup/start/ wysyła SMS, /orange-setup/verify/ zapisuje token.
+# Stan sesji (ciasteczka + executionId/state) trzymamy tymczasowo na koncie
+# (Account.setup_state), żeby działało też przy wielu workerach.
+# ---------------------------------------------------------------------------
+import json as _json
+import requests as _requests
+import urllib3 as _urllib3
+from base.services.suppliers.orange import SyncOrange
+
+_urllib3.disable_warnings(_urllib3.exceptions.InsecureRequestWarning)
+
+
+def _orange_account(request):
+    account_id = request.data.get('account_id')
+    return get_object_or_404(Account, pk=account_id, user=request.user, supplier__name='Orange')
+
+
+class OrangeSetupStart(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        account = _orange_account(request)
+        base = SyncOrange.LOGIN_BASE
+        hdr = {'Origin': SyncOrange.ORIGIN, 'Referer': f'{base}/zaloguj'}
+        s = _requests.Session()
+        s.headers.update({'User-Agent': SyncOrange.USER_AGENT, 'Accept': 'application/json'})
+        try:
+            s.get(f'{base}/zaloguj', verify=False, timeout=30)
+            s.get(f'{base}/session/check', verify=False, timeout=30)
+            init = s.post(f'{base}/login/init', json={'login': account.login},
+                          headers=hdr, verify=False, timeout=30).json()
+            if not init.get('executionId'):
+                return Response({'detail': 'Nie udało się rozpocząć logowania (sesja/CSRF).'},
+                                status=status.HTTP_502_BAD_GATEWAY)
+
+            pw = s.post(f'{base}/login/action',
+                        json={'action': 'LOGIN_2FA_PASSWORD', 'executionId': init['executionId'],
+                              'state': init['state'], 'login': account.login, 'password': account.password},
+                        headers=hdr, verify=False, timeout=30).json()
+            action = pw.get('requireAction')
+
+            if action == 'COMPLETED':
+                token = s.cookies.get('AUTH_DEVICE_TOKEN')
+                if token:
+                    account.device_token = token
+                    account.notification = None
+                    account.save(update_fields=['device_token', 'notification'])
+                return Response({'status': 'completed'})
+
+            if action not in ('LOGIN_2FA_SMS', 'LOGIN_2FA_SMS_RETRY'):
+                return Response({'detail': pw.get('message') or f'Nieoczekiwany wynik: {action}'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # SMS wysłany — zapamiętaj stan sesji do kroku weryfikacji.
+            account.setup_state = _json.dumps({
+                'cookies': _requests.utils.dict_from_cookiejar(s.cookies),
+                'exec_id': pw.get('executionId', init['executionId']),
+                'state': pw.get('state', init['state']),
+            })
+            account.save(update_fields=['setup_state'])
+            return Response({'status': 'sms_sent'})
+
+        except _requests.RequestException as exc:
+            return Response({'detail': f'Błąd połączenia z Orange: {exc}'},
+                            status=status.HTTP_502_BAD_GATEWAY)
+
+
+class OrangeSetupVerify(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        account = _orange_account(request)
+        code = (request.data.get('code') or '').strip()
+        if not code:
+            return Response({'detail': 'Podaj kod SMS.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not account.setup_state:
+            return Response({'detail': 'Sesja konfiguracji wygasła — rozpocznij konfigurację ponownie.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        cfg = _json.loads(account.setup_state)
+        base = SyncOrange.LOGIN_BASE
+        hdr = {'Origin': SyncOrange.ORIGIN, 'Referer': f'{base}/zaloguj'}
+        s = _requests.Session()
+        s.headers.update({'User-Agent': SyncOrange.USER_AGENT, 'Accept': 'application/json'})
+        s.cookies = _requests.utils.cookiejar_from_dict(cfg.get('cookies', {}))
+        try:
+            otp = s.post(f'{base}/login/action',
+                         json={'action': 'LOGIN_2FA_SMS', 'executionId': cfg['exec_id'],
+                               'state': cfg['state'], 'otp': code},
+                         headers=hdr, verify=False, timeout=30).json()
+            if otp.get('requireAction') != 'COMPLETED' or not otp.get('deviceToken'):
+                # Zły/przeterminowany kod — pozwól spróbować ponownie (nie czyść sesji).
+                return Response({'detail': otp.get('message') or 'Kod SMS nieprawidłowy.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            s.post(f'{base}/login/completed',
+                   json={'action': 'ADD_DEVICE', 'state': cfg['state'],
+                         'authenticationId': otp['authenticationId'], 'deviceToken': otp['deviceToken']},
+                   headers={'Origin': SyncOrange.ORIGIN}, verify=False, timeout=30)
+
+            token = s.cookies.get('AUTH_DEVICE_TOKEN')
+            if not token:
+                return Response({'detail': 'Brak tokenu zaufanego urządzenia po rejestracji.'},
+                                status=status.HTTP_502_BAD_GATEWAY)
+
+            account.device_token = token
+            account.notification = None
+            account.setup_state = None
+            account.save(update_fields=['device_token', 'notification', 'setup_state'])
+            return Response({'status': 'completed'})
+
+        except _requests.RequestException as exc:
+            return Response({'detail': f'Błąd połączenia z Orange: {exc}'},
+                            status=status.HTTP_502_BAD_GATEWAY)

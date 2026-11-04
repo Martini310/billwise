@@ -69,7 +69,7 @@ class GetAccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = "__all__"
+        exclude = ('setup_state',)
 
 
 class PostAccountSerializer(serializers.ModelSerializer):

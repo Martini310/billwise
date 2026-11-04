@@ -39,6 +39,10 @@ class Account(models.Model):
                                    help_text="Sekret base32 z aplikacji authenticator. Pozwala automatycznie generować kod 2FA.")
     device_token = models.TextField("Token zaufanego urządzenia", null=True, blank=True,
                                      help_text="Token zapamiętanego urządzenia (np. Orange AUTH_DEVICE_TOKEN). Pozwala logować się bez SMS po jednorazowej konfiguracji.")
+    imap_server = models.CharField("Serwer IMAP", max_length=100, null=True, blank=True,
+                                   help_text="Dla kont pocztowych (Enea/Orlen). Domyślnie imap.wp.pl.")
+    setup_state = models.TextField(null=True, blank=True,
+                                   help_text="Tymczasowy stan konfiguracji (np. sesja SMS Orange). Czyszczony po zakończeniu.")
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     group = models.ForeignKey(to=Group, related_name='accounts', null=True, blank=True,

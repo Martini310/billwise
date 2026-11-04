@@ -31,7 +31,7 @@ class SyncOrlen(FetchSupplier, SyncSupplier):
         try:
             logger.info(f"[{self.supplier_name}] Logging into email server...")
 
-            self.mail = imaplib.IMAP4_SSL(self.IMAP_SERVER, self.IMAP_PORT)
+            self.mail = imaplib.IMAP4_SSL(self.account.imap_server or self.IMAP_SERVER, self.IMAP_PORT)
             self.mail.login(self.account.login, self.account.password)
 
             logger.info("Successfully logged in to the email server.")

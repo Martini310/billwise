@@ -38,7 +38,7 @@ class SyncEnea(FetchSupplier, SyncSupplier):
     @supplier_log(supplier_name)
     def login(self, session=None):
         try:
-            self.mail = imaplib.IMAP4_SSL(self.IMAP_SERVER, self.IMAP_PORT)
+            self.mail = imaplib.IMAP4_SSL(self.account.imap_server or self.IMAP_SERVER, self.IMAP_PORT)
             self.mail.login(self.account.login, self.account.password)
             logger.info('[ENEA] Logged into mailbox')
         except imaplib.IMAP4.error as e:
