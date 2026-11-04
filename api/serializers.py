@@ -49,7 +49,7 @@ class RecurringPaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecurringPayment
-        fields = ('id', 'name', 'amount', 'category', 'group', 'day', 'interval_months',
+        fields = ('id', 'name', 'amount', 'amount_variable', 'category', 'group', 'day', 'interval_months',
                   'start_date', 'bank_account_number', 'transfer_title', 'active', 'user')
 
 
@@ -59,7 +59,7 @@ class RecurringMiniSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecurringPayment
-        fields = ('id', 'name', 'group')
+        fields = ('id', 'name', 'group', 'amount_variable')
 
 
 class GetAccountSerializer(serializers.ModelSerializer):
@@ -91,7 +91,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = ['id', 'number', 'date', 'amount', 'pay_deadline', 'start_date',
                     'end_date', 'amount_to_pay', 'wear', 'is_paid', 'consumption_point',
-                    'account', 'recurring', 'category', 'bank_account_number', 'transfer_title']
+                    'account', 'recurring', 'category', 'bank_account_number', 'transfer_title', 'estimated']
 
 
 class PostInvoiceSerializer(serializers.ModelSerializer):

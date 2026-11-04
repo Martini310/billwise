@@ -6,6 +6,7 @@ import {
   CardHeader,
   Chip,
   Divider,
+  IconButton,
   Stack,
   SvgIcon,
   Table,
@@ -22,6 +23,7 @@ import {
 } from '@mui/material'
 import { alpha } from '@mui/material/styles';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
+import EditIcon from '@mui/icons-material/EditOutlined';
 import PropTypes from 'prop-types';
 import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
 import { visuallyHidden } from '@mui/utils';
@@ -107,6 +109,62 @@ const CategoryChip = ({ name }) => {
         '& .MuiChip-icon': { color },
       }}
     />
+  );
+};
+
+
+// Komórka kwoty: dla faktur z opłat cyklicznych edytowalna inline; faktury
+// "szacowane" (zmienna kwota, jeszcze nie potwierdzona) dostają znacznik.
+const AmountCell = ({ row, onEditAmount }) => {
+  const editable = !!row.recurring && !!onEditAmount;
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState(String(row.amount ?? ''));
+
+  React.useEffect(() => { setDraft(String(row.amount ?? '')); }, [row.amount]);
+
+  if (editing) {
+    const commit = () => {
+      setEditing(false);
+      if (draft !== '' && parseFloat(draft) !== row.amount) onEditAmount(row, draft);
+    };
+    return (
+      <TextField
+        autoFocus
+        size="small"
+        type="number"
+        value={draft}
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') { e.stopPropagation(); commit(); }
+          if (e.key === 'Escape') { setDraft(String(row.amount ?? '')); setEditing(false); }
+        }}
+        inputProps={{ style: { textAlign: 'right' } }}
+        sx={{ width: 120 }}
+      />
+    );
+  }
+
+  return (
+    <Stack alignItems="center" direction="row" justifyContent="flex-end" spacing={0.5}>
+      {row.estimated && (
+        <Tooltip title="Kwota szacowana — kliknij ołówek, aby uzupełnić">
+          <Chip size="small" color="warning" variant="outlined" label="do uzupełnienia"
+            sx={{ height: 20, '& .MuiChip-label': { px: 0.75, fontSize: 11 } }} />
+        </Tooltip>
+      )}
+      <Typography variant="subtitle2" sx={{ color: row.estimated ? 'text.secondary' : 'text.primary' }}>
+        {formatCurrency(row.amount)}
+      </Typography>
+      {editable && (
+        <Tooltip title="Edytuj kwotę">
+          <IconButton size="small" onClick={(e) => { e.stopPropagation(); setEditing(true); }}>
+            <EditIcon sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Tooltip>
+      )}
+    </Stack>
   );
 };
 
@@ -253,7 +311,7 @@ EnhancedTableHead.propTypes = {
 
 export default function EnhancedTable(props) {
 
-  const { rows, onTogglePaid } = props
+  const { rows, onTogglePaid, onEditAmount } = props
 
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('date');
@@ -406,7 +464,7 @@ export default function EnhancedTable(props) {
                     <TableCell><GroupTag group={row.account?.group ?? row.recurring?.group} /></TableCell>
                     <TableCell>{formatDate(row.date)}</TableCell>
                     <TableCell align="right">
-                      <Typography variant="subtitle2">{formatCurrency(row.amount)}</Typography>
+                      <AmountCell row={row} onEditAmount={onEditAmount} />
                     </TableCell>
                     <TableCell>{formatDate(row.pay_deadline)}</TableCell>
                     <TableCell

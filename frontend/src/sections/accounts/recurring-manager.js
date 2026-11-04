@@ -11,8 +11,10 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  FormControlLabel,
   IconButton,
   Stack,
+  Switch,
   TextField,
   Typography,
   Unstable_Grid2 as Grid
@@ -34,7 +36,7 @@ const INTERVALS = [
   { value: 12, label: 'co rok' },
 ];
 
-const EMPTY = { name: '', amount: '', category: '', group: '', day: 1, interval_months: 1, start_month: '' };
+const EMPTY = { name: '', amount: '', amount_variable: false, category: '', group: '', day: 1, interval_months: 1, start_month: '' };
 
 export const RecurringManager = ({ onChanged }) => {
   const [items, setItems] = useState([]);
@@ -58,16 +60,20 @@ export const RecurringManager = ({ onChanged }) => {
     setOpen(true);
   };
 
-  const change = (event) => setForm({ ...form, [event.target.name]: event.target.value });
+  const change = (event) => {
+    const { name, type, value, checked } = event.target;
+    setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
+  };
 
   const save = () => {
-    if (!form.name.trim() || !form.amount || !form.category || !form.start_month) {
-      toast.error('Uzupełnij nazwę, kwotę, kategorię i miesiąc początkowy.');
+    if (!form.name.trim() || !form.category || !form.start_month || (!form.amount_variable && !form.amount)) {
+      toast.error('Uzupełnij nazwę, kategorię i miesiąc początkowy (oraz kwotę dla opłaty o stałej kwocie).');
       return;
     }
     const payload = {
       name: form.name.trim(),
-      amount: parseFloat(form.amount),
+      amount: form.amount ? parseFloat(form.amount) : null,
+      amount_variable: !!form.amount_variable,
       category: form.category,
       group: form.group || null,
       day: parseInt(form.day, 10) || 1,
@@ -124,7 +130,9 @@ export const RecurringManager = ({ onChanged }) => {
                   <Box>
                     <Typography variant="subtitle2">{item.name}</Typography>
                     <Typography color="text.secondary" variant="caption">
-                      {formatCurrency(item.amount)} · {intervalLabel(item.interval_months)} · dzień {item.day}
+                      {item.amount_variable
+                        ? `kwota zmienna${item.amount ? ` (~${formatCurrency(item.amount)})` : ''}`
+                        : formatCurrency(item.amount)} · {intervalLabel(item.interval_months)} · dzień {item.day}
                       {item.group ? ` · ${groupName(item.group) ?? 'grupa'}` : ''}
                     </Typography>
                   </Box>
@@ -146,7 +154,21 @@ export const RecurringManager = ({ onChanged }) => {
               <TextField fullWidth label="Nazwa (np. Czynsz)" name="name" value={form.name} onChange={change} />
             </Grid>
             <Grid xs={12} md={4}>
-              <TextField fullWidth label="Kwota" name="amount" type="number" value={form.amount} onChange={change} />
+              <TextField
+                fullWidth
+                label={form.amount_variable ? 'Kwota orientacyjna' : 'Kwota'}
+                name="amount"
+                type="number"
+                value={form.amount}
+                onChange={change}
+                helperText={form.amount_variable ? 'Podpowiedź — wpiszesz realną kwotę co miesiąc' : ' '}
+              />
+            </Grid>
+            <Grid xs={12}>
+              <FormControlLabel
+                control={<Switch name="amount_variable" checked={form.amount_variable} onChange={change} />}
+                label="Kwota zmienna — co miesiąc wpisuję ręcznie (np. kredyt z nadpłatą, żłobek)"
+              />
             </Grid>
             <Grid xs={12} md={6}>
               <TextField fullWidth select SelectProps={{ native: true }} label="Kategoria" name="category" value={form.category} onChange={change}>

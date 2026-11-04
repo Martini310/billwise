@@ -129,6 +129,21 @@ const Page = () => {
       });
   };
 
+  // Edycja kwoty inline dla faktur z opłat cyklicznych o zmiennej kwocie
+  // (optymistycznie + PATCH; zdejmuje flagę 'szacowana').
+  const handleEditAmount = (invoice, rawAmount) => {
+    const amount = parseFloat(rawAmount);
+    if (Number.isNaN(amount) || amount < 0) { toast.error('Podaj poprawną kwotę'); return; }
+    setInvoices((prev) => prev.map((i) => (i.id === invoice.id
+      ? { ...i, amount, amount_to_pay: i.is_paid ? 0 : amount, estimated: false } : i)));
+    axiosInstance.patch(`invoices/${invoice.id}/`, { amount, amount_to_pay: invoice.is_paid ? 0 : amount, estimated: false })
+      .catch(() => {
+        setInvoices((prev) => prev.map((i) => (i.id === invoice.id
+          ? { ...i, amount: invoice.amount, amount_to_pay: invoice.amount_to_pay, estimated: invoice.estimated } : i)));
+        toast.error('Nie udało się zapisać kwoty');
+      });
+  };
+
   // Group of an invoice: provider account's group, or (for manual recurring
   // payments) the recurring payment's group.
   const invoiceGroupId = (inv) => inv.account?.group?.id ?? inv.recurring?.group?.id;
@@ -323,6 +338,7 @@ const Page = () => {
             <EnhancedTable
               rows={shownInvoices}
               onTogglePaid={handleTogglePaid}
+              onEditAmount={handleEditAmount}
             />
           </Grid>
         </Grid>

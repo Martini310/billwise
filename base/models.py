@@ -53,7 +53,8 @@ class Account(models.Model):
 class RecurringPayment(models.Model):
     """Cykliczna opłata spoza dostawców (np. czynsz, śmieci) — generuje faktury."""
     name = models.CharField("Nazwa", max_length=100)
-    amount = models.FloatField("Kwota")
+    amount = models.FloatField("Kwota", null=True, blank=True)
+    amount_variable = models.BooleanField("Kwota zmienna", default=False)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     group = models.ForeignKey(to=Group, related_name='recurring_payments', null=True, blank=True,
                               on_delete=models.SET_NULL)
@@ -91,6 +92,7 @@ class Invoice(models.Model):
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
     bank_account_number = models.CharField(max_length=32, null=True, blank=True)
     transfer_title = models.CharField(max_length=100, null=True, blank=True)
+    estimated = models.BooleanField("Szacowana (do uzupełnienia)", default=False)
 
     def __str__(self):
         return f"[id:{self.pk}] Faktura nr {self.number} za {self.category} dla użytkownika {self.user.username}"
