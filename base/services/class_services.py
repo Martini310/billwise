@@ -85,7 +85,10 @@ class SyncSupplier(ABC):
         invoice_objects = []
         account_fields = [field.name for field in Invoice._meta.get_fields() if field.name not in ['id']]
         for invoice in invoices:
-            kwargs = {key: invoice.get(key) for key in account_fields}
+            # Pomijamy klucze z wartością None, żeby pola z domyślną wartością (np.
+            # estimated=False) oraz pola nullable przyjęły swoje domyślne wartości,
+            # zamiast dostać jawne None (co łamie NOT NULL dla pól z defaultem).
+            kwargs = {key: invoice.get(key) for key in account_fields if invoice.get(key) is not None}
             obj = Invoice(**kwargs)
             invoice_objects.append(obj)
             

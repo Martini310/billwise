@@ -28,6 +28,7 @@ export const AccountProfileDetails = (props) => {
   const [suppliers, setSuppliers] = useState()
   const [groups, setGroups] = useState([])
   const [showPassword, setShowPassword] = useState(false);
+  const [supplierName, setSupplierName] = useState('');
   const router = useRouter()
 
   const [post, setPost] = useState({
@@ -36,6 +37,7 @@ export const AccountProfileDetails = (props) => {
     supplier: '',
     category: '',
     group: '',
+    device_token: '',
   });
 
   // Fetch categories, suppliers and groups
@@ -65,6 +67,7 @@ export const AccountProfileDetails = (props) => {
     const supplierId = event.target.value;
     const supplierName = event.target.options[supplierId]?.text ?? 'Inne';
     setPost({ ...post, 'supplier': supplierId });
+    setSupplierName(supplierName);
     onSupplierChange(supplierName);
   };
 
@@ -144,14 +147,19 @@ export const AccountProfileDetails = (props) => {
                 xs={12}
                 md={6}
               >
-                <TextField
-                  fullWidth
-                  label="eBOK"
-                  name="ebok"
-                  onChange={handleInput}
-                  disabled
-                  value=''
-                />
+                {supplierName === 'iPrzedszkole' ? (
+                  <TextField
+                    fullWidth
+                    helperText="Nazwa jednostki z ekranu logowania iPrzedszkole"
+                    label="Nazwa jednostki"
+                    name="device_token"
+                    onChange={handleInput}
+                    required
+                    value={post.device_token}
+                  />
+                ) : (
+                  <TextField fullWidth label="eBOK" name="ebok" disabled value='' />
+                )}
               </Grid>
               <Grid
                 xs={12}
