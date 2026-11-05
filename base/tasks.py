@@ -40,7 +40,11 @@ def synchronize_data(user_pk=None):
         else:
             accounts = Account.objects.all()
             
+        skip = {s.strip() for s in os.environ.get('SYNC_SKIP_SUPPLIERS', '').split(',') if s.strip()}
         for account in accounts:
+            if account.supplier.name in skip:
+                logger.info(f"[SYNC] Pomijam {account.supplier.name} dla {account.user.username} (SYNC_SKIP_SUPPLIERS)")
+                continue
             if account.notification:
                 logger.error(f"Pominięto pobieranie danych dla konta {account.supplier.name} dla użytkownika {account.user.username}. {account.notification}")
             else:
@@ -48,7 +52,9 @@ def synchronize_data(user_pk=None):
                 try:
                     obj = SupplierClass(account.user.id, account.pk)
                     obj.sync_data()
-                    account.save()
+                    # Nie nadpisuj całego konta — SupplierClass mógł zrotować device_token
+                    # (Plus) na własnej instancji; aktualizujemy tylko znacznik czasu.
+                    account.save(update_fields=['last_sync'])
                 except ValueError as e:
                     account.notification = str(e)
                     account.save(update_fields=['notification'])

@@ -30,6 +30,7 @@ services:
       - DB_HOST=${DB_HOST}
       - PLUS_CLIENT_AUTHORIZATION=${PLUS_CLIENT_AUTHORIZATION}
       - PLUS_PROXY=${PLUS_PROXY}
+      - SYNC_SKIP_SUPPLIERS=${SYNC_SKIP_SUPPLIERS}
     networks:
       - backend-network
     command: sh ./build.sh
@@ -64,6 +65,7 @@ services:
       - DB_HOST=${DB_HOST}
       - PLUS_CLIENT_AUTHORIZATION=${PLUS_CLIENT_AUTHORIZATION}
       - PLUS_PROXY=${PLUS_PROXY}
+      - SYNC_SKIP_SUPPLIERS=${SYNC_SKIP_SUPPLIERS}
     networks:
       - backend-network
     ports: []
