@@ -39,6 +39,10 @@ class SyncPlus(FetchSupplier, SyncSupplier):
     # set PLUS_CLIENT_AUTHORIZATION in .env to the exact `Authorization: Basic ...`
     # header value from the app's POST /oauth/v1/token request.
     CLIENT_AUTHORIZATION = os.environ.get('PLUS_CLIENT_AUTHORIZATION', '')
+    # API danych Plusa potrafi odrzucać IP spoza PL / z datacenter (401 na /balance).
+    # Ustaw PLUS_PROXY (np. http://user:pass@host:port) by przepuścić CAŁY ruch Plusa
+    # — OAuth i API — przez to samo polskie IP (token wystawiany i używany z 1 IP).
+    PROXY = os.environ.get('PLUS_PROXY', '')
     USER_AGENT = 'IOS/27.0.1/Apple'
     APP_VERSION = '2.875.2690'
     APP_BUILD = '28752690'
@@ -73,6 +77,10 @@ class SyncPlus(FetchSupplier, SyncSupplier):
                 'Brak sekretu klienta iPlus — ustaw PLUS_CLIENT_AUTHORIZATION w .env '
                 '(nagłówek Authorization: Basic z żądania POST /oauth/v1/token).'
             )
+
+        if self.PROXY:
+            session.proxies.update({'http': self.PROXY, 'https': self.PROXY})
+            logger.info('[PLUS] Ruch przez PLUS_PROXY')
 
         cfg = self._config()
         self._cfg = cfg

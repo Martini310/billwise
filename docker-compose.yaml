@@ -29,6 +29,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - PLUS_CLIENT_AUTHORIZATION=${PLUS_CLIENT_AUTHORIZATION}
+      - PLUS_PROXY=${PLUS_PROXY}
     networks:
       - backend-network
     command: sh ./build.sh
@@ -62,6 +63,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - PLUS_CLIENT_AUTHORIZATION=${PLUS_CLIENT_AUTHORIZATION}
+      - PLUS_PROXY=${PLUS_PROXY}
     networks:
       - backend-network
     ports: []
