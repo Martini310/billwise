@@ -136,7 +136,13 @@ class SyncPlus(FetchSupplier, SyncSupplier):
             f'{self.BASE_URL}/api/v1/account/billing-account/{bill_account}/balance',
             params={'billsLimit': 12}, verify=False, timeout=30,
         )
-        resp.raise_for_status()
+        if resp.status_code != 200:
+            # Pokaż treść odpowiedzi API — mówi WPROST czemu odmawia (token,
+            # lokalizacja, sesja). ValueError zamiast raise_for_status: nie ponawiamy
+            # 3× na błędzie autoryzacji (każde ponowienie rotowałoby token Plusa).
+            body = (resp.text or '').strip()[:400]
+            logger.error(f'[PLUS] /balance HTTP {resp.status_code}: {body}')
+            raise ValueError(f'Plus /balance HTTP {resp.status_code}: {body or "(pusta odpowiedź)"}')
         return {'bills': resp.json().get('bills', [])}
 
     def _discover_bill_account(self, session):
