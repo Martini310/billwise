@@ -77,13 +77,16 @@ def synchronize_data(user_pk=None):
 # synchronize_data.delay()
 
 @shared_task
-def send_email_notification(to_email, subject, message):
+def send_email_notification(to_email, subject, message, html_message=None):
     """
-    Task to send an email with notification aboout new invoice to the user.
+    Wysyła powiadomienie e-mail o nowej fakturze (tekst + opcjonalny HTML).
     """
+    from django.conf import settings
     logger.info(f"[EMAIL] Sending email to {to_email}")
 
-    code = send_mail(subject, message, 'brzoza3102gmail.com', [to_email], fail_silently=False)
+    from_email = getattr(settings, 'EMAIL_HOST_USER', None) or getattr(settings, 'DEFAULT_FROM_EMAIL', None)
+    code = send_mail(subject, message, from_email, [to_email],
+                     html_message=html_message, fail_silently=False)
 
     logger.info(f"[EMAIL] Email sent to {to_email} with code {code}")
 

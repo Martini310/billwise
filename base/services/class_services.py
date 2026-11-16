@@ -150,11 +150,14 @@ class SyncSupplier(ABC):
 
                     if current_invoice_count > 0:
                         from ..tasks import send_email_notification
+                        from .email_templates import new_invoice_email
                         for invoice in new_invoice_objects:
+                            subject, text, html = new_invoice_email(invoice)
                             send_email_notification.delay(
                                 to_email=invoice.user.email,
-                                subject='[Billwise] Nowa faktura od ' + invoice.account.supplier.name,
-                                message='Uprzejmie informujemy, że otrzymałeś nową fakturę od ' + invoice.account.supplier.name + '. Możesz zobaczyć ją w panelu użytkownika na https://billwise-two.vercel.app'
+                                subject=subject,
+                                message=text,
+                                html_message=html,
                             )
 
                     # Update existing invoices in the database if necessary
