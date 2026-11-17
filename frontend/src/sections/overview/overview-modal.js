@@ -11,6 +11,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
+  maxWidth: '85%',
   width: 400,
   bgcolor: 'background.paper',
   border: '2px solid #000',
@@ -24,7 +25,7 @@ const verboseNames = {
   date: 'Data faktury',
   amount: 'Kwota',
   pay_deadline: 'Termin',
-  start_date: 'Data począrkowa',
+  start_date: 'Data początkowa',
   end_date: 'Data końcowa',
   amount_to_pay: 'Do zapłaty',
   wear: 'Zużycie',
@@ -81,20 +82,20 @@ export const BasicModal = (props) => {
 
               return (
                 <React.Fragment key={key}>
-                  <Grid xs={12} md={6}>
+                  <Grid xs={6}>
                     <Typography variant='modalkey' id="modal-modal-key" sx={{ mt: 2 }}>
                         {verboseName}
                     </Typography>
                   </Grid>
-                  <Grid xs={12} md={6}>
+                  <Grid xs={6}>
                     <Typography variant='modalvalue' id="modal-modal-value" sx={{ mt: 2 }}>
                         {displayValue}
                     </Typography>
                   </Grid>
-                  <Grid xs={12} md={6}>
+                  <Grid xs={6}>
                     <Divider variant="fullWidth" sx={{ borderBottom: '1px solid lightgrey' }}/>
                   </Grid>
-                  <Grid xs={12} md={6}>
+                  <Grid xs={6}>
                     <Divider variant="fullWidth" sx={{ borderBottom: '1px solid lightgrey' }}/>
                   </Grid>
                 </React.Fragment>
